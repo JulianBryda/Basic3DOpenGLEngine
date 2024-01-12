@@ -1,0 +1,198 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Libraries">
+      <UniqueIdentifier>{1346f3fc-9a91-4058-bccf-bdedcb7cbf59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer">
+      <UniqueIdentifier>{ee0e2b7b-321f-499e-8019-f472f12ff4e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Renderer">
+      <UniqueIdentifier>{403aa3e5-2666-42c1-81ab-e9f1a394058e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Renderer\Pipeline">
+      <UniqueIdentifier>{5f5f7b9c-c247-4f0f-b15a-8ce2ec5a05c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\Pipeline">
+      <UniqueIdentifier>{26168db7-b34d-4a90-8a42-969f772f44a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Objects">
+      <UniqueIdentifier>{0d8a494d-006d-4821-8bf6-84197198b1ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Objects">
+      <UniqueIdentifier>{2516fc7f-c724-41e6-9d5d-deb32818c6f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\Shader">
+      <UniqueIdentifier>{dc623351-ee5b-4bc3-a040-b7e9803909ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\Shader\Vertex">
+      <UniqueIdentifier>{66f1b279-70a0-4059-ab1a-19b9827b6ac4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\Shader\Fragment">
+      <UniqueIdentifier>{eacc3d35-56d3-4bf2-b3a9-912727cd4264}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader">
+      <UniqueIdentifier>{37af62da-1923-40f0-b4f8-5908c5eb0ca2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Objects\Physics">
+      <UniqueIdentifier>{be3cd71c-a21c-458b-9dc6-611f87738366}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Objects\Base">
+      <UniqueIdentifier>{a679c38a-5367-4230-a88c-2d819f5ffd76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Libraries">
+      <UniqueIdentifier>{ebb0ecd5-77eb-4197-95c5-b587c045fd69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Libraries\Imgui">
+      <UniqueIdentifier>{07301700-4cb1-4f99-b3a5-6a63fb22d9ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Libraries\Imgui">
+      <UniqueIdentifier>{cc61fb18-3ba2-465b-ac8a-be14848b6504}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Objects\Base">
+      <UniqueIdentifier>{20c4feb0-af94-44a2-821c-57dbabad4604}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\PhysicEngine">
+      <UniqueIdentifier>{1db627f9-6deb-4690-926b-f383f1fec302}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\PhysicEngine">
+      <UniqueIdentifier>{6c163a8e-67ff-4db1-8b19-0ac80f3618eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Libraries\stb">
+      <UniqueIdentifier>{0152d679-4216-45c3-97b2-edcd84572971}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="FuckWindows.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glad.c">
+      <Filter>Source Files\Libraries</Filter>
+    </ClCompile>
+    <ClCompile Include="RendererPipeline.cpp">
+      <Filter>Source Files\Renderer\Pipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_demo.cpp">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_draw.cpp">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_impl_glfw.cpp">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_impl_opengl3.cpp">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_tables.cpp">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_widgets.cpp">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui.cpp">
+      <Filter>Source Files\Libraries\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImguiRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicEngine.cpp">
+      <Filter>Source Files\PhysicEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Source Files\Objects\Base</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="InputHandler.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RendererPipeline.hpp">
+      <Filter>Header Files\Renderer\Pipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.hpp">
+      <Filter>Header Files\Renderer\Pipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectRenderer.hpp">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.hpp">
+      <Filter>Header Files\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicalizedObject.hpp">
+      <Filter>Header Files\Objects\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.hpp">
+      <Filter>Header Files\Objects\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="ImguiRenderer.hpp">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imstb_textedit.h">
+      <Filter>Header Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imstb_truetype.h">
+      <Filter>Header Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imconfig.h">
+      <Filter>Header Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imgui.h">
+      <Filter>Header Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imgui_impl_glfw.h">
+      <Filter>Header Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imgui_impl_opengl3.h">
+      <Filter>Header Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imgui_impl_opengl3_loader.h">
+      <Filter>Header Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imgui_internal.h">
+      <Filter>Header Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imstb_rectpack.h">
+      <Filter>Header Files\Libraries\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Primitives.hpp">
+      <Filter>Header Files\Objects\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicEngine.hpp">
+      <Filter>Header Files\PhysicEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicalizedGameObject.hpp">
+      <Filter>Header Files\Objects\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="SquareObject.hpp">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Skybox.hpp">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Header Files\Libraries\stb</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="v_color.glsl">
+      <Filter>Source Files\Renderer\Shader\Vertex</Filter>
+    </None>
+    <None Include="f_color.glsl">
+      <Filter>Source Files\Renderer\Shader\Fragment</Filter>
+    </None>
+    <None Include="cpp.hint" />
+  </ItemGroup>
+</Project>
