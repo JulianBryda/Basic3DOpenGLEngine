@@ -9,8 +9,6 @@
 #include "RendererPipeline.hpp"
 #include "ObjectRenderer.hpp"
 #include "Primitives.hpp"
-#include "PhysicEngine.hpp"
-#include "SquareObject.hpp"
 
 class ImguiRenderer : public Renderer
 {

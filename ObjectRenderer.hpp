@@ -4,8 +4,8 @@
 
 #include "Renderer.hpp"
 #include "Shader.hpp"
-#include "GameObject.hpp"
-#include "PhysicalizedGameObject.hpp"
+#include "GameObject.h"
+#include "Shader.hpp"
 
 class ObjectRenderer : public Renderer
 {
@@ -14,34 +14,40 @@ public:
 
 	ObjectRenderer(RendererType type) : Renderer(type)
 	{
-		m_shader = new Shader("v_color.glsl", "f_color.glsl");
-		
 		GameObject::loadTexture("default.jpg", &defaultTexture);
 	}
 
 	void render() override
 	{
-        m_shader->use();
-		m_shader->setFloat4("color", glm::vec4(1.0f));
-
 		for (auto& object : m_objects)
 		{
-			m_shader->setMat4("model", object->getModelMatrix());
-			m_shader->setMat4("scale", object->getScaleMatrix());
-			m_shader->setMat4("projection", projection);
-			m_shader->setMat4("view", view);
+			Shader* shader = object->getShaderPtr();
 
-			if (object->getTexture() != 0) m_shader->setTexture(GL_TEXTURE_2D, object->getTexture());
-			else m_shader->setTexture(GL_TEXTURE_2D, defaultTexture);
+			shader->use();
+			shader->setFloat4("color", glm::vec4(1.0f));
 
-			auto physicObject = dynamic_cast<PhysicalizedGameObject*>(object);
+			shader->setMat4("model", object->getModelMatrix());
+			shader->setMat4("scale", object->getScaleMatrix());
+			shader->setMat4("projection", projection);
+			shader->setMat4("view", view);
 
-			if (physicObject != nullptr && physicObject->getIsDrawCollisionBox())
+			if (object->getTexture() != 0) shader->setTexture(GL_TEXTURE_2D, object->getTexture());
+			else shader->setTexture(GL_TEXTURE_2D, defaultTexture);
+
+			object->draw();
+
+
+			// draw hitbox?
+
+			if (object->getIsDrawCollider())
 			{
-				physicObject->drawCollisionBox();
-			}
+				shader->setFloat4("color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
-			object->draw();		
+				shader->setMat4("model", object->getColliderPtr()->getModelMatrix());
+				shader->setMat4("scale", object->getColliderPtr()->getScaleMatrix());
+
+				object->drawCollider();
+			}
 		}
 
 	}
@@ -58,10 +64,10 @@ public:
 
 private:
 
-	Shader* m_shader;
-
 	GLuint defaultTexture;
 
 	std::vector<GameObject*> m_objects;
+
+	Shader* hitboxShader;
 
 };

@@ -73,6 +73,9 @@
     <Filter Include="Header Files\Libraries\stb">
       <UniqueIdentifier>{0152d679-4216-45c3-97b2-edcd84572971}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Objects\Physics">
+      <UniqueIdentifier>{25227561-79cb-43cd-81d7-b7468766d962}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FuckWindows.cpp">
@@ -114,6 +117,12 @@
     <ClCompile Include="GameObject.cpp">
       <Filter>Source Files\Objects\Base</Filter>
     </ClCompile>
+    <ClCompile Include="GameObjectCollisions.cpp">
+      <Filter>Source Files\Objects\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjectPhysics.cpp">
+      <Filter>Source Files\Objects\Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InputHandler.hpp">
@@ -131,10 +140,7 @@
     <ClInclude Include="Shader.hpp">
       <Filter>Header Files\Shader</Filter>
     </ClInclude>
-    <ClInclude Include="PhysicalizedObject.hpp">
-      <Filter>Header Files\Objects\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="GameObject.hpp">
+    <ClInclude Include="GameObject.h">
       <Filter>Header Files\Objects\Base</Filter>
     </ClInclude>
     <ClInclude Include="ImguiRenderer.hpp">
@@ -173,17 +179,20 @@
     <ClInclude Include="PhysicEngine.hpp">
       <Filter>Header Files\PhysicEngine</Filter>
     </ClInclude>
-    <ClInclude Include="PhysicalizedGameObject.hpp">
-      <Filter>Header Files\Objects\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="SquareObject.hpp">
-      <Filter>Header Files\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="Skybox.hpp">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
     <ClInclude Include="stb_image.h">
       <Filter>Header Files\Libraries\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjectPhysics.h">
+      <Filter>Header Files\Objects\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjectCollisions.h">
+      <Filter>Header Files\Objects\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Collider.hpp">
+      <Filter>Header Files\Objects\Base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

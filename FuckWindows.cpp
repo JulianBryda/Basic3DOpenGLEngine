@@ -2,7 +2,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "GameObject.hpp"
+#include "GameObject.h"
 #include "InputHandler.hpp"
 #include "RendererPipeline.hpp"
 #include "ObjectRenderer.hpp"

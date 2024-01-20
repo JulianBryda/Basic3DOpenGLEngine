@@ -3,12 +3,11 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 
-#include "PhysicalizedObject.hpp"
-#include "SquareObject.hpp"
-
+#include "GameObject.h"
 
 class PhysicEngine
 {
+
 public:
 
 	static void update()
@@ -39,21 +38,17 @@ public:
 			{
 				if (obj != m_physicalizedObjects[j] && obj->checkBoundingBoxCollision(m_physicalizedObjects[j]))
 				{
-					glm::vec3 direction = glm::normalize(position - m_physicalizedObjects[j]->getPosition());
+					if (obj->checkBoundingBoxCollisionX(m_physicalizedObjects[j]))
 					{
-						if (direction.x <= 0) direction.x += 1.0f;
-						else direction.x -= 1.0f;
-
-						if (direction.y <= 0) direction.y += 1.0f;
-						else direction.y -= 1.0f;
-
-						if (direction.z <= 0) direction.z += 1.0f;
-						else direction.z -= 1.0f;
+						obj->setVelocity(velocity * glm::vec3(0.0f, 1.0f, 1.0f));
+						isColliding = true;
 					}
 
-					obj->setVelocity(velocity * direction);
-					isColliding = true;
-					break;
+					if (obj->checkBoundingBoxCollisionY(m_physicalizedObjects[j]))
+					{
+						obj->setVelocity(velocity * glm::vec3(1.0f, 0.0f, 1.0f));
+						isColliding = true;
+					}
 				}
 			}
 
@@ -68,12 +63,17 @@ public:
 		}
 	}
 
-	static void addObject(PhysicalizedGameObject* obj)
+	static void addObject(GameObject* obj)
 	{
 		m_physicalizedObjects.push_back(obj);
 	}
 
-	static PhysicalizedGameObject* getObject(GameObject* object)
+	static void removeObject(GameObject* obj)
+	{
+		m_physicalizedObjects.erase(std::remove(m_physicalizedObjects.begin(), m_physicalizedObjects.end(), obj), m_physicalizedObjects.end());
+	}
+
+	static GameObject* getObject(GameObject* object)
 	{
 		for (size_t i = 0; i < m_physicalizedObjects.size(); i++)
 		{
@@ -95,7 +95,7 @@ private:
 		lastFrameTime = currentFrameTime;
 	}
 
-	static std::vector<PhysicalizedGameObject*> m_physicalizedObjects;
+	static std::vector<GameObject*> m_physicalizedObjects;
 
 	static float deltaTime, lastFrameTime;
 

@@ -136,6 +136,8 @@
   <ItemGroup>
     <ClCompile Include="FuckWindows.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="GameObjectCollisions.cpp" />
+    <ClCompile Include="GameObjectPhysics.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="ImguiRenderer.cpp" />
     <ClCompile Include="Imgui\imgui.cpp" />
@@ -149,7 +151,10 @@
     <ClCompile Include="RendererPipeline.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GameObject.hpp" />
+    <ClInclude Include="Collider.hpp" />
+    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="GameObjectCollisions.h" />
+    <ClInclude Include="GameObjectPhysics.h" />
     <ClInclude Include="ImguiRenderer.hpp" />
     <ClInclude Include="Imgui\imconfig.h" />
     <ClInclude Include="Imgui\imgui.h" />
@@ -162,15 +167,12 @@
     <ClInclude Include="Imgui\imstb_truetype.h" />
     <ClInclude Include="InputHandler.hpp" />
     <ClInclude Include="ObjectRenderer.hpp" />
-    <ClInclude Include="PhysicalizedGameObject.hpp" />
-    <ClInclude Include="PhysicalizedObject.hpp" />
     <ClInclude Include="PhysicEngine.hpp" />
     <ClInclude Include="Primitives.hpp" />
     <ClInclude Include="Renderer.hpp" />
     <ClInclude Include="RendererPipeline.hpp" />
     <ClInclude Include="Shader.hpp" />
     <ClInclude Include="Skybox.hpp" />
-    <ClInclude Include="SquareObject.hpp" />
     <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>

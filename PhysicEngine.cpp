@@ -1,5 +1,5 @@
 #include "PhysicEngine.hpp"
 
-std::vector<PhysicalizedGameObject*> PhysicEngine::m_physicalizedObjects;
+std::vector<GameObject*> PhysicEngine::m_physicalizedObjects;
 
 float PhysicEngine::deltaTime, PhysicEngine::lastFrameTime;

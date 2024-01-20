@@ -1,14 +1,14 @@
 #pragma once
 #include <iostream>
 
-#include "GameObject.hpp"
+#include "GameObject.h"
 
 class Skybox : public GameObject
 {
 
 public:
 
-	Skybox(std::string name, std::vector<glm::vec3> vertices, std::vector<GLuint> indices) : GameObject(name, vertices, indices)
+	Skybox(std::string name, std::vector<glm::vec3> vertices, std::vector<GLuint> indices) : GameObject(name, vertices, indices, "color")
 	{
 
 	}

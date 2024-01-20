@@ -131,6 +131,7 @@ public:
         glBindTexture(type, texture);
     }
 
+
 private:
 
     GLuint Id;
