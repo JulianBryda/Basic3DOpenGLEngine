@@ -9,13 +9,15 @@
 #include "Shader.hpp"
 #include "GameObjectPhysics.h"
 #include "GameObjectCollisions.h"
+#include "ObjectLoader.hpp"
 
 class GameObject : public GameObjectPhysics, public GameObjectCollisions
 {
 
 public:
 
-	GameObject(std::string name, std::vector<glm::vec3> vertices, std::vector<GLuint> indices, std::string shader_name);
+	GameObject(std::string name, std::string path, std::string shader_name, ColliderType colliderType);
+	GameObject(std::string name, std::vector<glm::vec3> vertices, std::vector<GLuint> indices, std::string shader_name, ColliderType colliderType);
 
 	virtual void genBuffers();
 	virtual void updateBuffers();
@@ -50,7 +52,10 @@ public:
 protected:
 
 	GLuint vao;
+
 	std::vector<GLuint> indices;
+
+	glm::vec3 position;
 
 private:
 
@@ -60,7 +65,7 @@ private:
 
 	std::vector<glm::vec3> vertices;
 
-	glm::vec3 position, rotation, scale;
+	glm::vec3 rotation, scale;
 
 	Shader* m_shader;
 

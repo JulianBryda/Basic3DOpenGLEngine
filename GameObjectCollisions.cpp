@@ -1,7 +1,7 @@
 #include "GameObjectCollisions.h"
 #include "GameObject.h"
 
-GameObjectCollisions::GameObjectCollisions(GameObject* gameObject)
+GameObjectCollisions::GameObjectCollisions(GameObject* gameObject, ColliderType colliderType)
 {
 	this->vao = 0;
 	this->vbo = 0;
@@ -10,7 +10,7 @@ GameObjectCollisions::GameObjectCollisions(GameObject* gameObject)
 	this->gameObject = gameObject;
 	this->isDrawCollider = false;
 	this->isCollisionEnabled = false;
-	this->collider = new Collider(gameObject->getPositionPtr(), gameObject->getScale());
+	this->collider = new Collider(gameObject->getPositionPtr(), gameObject->getScale(), colliderType);
 }
 
 
@@ -53,9 +53,12 @@ bool GameObjectCollisions::checkBoundingBoxCollisionZ(GameObject* object)
 }
 
 
-bool GameObjectCollisions::checkCirlceCollision(GameObject* object)
+bool GameObjectCollisions::checkCircularCollision(GameObject* object)
 {
-	return false;
+	float distance = glm::length(*this->getColliderPtr()->getAnchorPositionPtr() - *object->getColliderPtr()->getAnchorPositionPtr());
+	distance = abs(distance);
+
+	return distance < this->getColliderPtr()->getScale().x + object->getColliderPtr()->getScale().x;
 }
 
 bool GameObjectCollisions::checkSATCollision(GameObject* object)

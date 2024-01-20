@@ -2,24 +2,34 @@
 #include "glm/glm.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
+enum ColliderType
+{
+	BoundingBox,
+	Circular,
+	NONE
+};
+
 class Collider
 {
 
 public:
 
-	Collider(glm::vec3* anchor, glm::vec3 scale)
+	Collider(glm::vec3* anchor, glm::vec3 scale, ColliderType colliderType)
 	{
 		this->anchor = anchor;
 		this->scale = scale;
+		this->colliderType = colliderType;
 	}
 
 	// getter
-	glm::vec3* getAnchorPositionPtr() { return anchor; }
-	glm::vec3 getScale() const { return scale; }
-	glm::vec3* getScalePtr() { return &scale; }
+	glm::vec3* getAnchorPositionPtr() { return this->anchor; }
+	glm::vec3 getScale() const { return this->scale; }
+	glm::vec3* getScalePtr() { return &this->scale; }
 
 	glm::mat4 getModelMatrix() const { return glm::translate(glm::mat4(1.0f), *anchor); }
 	glm::mat4 getScaleMatrix() const { return glm::scale(glm::mat4(1.0f), scale); }
+
+	ColliderType getColliderType() const { return this->colliderType; }
 
 
 	// setter
@@ -31,4 +41,5 @@ private:
 	glm::vec3* anchor;
 	glm::vec3 scale;
 
+	ColliderType colliderType;
 };

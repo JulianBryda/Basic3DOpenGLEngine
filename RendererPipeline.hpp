@@ -21,7 +21,7 @@ public:
 
 			for (auto& it = values.first; it != values.second; ++it)
 			{
-				it->second->render();
+				it->second->render(cameras[activeCameraIndex]);
 			}
 		}
 	}
@@ -37,8 +37,42 @@ public:
 		return rendererMap;
 	}
 
+	static void addCamera(Camera* camera)
+	{
+		cameras.push_back(camera);
+	}
+
+	static void deleteCamera(Camera* camera)
+	{
+		cameras.erase(std::remove(cameras.begin(), cameras.end(), camera), cameras.end());
+
+		delete camera;
+	}
+
+	static void setActiveCamera(int index)
+	{
+		activeCameraIndex = index;
+	}
+
+	static Camera* getActiveCamera()
+	{
+		return cameras[activeCameraIndex];
+	}
+
+	static std::vector<Camera*> getCameras()
+	{
+		return cameras;
+	}
+
+	static int getActiveCameraIndex()
+	{
+		return activeCameraIndex;
+	}
+
 private:
 
 	static std::multimap<RendererType, Renderer*> rendererMap;
+	static std::vector<Camera*> cameras;
+	static int activeCameraIndex;
 
 };

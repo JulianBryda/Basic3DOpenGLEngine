@@ -37,7 +37,7 @@ public:
 		ImGui::DestroyContext();
 	}
 
-	void render() override
+	void render(Camera* activeCamera) override
 	{
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();

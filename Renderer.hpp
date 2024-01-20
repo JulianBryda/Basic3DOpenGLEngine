@@ -3,6 +3,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
+#include "Camera.hpp"
+
 enum RendererType
 {
 	Object,
@@ -20,16 +22,9 @@ public:
 	Renderer(RendererType type)
 	{
 		this->type = type;
-		this->projection = glm::ortho(-1280.0f * 0.05f, 1280.0f * 0.05f, -720.0f * 0.05f, 720.0f * 0.05f, 0.1f, 100.0f);
-		this->view = glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
-	virtual void render() = 0;
-
-
-protected:
-
-	glm::mat4 projection, view;
+	virtual void render(Camera* activeCamera) = 0;
 
 private:
 

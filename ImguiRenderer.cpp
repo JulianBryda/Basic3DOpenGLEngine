@@ -1,5 +1,5 @@
 #include "ImguiRenderer.hpp"
-
+#include "ObjectLoader.hpp"
 
 void ImguiRenderer::renderMenuBar()
 {
@@ -7,13 +7,25 @@ void ImguiRenderer::renderMenuBar()
 	{
 		if (ImGui::BeginMenu("Objects"))
 		{
-			if (ImGui::MenuItem("Square"))
+			if (ImGui::MenuItem("Cube"))
 			{
 				auto value = RendererPipeline::getRendererMap().find(RendererType::Object)->second;
 				if (value != nullptr)
 				{
 					auto renderer = static_cast<ObjectRenderer*>(value);
-					GameObject* obj = new GameObject(std::format("Square{}", renderer->getObjects().size()), Primitives::getSquareVertices(), Primitives::getSquareIndices(), "color");
+					GameObject* obj = new GameObject(std::format("Cube{}", renderer->getObjects().size()), "C:\\Users\\Julian\\source\\repos\\FuckWindows\\Assets\\Objects\\Cube.obj", "color", ColliderType::BoundingBox);
+					obj->setIsPhysicsEnabled(true);
+
+					renderer->addObject(obj);
+				}
+			}
+			if (ImGui::MenuItem("Sphere"))
+			{
+				auto value = RendererPipeline::getRendererMap().find(RendererType::Object)->second;
+				if (value != nullptr)
+				{
+					auto renderer = static_cast<ObjectRenderer*>(value);
+					GameObject* obj = new GameObject(std::format("Sphere{}", renderer->getObjects().size()), "C:\\Users\\Julian\\source\\repos\\FuckWindows\\Assets\\Objects\\Sphere.obj", "color", ColliderType::Circular);
 					obj->setIsPhysicsEnabled(true);
 
 					renderer->addObject(obj);
@@ -31,8 +43,45 @@ void ImguiRenderer::renderMenuBar()
 		}
 		else if (ImGui::BeginMenu("View"))
 		{
+			if (ImGui::MenuItem("Add Ortho"))
+			{
+				Camera* camera = new Camera(std::format("Camera{}", RendererPipeline::getCameras().size()), true);
+				camera->setPosition(glm::vec3(0.0f, 0.0f, 1.0f));
+
+				RendererPipeline::addCamera(camera);
+			}
+
+			if (ImGui::MenuItem("Add Pers"))
+			{
+				Camera* camera = new Camera(std::format("Camera{}", RendererPipeline::getCameras().size()), false);
+				camera->setPosition(glm::vec3(0.0f, 0.0f, 1.0f));
+
+				RendererPipeline::addCamera(camera);
+			}
+
 			ImGui::Checkbox("Show Debug Info", &m_showDebugInfo);
 
+			for (size_t i = 0; i < RendererPipeline::getCameras().size(); i++)
+			{
+				if (ImGui::Checkbox(RendererPipeline::getCameras()[i]->getName().c_str(), new bool(i == RendererPipeline::getActiveCameraIndex())))
+				{
+					RendererPipeline::setActiveCamera(i);
+				}
+			}
+
+
+			ImGui::EndMenu();
+		}
+		else if (ImGui::BeginMenu("Test"))
+		{
+			if (ImGui::Button("Test File"))
+			{
+				std::vector<glm::vec3> vertices;
+				std::vector<GLuint> indices;
+
+				ObjectLoader::LoadObjFile("C:\\Users\\Julian\\source\\repos\\FuckWindows\\Assets\\Objects\\Cube.obj", vertices, indices);
+				auto test = 0;
+			}
 
 			ImGui::EndMenu();
 		}
@@ -139,6 +188,9 @@ void ImguiRenderer::renderObjectManager()
 						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
 						ImGui::InputFloat("##3", selObj->getLinearDragPtr());
 
+
+
+
 						ImGui::Checkbox("Gravity", selObj->getIsGravityEnabledPtr());
 
 						ImGui::Spacing();
@@ -176,7 +228,7 @@ void ImguiRenderer::renderObjectManager()
 
 						// set collisions
 						selObj->setIsCollisionEnabled(*collisionEnabled);
-						
+
 						// cleanup
 						delete collisionEnabled;
 					}

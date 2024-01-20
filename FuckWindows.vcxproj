@@ -147,10 +147,12 @@
     <ClCompile Include="Imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="Imgui\imgui_tables.cpp" />
     <ClCompile Include="Imgui\imgui_widgets.cpp" />
+    <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="PhysicEngine.cpp" />
     <ClCompile Include="RendererPipeline.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.hpp" />
     <ClInclude Include="Collider.hpp" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameObjectCollisions.h" />
@@ -178,6 +180,7 @@
   <ItemGroup>
     <None Include="cpp.hint" />
     <None Include="f_color.glsl" />
+    <None Include="ObjectLoader.hpp" />
     <None Include="v_color.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

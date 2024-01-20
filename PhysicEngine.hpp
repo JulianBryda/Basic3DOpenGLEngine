@@ -36,19 +36,42 @@ public:
 
 			for (size_t j = 0; j < m_physicalizedObjects.size(); j++)
 			{
-				if (obj != m_physicalizedObjects[j] && obj->checkBoundingBoxCollision(m_physicalizedObjects[j]))
-				{
-					if (obj->checkBoundingBoxCollisionX(m_physicalizedObjects[j]))
-					{
-						obj->setVelocity(velocity * glm::vec3(0.0f, 1.0f, 1.0f));
-						isColliding = true;
-					}
+				if (!m_physicalizedObjects[j]->getIsCollisionEnabled()) continue;
 
-					if (obj->checkBoundingBoxCollisionY(m_physicalizedObjects[j]))
+				// check which collision algorithm to use
+				switch (obj->getColliderPtr()->getColliderType())
+				{
+				case ColliderType::BoundingBox:
+				{
+					if (obj != m_physicalizedObjects[j] && obj->checkBoundingBoxCollision(m_physicalizedObjects[j]))
 					{
-						obj->setVelocity(velocity * glm::vec3(1.0f, 0.0f, 1.0f));
+						if (obj->checkBoundingBoxCollisionX(m_physicalizedObjects[j]))
+						{
+							obj->setVelocity(velocity * glm::vec3(0.0f, 1.0f, 1.0f));
+							isColliding = true;
+						}
+
+						if (obj->checkBoundingBoxCollisionY(m_physicalizedObjects[j]))
+						{
+							obj->setVelocity(velocity * glm::vec3(1.0f, 0.0f, 1.0f));
+							isColliding = true;
+						}
+					}
+					break;
+				}
+				case ColliderType::Circular:
+				{
+					if (obj != m_physicalizedObjects[j] && obj->checkCircularCollision(m_physicalizedObjects[j]))
+					{
+						obj->setVelocity(glm::vec3(0.0f));
 						isColliding = true;
 					}
+					break;
+				}
+				default:
+				{
+					break;
+				}
 				}
 			}
 

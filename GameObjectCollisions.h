@@ -11,7 +11,7 @@ class GameObjectCollisions
 
 public:
 
-	GameObjectCollisions(GameObject* gameObject);
+	GameObjectCollisions(GameObject* gameObject, ColliderType colliderType);
 
 	~GameObjectCollisions();
 
@@ -24,7 +24,7 @@ public:
 	bool checkBoundingBoxCollisionY(GameObject* object);
 	bool checkBoundingBoxCollisionZ(GameObject* object);
 
-	bool checkCirlceCollision(GameObject* object);
+	bool checkCircularCollision(GameObject* object);
 	bool checkSATCollision(GameObject* object);
 
 

@@ -76,6 +76,9 @@
     <Filter Include="Source Files\Objects\Physics">
       <UniqueIdentifier>{25227561-79cb-43cd-81d7-b7468766d962}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Loader">
+      <UniqueIdentifier>{8c5393ec-0d40-4030-8906-125215e2bda4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FuckWindows.cpp">
@@ -122,6 +125,9 @@
     </ClCompile>
     <ClCompile Include="GameObjectPhysics.cpp">
       <Filter>Source Files\Objects\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="InputHandler.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -194,6 +200,9 @@
     <ClInclude Include="Collider.hpp">
       <Filter>Header Files\Objects\Base</Filter>
     </ClInclude>
+    <ClInclude Include="Camera.hpp">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="v_color.glsl">
@@ -203,5 +212,8 @@
       <Filter>Source Files\Renderer\Shader\Fragment</Filter>
     </None>
     <None Include="cpp.hint" />
+    <None Include="ObjectLoader.hpp">
+      <Filter>Header Files\Loader</Filter>
+    </None>
   </ItemGroup>
 </Project>

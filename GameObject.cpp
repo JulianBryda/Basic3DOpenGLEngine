@@ -3,7 +3,7 @@
 #include "stb_image.h"
 
 
-GameObject::GameObject(std::string name, std::vector<glm::vec3> vertices, std::vector<GLuint> indices, std::string shader_name) : GameObjectCollisions(this), GameObjectPhysics(this)
+GameObject::GameObject(std::string name, std::vector<glm::vec3> vertices, std::vector<GLuint> indices, std::string shader_name, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
 {
 	this->name = name;
 	this->vertices = vertices;
@@ -13,6 +13,20 @@ GameObject::GameObject(std::string name, std::vector<glm::vec3> vertices, std::v
 	this->scale = glm::vec3(5.0f);
 
 	this->m_shader = new Shader(std::format("v_{}.glsl", shader_name).c_str(), std::format("f_{}.glsl", shader_name).c_str());
+
+	genBuffers();
+}
+
+GameObject::GameObject(std::string name, std::string path, std::string shader_name, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
+{
+	this->name = name;
+	this->position = glm::vec3(0.0f);
+	this->rotation = glm::vec3(0.0f);
+	this->scale = glm::vec3(5.0f);
+
+	this->m_shader = new Shader(std::format("v_{}.glsl", shader_name).c_str(), std::format("f_{}.glsl", shader_name).c_str());
+
+	ObjectLoader::LoadObjFile(path, this->vertices, this->indices);
 
 	genBuffers();
 }

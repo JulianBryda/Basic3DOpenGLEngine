@@ -14,10 +14,14 @@ public:
 
 	ObjectRenderer(RendererType type) : Renderer(type)
 	{
+		Camera* camera = new Camera("Camera", false);
+		camera->setPosition(glm::vec3(0.0f, 0.0f, 1.0f));
+		RendererPipeline::addCamera(camera);
+
 		GameObject::loadTexture("default.jpg", &defaultTexture);
 	}
 
-	void render() override
+	void render(Camera* activeCamera) override
 	{
 		for (auto& object : m_objects)
 		{
@@ -28,8 +32,8 @@ public:
 
 			shader->setMat4("model", object->getModelMatrix());
 			shader->setMat4("scale", object->getScaleMatrix());
-			shader->setMat4("projection", projection);
-			shader->setMat4("view", view);
+			shader->setMat4("projection", activeCamera->getProjectionMatrix());
+			shader->setMat4("view", activeCamera->getViewMatrix());
 
 			if (object->getTexture() != 0) shader->setTexture(GL_TEXTURE_2D, object->getTexture());
 			else shader->setTexture(GL_TEXTURE_2D, defaultTexture);
@@ -67,7 +71,5 @@ private:
 	GLuint defaultTexture;
 
 	std::vector<GameObject*> m_objects;
-
-	Shader* hitboxShader;
 
 };
