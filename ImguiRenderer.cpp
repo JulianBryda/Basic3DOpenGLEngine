@@ -159,70 +159,106 @@ void ImguiRenderer::renderObjectManager()
 
 					float* pos[3] = { &selObj->getPositionPtr()->x, &selObj->getPositionPtr()->y, &selObj->getPositionPtr()->z };
 					float* scale[3] = { &selObj->getScalePtr()->x, &selObj->getScalePtr()->y, &selObj->getScalePtr()->z };
+					float* color[4] = { &selObj->getMaterialPtr()->getColorPtr()->x, &selObj->getMaterialPtr()->getColorPtr()->y, &selObj->getMaterialPtr()->getColorPtr()->z, &selObj->getMaterialPtr()->getColorPtr()->w };
 
 					ImGui::Text("Selected Object: %s", selObj->getName().c_str());
 					ImGui::Separator();
 
-					ImGui::Text("Position");
-					ImGui::SameLine();
-					ImGui::SetCursorPosX(ImGui::GetCursorPosX());
-					ImGui::InputFloat3("##0", *pos);
+					if (ImGui::TreeNode("Object"))
+					{
+						ImGui::Text("Position");
+						ImGui::SameLine();
+						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+						ImGui::InputFloat3("##0", *pos);
 
-					ImGui::Text("Scale");
-					ImGui::SameLine();
-					ImGui::SetCursorPosX(ImGui::GetCursorPosX());
-					ImGui::InputFloat3("##1", *scale);
+						ImGui::Text("Scale");
+						ImGui::SameLine();
+						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+						ImGui::InputFloat3("##1", *scale);
+
+						ImGui::TreePop();
+					}
+
+					if (ImGui::TreeNode("Material"))
+					{
+						ImGui::Text(std::format("Loaded Shader: {}", selObj->getShaderPtr()->getName()).c_str());
+
+						ImGui::Text("Color");
+						ImGui::SameLine();
+						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+						ImGui::ColorEdit4("Color", *color, ImGuiColorEditFlags_NoInputs);
+
+						ImGui::TreePop();
+					}
 
 					if (selObj->getIsPhysicsEnabled())
 					{
 						float* vel[3] = { &selObj->getVelocityPtr()->x, &selObj->getVelocityPtr()->y, &selObj->getVelocityPtr()->z };
 						bool* collisionEnabled = new bool(selObj->getIsCollisionEnabled());
 
-						ImGui::Text("Velocity");
-						ImGui::SameLine();
-						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
-						ImGui::InputFloat3("##2", *vel);
-
-						ImGui::Text("Linear Drag");
-						ImGui::SameLine();
-						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
-						ImGui::InputFloat("##3", selObj->getLinearDragPtr());
-
-
-
-
-						ImGui::Checkbox("Gravity", selObj->getIsGravityEnabledPtr());
-
-						ImGui::Spacing();
-
-						ImGui::Checkbox("Collision Enabled", collisionEnabled);
-
-						if (selObj->getIsCollisionEnabled())
+						if (ImGui::TreeNode("Physics"))
 						{
-							ImGui::Checkbox("Draw Collision Box", selObj->getIsDrawColliderPtr());
+							ImGui::Text("Velocity");
+							ImGui::SameLine();
+							ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+							ImGui::InputFloat3("##2", *vel);
 
-							ImGui::BeginChild("Collider", ImVec2(0, 0), true);
+							ImGui::Text("Linear Drag");
+							ImGui::SameLine();
+							ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+							ImGui::InputFloat("##3", selObj->getLinearDragPtr());
+
+							ImGui::Checkbox("Gravity", selObj->getIsGravityEnabledPtr());
+
+							ImGui::TreePop();
+						}
+
+						if (ImGui::TreeNode("Collisions"))
+						{
+							ImGui::Checkbox("Collision Enabled", collisionEnabled);
+
+							if (selObj->getIsCollisionEnabled())
 							{
-								float* anchor[3] = { &selObj->getColliderPtr()->getAnchorPositionPtr()->x, &selObj->getColliderPtr()->getAnchorPositionPtr()->y , &selObj->getColliderPtr()->getAnchorPositionPtr()->z };
-								float* colliderScale[3] = { &selObj->getColliderPtr()->getScalePtr()->x, &selObj->getColliderPtr()->getScalePtr()->y , &selObj->getColliderPtr()->getScalePtr()->z };
+								ImGui::Checkbox("Draw Collision Box", selObj->getIsDrawColliderPtr());
 
-								ImGui::Text("Anchor");
-								ImGui::SameLine();
-								ImGui::SetCursorPosX(ImGui::GetCursorPosX());
-								ImGui::InputFloat3("##4", *anchor);
+								if (ImGui::Checkbox("Hide objects to far away for collision", &highlightCloseCollidableObjects))
+								{
+									if (PhysicEngine::getFocusedGameObject() == nullptr)
+										PhysicEngine::setFocusedGameObject(selObj);
+									else
+										PhysicEngine::setFocusedGameObject(nullptr);
+								}
 
-								ImGui::Text("Scale");
-								ImGui::SameLine();
-								ImGui::SetCursorPosX(ImGui::GetCursorPosX());
-								ImGui::InputFloat3("##5", *colliderScale);
+								ImGui::BeginChild("Collider", ImVec2(0, 0), true);
+								{
+									float* anchor[3] = { &selObj->getColliderPtr()->getAnchorPositionPtr()->x, &selObj->getColliderPtr()->getAnchorPositionPtr()->y , &selObj->getColliderPtr()->getAnchorPositionPtr()->z };
+									float* colliderScale[3] = { &selObj->getColliderPtr()->getScalePtr()->x, &selObj->getColliderPtr()->getScalePtr()->y , &selObj->getColliderPtr()->getScalePtr()->z };
 
-								ImGui::Spacing();
+									ImGui::Text("Anchor");
+									ImGui::SameLine();
+									ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+									ImGui::InputFloat3("##4", *anchor);
 
-								if (ImGui::Button("##6", ImVec2(40, 0))) selObj->snapColliderToObject();
-								ImGui::Text("Snap Collider To Object");
-								ImGui::SameLine();
+									ImGui::Text("Scale");
+									ImGui::SameLine();
+									ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+									ImGui::InputFloat3("##5", *colliderScale);
+
+									ImGui::Spacing();
+
+									if (ImGui::Button("##6", ImVec2(40, 0))) selObj->snapColliderToObject();
+									ImGui::SameLine();
+									ImGui::Text("Snap Collider To Object");
+								}
+								ImGui::EndChild();
 							}
-							ImGui::EndChild();
+
+							ImGui::TreePop();
+						}
+
+						if (ImGui::Button("Delete"))
+						{
+							renderer->deleteObject(selObj);
 						}
 
 

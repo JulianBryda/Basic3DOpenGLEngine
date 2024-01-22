@@ -3,7 +3,7 @@
 #include "stb_image.h"
 
 
-GameObject::GameObject(std::string name, std::vector<glm::vec3> vertices, std::vector<GLuint> indices, std::string shader_name, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
+GameObject::GameObject(std::string name, std::vector<glm::vec3> vertices, std::vector<GLuint> indices, std::string shaderName, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
 {
 	this->name = name;
 	this->vertices = vertices;
@@ -11,24 +11,34 @@ GameObject::GameObject(std::string name, std::vector<glm::vec3> vertices, std::v
 	this->position = glm::vec3(0.0f);
 	this->rotation = glm::vec3(0.0f);
 	this->scale = glm::vec3(5.0f);
+	this->isHidden = false;
 
-	this->m_shader = new Shader(std::format("v_{}.glsl", shader_name).c_str(), std::format("f_{}.glsl", shader_name).c_str());
+	this->material = new Material(glm::vec4(1.0f));
+	this->m_shader = new Shader(shaderName);
 
 	genBuffers();
 }
 
-GameObject::GameObject(std::string name, std::string path, std::string shader_name, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
+GameObject::GameObject(std::string name, std::string path, std::string shaderName, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
 {
 	this->name = name;
 	this->position = glm::vec3(0.0f);
 	this->rotation = glm::vec3(0.0f);
 	this->scale = glm::vec3(5.0f);
+	this->isHidden = false;
 
-	this->m_shader = new Shader(std::format("v_{}.glsl", shader_name).c_str(), std::format("f_{}.glsl", shader_name).c_str());
+	this->material = new Material(glm::vec4(1.0f));
+	this->m_shader = new Shader(shaderName);
 
 	ObjectLoader::LoadObjFile(path, this->vertices, this->indices);
 
 	genBuffers();
+}
+
+GameObject::~GameObject()
+{
+	delete this->m_shader;
+	delete this->material;
 }
 
 void GameObject::genBuffers()
@@ -132,6 +142,8 @@ void GameObject::loadTexture(std::string textureName, GLuint* texture)
 	stbi_image_free(data);
 }
 
+bool GameObject::getIsHidden() const { return this->isHidden; }
+
 glm::vec3 GameObject::getPosition() const { return position; }
 glm::vec3* GameObject::getPositionPtr() { return &position; }
 glm::vec3 GameObject::getRotation() const { return rotation; }
@@ -145,9 +157,13 @@ GLuint GameObject::getTexture() const { return texture; }
 
 Shader* GameObject::getShaderPtr() const { return m_shader; }
 
+Material* GameObject::getMaterialPtr() const { return material; }
+
 void GameObject::setPosition(glm::vec3 position) { this->position = position; }
 void GameObject::setRotation(glm::vec3 rotation) { this->rotation = rotation; }
 void GameObject::setScale(glm::vec3 scale) { this->scale = scale; }
+
+void GameObject::setIsHidden(bool isHidden) { this->isHidden = isHidden; }
 
 std::vector<glm::vec3> GameObject::getVertices() const { return vertices; }
 std::vector<GLuint> GameObject::getIndices() const { return indices; }

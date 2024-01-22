@@ -21,6 +21,11 @@ public:
 		this->colliderType = colliderType;
 	}
 
+	~Collider()
+	{
+
+	}
+
 	// getter
 	glm::vec3* getAnchorPositionPtr() { return this->anchor; }
 	glm::vec3 getScale() const { return this->scale; }

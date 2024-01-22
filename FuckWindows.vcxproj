@@ -168,6 +168,7 @@
     <ClInclude Include="Imgui\imstb_textedit.h" />
     <ClInclude Include="Imgui\imstb_truetype.h" />
     <ClInclude Include="InputHandler.hpp" />
+    <ClInclude Include="Material.hpp" />
     <ClInclude Include="ObjectRenderer.hpp" />
     <ClInclude Include="PhysicEngine.hpp" />
     <ClInclude Include="Primitives.hpp" />

@@ -59,6 +59,10 @@ int main()
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
+	// enable alpha
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+
 	// register object renderer
 	auto objectRenderer = ObjectRenderer(RendererType::Object);
 	RendererPipeline::registerRenderer(&objectRenderer, RendererType::Object);
@@ -71,11 +75,11 @@ int main()
 	// window lopp
 	while (!glfwWindowShouldClose(window))
 	{
-		// handle input
-		InputHandler::handleInput(window);
-
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// handle input
+		InputHandler::handleInput(window);
 
 		// do fancy physic stuff
 		PhysicEngine::update();

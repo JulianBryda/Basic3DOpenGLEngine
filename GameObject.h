@@ -10,14 +10,17 @@
 #include "GameObjectPhysics.h"
 #include "GameObjectCollisions.h"
 #include "ObjectLoader.hpp"
+#include "Material.hpp"
 
 class GameObject : public GameObjectPhysics, public GameObjectCollisions
 {
 
 public:
 
-	GameObject(std::string name, std::string path, std::string shader_name, ColliderType colliderType);
-	GameObject(std::string name, std::vector<glm::vec3> vertices, std::vector<GLuint> indices, std::string shader_name, ColliderType colliderType);
+	GameObject(std::string name, std::string path, std::string shaderName, ColliderType colliderType);
+	GameObject(std::string name, std::vector<glm::vec3> vertices, std::vector<GLuint> indices, std::string shaderName, ColliderType colliderType);
+
+	~GameObject();
 
 	virtual void genBuffers();
 	virtual void updateBuffers();
@@ -26,6 +29,8 @@ public:
 
 	void loadTexture(std::string textureName);
 	static void loadTexture(std::string textureName, GLuint* texture);
+
+	bool getIsHidden() const;
 
 	glm::vec3 getPosition() const;
 	glm::vec3* getPositionPtr();
@@ -40,9 +45,12 @@ public:
 
 	Shader* getShaderPtr() const;
 
+	Material* getMaterialPtr() const;
+
 	void setPosition(glm::vec3 position);
 	void setRotation(glm::vec3 rotation);
 	void setScale(glm::vec3 scale);
+	void setIsHidden(bool isHidden);
 
 	std::vector<glm::vec3> getVertices() const;
 	std::vector<GLuint> getIndices() const;
@@ -68,5 +76,9 @@ private:
 	glm::vec3 rotation, scale;
 
 	Shader* m_shader;
+
+	Material* material;
+
+	bool isHidden;
 
 };

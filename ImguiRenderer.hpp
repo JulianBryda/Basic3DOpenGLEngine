@@ -9,6 +9,7 @@
 #include "RendererPipeline.hpp"
 #include "ObjectRenderer.hpp"
 #include "Primitives.hpp"
+#include "PhysicEngine.hpp"
 
 class ImguiRenderer : public Renderer
 {
@@ -64,6 +65,6 @@ private:
 
 	int selectedObjectIndex = 0;
 
-	bool m_showDebugInfo = false, m_showObjectManager = false;
+	bool m_showDebugInfo = false, m_showObjectManager = false, highlightCloseCollidableObjects = false;
 
 };

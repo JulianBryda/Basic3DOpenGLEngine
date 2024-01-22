@@ -79,6 +79,9 @@
     <Filter Include="Header Files\Loader">
       <UniqueIdentifier>{8c5393ec-0d40-4030-8906-125215e2bda4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Material">
+      <UniqueIdentifier>{5bb9fbd6-e241-4db8-87af-0554226764bc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FuckWindows.cpp">
@@ -202,6 +205,9 @@
     </ClInclude>
     <ClInclude Include="Camera.hpp">
       <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.hpp">
+      <Filter>Header Files\Material</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

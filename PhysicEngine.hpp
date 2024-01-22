@@ -34,16 +34,44 @@ public:
 
 			obj->setPosition(position);
 
+			// collision detection
 			for (size_t j = 0; j < m_physicalizedObjects.size(); j++)
 			{
-				if (!m_physicalizedObjects[j]->getIsCollisionEnabled()) continue;
+				// check if collisions is enabled on object and object to check for are not the same
+				if (!m_physicalizedObjects[j]->getIsCollisionEnabled() || obj == m_physicalizedObjects[j]) continue;
+
+				// check if objects are even close enough to collide
+				if (std::abs(glm::length(obj->getPosition() - m_physicalizedObjects[j]->getPosition())) > glm::length(obj->getScale() + m_physicalizedObjects[j]->getScale()))
+				{
+					// object is not close enough
+					// every object not in collision range of selected object will get hidden
+					if (focusedGameObject != nullptr && focusedGameObject != m_physicalizedObjects[j])
+					{
+						m_physicalizedObjects[j]->setIsHidden(true);
+					}
+					else
+					{
+						m_physicalizedObjects[j]->setIsHidden(false);
+					}
+
+					// object not close enough to collide so skip collisions detection 
+					continue;
+				}
+				else
+				{
+					// object is close enough
+					if (focusedGameObject != nullptr && focusedGameObject != m_physicalizedObjects[j])
+					{
+						m_physicalizedObjects[j]->setIsHidden(false);
+					}
+				}
 
 				// check which collision algorithm to use
 				switch (obj->getColliderPtr()->getColliderType())
 				{
 				case ColliderType::BoundingBox:
 				{
-					if (obj != m_physicalizedObjects[j] && obj->checkBoundingBoxCollision(m_physicalizedObjects[j]))
+					if (obj->checkBoundingBoxCollision(m_physicalizedObjects[j]))
 					{
 						if (obj->checkBoundingBoxCollisionX(m_physicalizedObjects[j]))
 						{
@@ -61,7 +89,7 @@ public:
 				}
 				case ColliderType::Circular:
 				{
-					if (obj != m_physicalizedObjects[j] && obj->checkCircularCollision(m_physicalizedObjects[j]))
+					if (obj->checkCircularCollision(m_physicalizedObjects[j]))
 					{
 						obj->setVelocity(glm::vec3(0.0f));
 						isColliding = true;
@@ -109,6 +137,9 @@ public:
 		return nullptr;
 	}
 
+	static GameObject* getFocusedGameObject() { return focusedGameObject; }
+	static void setFocusedGameObject(GameObject* object) { focusedGameObject = object; }
+
 private:
 
 	static void updateDeltaTime()
@@ -121,5 +152,7 @@ private:
 	static std::vector<GameObject*> m_physicalizedObjects;
 
 	static float deltaTime, lastFrameTime;
+
+	static GameObject* focusedGameObject;
 
 };

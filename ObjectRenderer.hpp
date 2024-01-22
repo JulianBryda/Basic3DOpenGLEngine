@@ -25,10 +25,12 @@ public:
 	{
 		for (auto& object : m_objects)
 		{
+			if (object->getIsHidden()) continue;
+
 			Shader* shader = object->getShaderPtr();
 
 			shader->use();
-			shader->setFloat4("color", glm::vec4(1.0f));
+			shader->setFloat4("color", object->getMaterialPtr()->getColor());
 
 			shader->setMat4("model", object->getModelMatrix());
 			shader->setMat4("scale", object->getScaleMatrix());
@@ -59,6 +61,13 @@ public:
 	void addObject(GameObject* object)
 	{
 		m_objects.push_back(object);
+	}
+
+	void deleteObject(GameObject* object)
+	{
+		m_objects.erase(std::remove(m_objects.begin(), m_objects.end(), object), m_objects.end());
+
+		delete object;
 	}
 
 	std::vector<GameObject*>& getObjects()
