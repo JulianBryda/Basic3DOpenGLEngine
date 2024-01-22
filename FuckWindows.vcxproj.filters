@@ -82,6 +82,9 @@
     <Filter Include="Header Files\Material">
       <UniqueIdentifier>{5bb9fbd6-e241-4db8-87af-0554226764bc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Objects\Mesh">
+      <UniqueIdentifier>{8c303374-be63-4fc7-8cee-38f5b9a79f77}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FuckWindows.cpp">
@@ -209,6 +212,12 @@
     <ClInclude Include="Material.hpp">
       <Filter>Header Files\Material</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh.hpp">
+      <Filter>Header Files\Objects\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.hpp">
+      <Filter>Header Files\Objects\Mesh</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="v_color.glsl">
@@ -220,6 +229,12 @@
     <None Include="cpp.hint" />
     <None Include="ObjectLoader.hpp">
       <Filter>Header Files\Loader</Filter>
+    </None>
+    <None Include="f_debug.glsl">
+      <Filter>Source Files\Renderer\Shader\Fragment</Filter>
+    </None>
+    <None Include="v_debug.glsl">
+      <Filter>Source Files\Renderer\Shader\Vertex</Filter>
     </None>
   </ItemGroup>
 </Project>

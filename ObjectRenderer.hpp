@@ -31,6 +31,7 @@ public:
 
 			shader->use();
 			shader->setFloat4("color", object->getMaterialPtr()->getColor());
+			shader->setFloat3("camPos", activeCamera->getPosition());
 
 			shader->setMat4("model", object->getModelMatrix());
 			shader->setMat4("scale", object->getScaleMatrix());

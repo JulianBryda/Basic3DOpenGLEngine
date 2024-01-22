@@ -66,5 +66,4 @@ private:
 	int selectedObjectIndex = 0;
 
 	bool m_showDebugInfo = false, m_showObjectManager = false, highlightCloseCollidableObjects = false;
-
 };

@@ -3,11 +3,9 @@
 #include "stb_image.h"
 
 
-GameObject::GameObject(std::string name, std::vector<glm::vec3> vertices, std::vector<GLuint> indices, std::string shaderName, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
+GameObject::GameObject(std::string name, Mesh mesh, std::string shaderName, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
 {
 	this->name = name;
-	this->vertices = vertices;
-	this->indices = indices;
 	this->position = glm::vec3(0.0f);
 	this->rotation = glm::vec3(0.0f);
 	this->scale = glm::vec3(5.0f);
@@ -15,6 +13,7 @@ GameObject::GameObject(std::string name, std::vector<glm::vec3> vertices, std::v
 
 	this->material = new Material(glm::vec4(1.0f));
 	this->m_shader = new Shader(shaderName);
+	this->mesh = mesh;
 
 	genBuffers();
 }
@@ -30,7 +29,7 @@ GameObject::GameObject(std::string name, std::string path, std::string shaderNam
 	this->material = new Material(glm::vec4(1.0f));
 	this->m_shader = new Shader(shaderName);
 
-	ObjectLoader::LoadObjFile(path, this->vertices, this->indices);
+	ObjectLoader::LoadObjFile(path, &mesh);
 
 	genBuffers();
 }
@@ -45,18 +44,24 @@ void GameObject::genBuffers()
 {
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &vbo);
-	glGenBuffers(1, &ebo);
+	glGenBuffers(1, &ibo);
 
 	glBindVertexArray(vao);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * this->mesh.getVertices().size(), this->mesh.getVertices().data(), GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), indices.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * this->mesh.getIndices().size(), this->mesh.getIndices().data(), GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
 	glEnableVertexAttribArray(0);
+
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+	glEnableVertexAttribArray(1);
+
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
+	glEnableVertexAttribArray(2);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -68,13 +73,19 @@ void GameObject::updateBuffers()
 	glBindVertexArray(vao);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * this->mesh.getVertices().size(), this->mesh.getVertices().data(), GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), indices.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * this->mesh.getIndices().size(), this->mesh.getIndices().data(), GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
 	glEnableVertexAttribArray(0);
+
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+	glEnableVertexAttribArray(1);
+
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
+	glEnableVertexAttribArray(2);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -87,7 +98,7 @@ void GameObject::draw()
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	glBindVertexArray(vao);
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, this->mesh.getIndices().size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
@@ -159,12 +170,19 @@ Shader* GameObject::getShaderPtr() const { return m_shader; }
 
 Material* GameObject::getMaterialPtr() const { return material; }
 
+Mesh GameObject::getMesh() const { return this->mesh; }
+Mesh* GameObject::getMeshPtr() { return &this->mesh; }
+
 void GameObject::setPosition(glm::vec3 position) { this->position = position; }
 void GameObject::setRotation(glm::vec3 rotation) { this->rotation = rotation; }
 void GameObject::setScale(glm::vec3 scale) { this->scale = scale; }
 
 void GameObject::setIsHidden(bool isHidden) { this->isHidden = isHidden; }
 
-std::vector<glm::vec3> GameObject::getVertices() const { return vertices; }
-std::vector<GLuint> GameObject::getIndices() const { return indices; }
+void GameObject::setShader(Shader* shader)
+{
+	if (this->m_shader != nullptr) delete this->m_shader;
+	this->m_shader = shader;
+}
+
 std::string GameObject::getName() const { return name; }

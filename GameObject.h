@@ -11,6 +11,7 @@
 #include "GameObjectCollisions.h"
 #include "ObjectLoader.hpp"
 #include "Material.hpp"
+#include "Mesh.hpp"
 
 class GameObject : public GameObjectPhysics, public GameObjectCollisions
 {
@@ -18,7 +19,7 @@ class GameObject : public GameObjectPhysics, public GameObjectCollisions
 public:
 
 	GameObject(std::string name, std::string path, std::string shaderName, ColliderType colliderType);
-	GameObject(std::string name, std::vector<glm::vec3> vertices, std::vector<GLuint> indices, std::string shaderName, ColliderType colliderType);
+	GameObject(std::string name, Mesh mesh, std::string shaderName, ColliderType colliderType);
 
 	~GameObject();
 
@@ -47,13 +48,15 @@ public:
 
 	Material* getMaterialPtr() const;
 
+	Mesh getMesh() const;
+	Mesh* getMeshPtr();
+
 	void setPosition(glm::vec3 position);
 	void setRotation(glm::vec3 rotation);
 	void setScale(glm::vec3 scale);
 	void setIsHidden(bool isHidden);
+	void setShader(Shader* shader);
 
-	std::vector<glm::vec3> getVertices() const;
-	std::vector<GLuint> getIndices() const;
 	std::string getName() const;
 
 
@@ -61,17 +64,15 @@ protected:
 
 	GLuint vao;
 
-	std::vector<GLuint> indices;
-
 	glm::vec3 position;
+
+	Mesh mesh;
 
 private:
 
 	std::string name;
 
-	GLuint vbo, ebo, texture;
-
-	std::vector<glm::vec3> vertices;
+	GLuint vbo, ibo, texture;
 
 	glm::vec3 rotation, scale;
 

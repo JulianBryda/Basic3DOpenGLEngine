@@ -109,31 +109,31 @@ public:
 	std::string getName() const { return this->name; }
 
 	// utility uniform functions
-	void setBool(const std::string& name, bool value) const
+	inline void setBool(const std::string& name, bool value) const
 	{
 		glUniform1i(glGetUniformLocation(Id, name.c_str()), (int)value);
 	}
-	void setInt(const std::string& name, int value) const
+	inline void setInt(const std::string& name, int value) const
 	{
 		glUniform1i(glGetUniformLocation(Id, name.c_str()), value);
 	}
-	void setFloat(const std::string& name, float value) const
+	inline void setFloat(const std::string& name, float value) const
 	{
 		glUniform1f(glGetUniformLocation(Id, name.c_str()), value);
 	}
-	void setFloat3(const std::string& name, glm::vec3 value)
+	inline void setFloat3(const std::string& name, glm::vec3 value)
 	{
 		glUniform3f(glGetUniformLocation(Id, name.c_str()), value.x, value.y, value.z);
 	}
-	void setFloat4(const std::string& name, glm::vec4 value)
+	inline void setFloat4(const std::string& name, glm::vec4 value)
 	{
 		glUniform4f(glGetUniformLocation(Id, name.c_str()), value.x, value.y, value.z, value.w);
 	}
-	void setMat4(const std::string& name, glm::mat4 value)
+	inline void setMat4(const std::string& name, glm::mat4 value)
 	{
 		glUniformMatrix4fv(glGetUniformLocation(Id, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
 	}
-	void setTexture(GLenum type, GLuint texture)
+	inline void setTexture(GLenum type, GLuint texture)
 	{
 		glBindTexture(type, texture);
 	}

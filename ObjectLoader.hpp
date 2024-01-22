@@ -6,14 +6,21 @@
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 
+#include "Mesh.hpp"
+#include "Vertex.hpp"
+
 namespace ObjectLoader
 {
 
 	static std::vector<std::string> splitString(std::string input, const char delimiter);
 
-	static void LoadObjFile(std::string path, std::vector<glm::vec3>& vertices, std::vector<GLuint>& indices)
+	static void LoadObjFile(std::string path, Mesh* mesh)
 	{
 		std::ifstream inputFile(path);
+
+		std::vector<glm::vec3> vertices;
+		std::vector<glm::vec3> normals;
+		std::vector<glm::vec2> uvs;
 
 		// open file
 		if (!inputFile.is_open())
@@ -39,12 +46,14 @@ namespace ObjectLoader
 			else if (identifier == "vt")
 			{
 				// uvs
-
+				std::vector<std::string> arr = splitString(data, ' ');
+				uvs.push_back(glm::vec2(std::stof(arr[0]), std::stof(arr[1])));
 			}
 			else if (identifier == "vn")
 			{
 				// normals
-
+				std::vector<std::string> arr = splitString(data, ' ');
+				normals.push_back(glm::vec3(std::stof(arr[0]), std::stof(arr[1]), std::stof(arr[2])));
 			}
 			else if (identifier == "f")
 			{
@@ -52,8 +61,16 @@ namespace ObjectLoader
 				std::vector<std::string> arr = splitString(data, ' ');
 				for (size_t i = 0; i < arr.size(); i++)
 				{
+					// not working, fix this shit! :(
 					std::vector<std::string> chars = splitString(arr[i], '/');
-					indices.push_back(std::stoi(chars[0]) - 1);
+					int vertexIndex = std::stoi(chars[0]) - 1;
+					int uvIndex = std::stoi(chars[1]) - 1;
+					int normalIndex = std::stoi(chars[2]) - 1;
+
+					Vertex vertex = Vertex(glm::vec3(vertices[vertexIndex]), glm::vec3(normals[normalIndex]), glm::vec2(uvs[uvIndex]));
+
+					mesh->getVerticesPtr()->push_back(vertex);
+					mesh->getIndicesPtr()->push_back(vertexIndex);
 				}
 			}
 		}

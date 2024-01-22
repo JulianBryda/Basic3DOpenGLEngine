@@ -169,6 +169,7 @@
     <ClInclude Include="Imgui\imstb_truetype.h" />
     <ClInclude Include="InputHandler.hpp" />
     <ClInclude Include="Material.hpp" />
+    <ClInclude Include="Mesh.hpp" />
     <ClInclude Include="ObjectRenderer.hpp" />
     <ClInclude Include="PhysicEngine.hpp" />
     <ClInclude Include="Primitives.hpp" />
@@ -177,12 +178,15 @@
     <ClInclude Include="Shader.hpp" />
     <ClInclude Include="Skybox.hpp" />
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="Vertex.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
     <None Include="f_color.glsl" />
+    <None Include="f_debug.glsl" />
     <None Include="ObjectLoader.hpp" />
     <None Include="v_color.glsl" />
+    <None Include="v_debug.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

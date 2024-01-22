@@ -13,7 +13,7 @@ void ImguiRenderer::renderMenuBar()
 				if (value != nullptr)
 				{
 					auto renderer = static_cast<ObjectRenderer*>(value);
-					GameObject* obj = new GameObject(std::format("Cube{}", renderer->getObjects().size()), "C:\\Users\\Julian\\source\\repos\\FuckWindows\\Assets\\Objects\\Cube.obj", "color", ColliderType::BoundingBox);
+					GameObject* obj = new GameObject(std::format("Cube{}", renderer->getObjects().size()), "C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Objects\\Cube.obj", "color", ColliderType::BoundingBox);
 					obj->setIsPhysicsEnabled(true);
 
 					renderer->addObject(obj);
@@ -25,7 +25,7 @@ void ImguiRenderer::renderMenuBar()
 				if (value != nullptr)
 				{
 					auto renderer = static_cast<ObjectRenderer*>(value);
-					GameObject* obj = new GameObject(std::format("Sphere{}", renderer->getObjects().size()), "C:\\Users\\Julian\\source\\repos\\FuckWindows\\Assets\\Objects\\Sphere.obj", "color", ColliderType::Circular);
+					GameObject* obj = new GameObject(std::format("Sphere{}", renderer->getObjects().size()), "C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Objects\\Sphere.obj", "color", ColliderType::Circular);
 					obj->setIsPhysicsEnabled(true);
 
 					renderer->addObject(obj);
@@ -76,10 +76,9 @@ void ImguiRenderer::renderMenuBar()
 		{
 			if (ImGui::Button("Test File"))
 			{
-				std::vector<glm::vec3> vertices;
-				std::vector<GLuint> indices;
+				Mesh mesh;
 
-				ObjectLoader::LoadObjFile("C:\\Users\\Julian\\source\\repos\\FuckWindows\\Assets\\Objects\\Cube.obj", vertices, indices);
+				ObjectLoader::LoadObjFile("C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Objects\\Cube.obj", &mesh);
 				auto test = 0;
 			}
 
@@ -181,12 +180,21 @@ void ImguiRenderer::renderObjectManager()
 
 					if (ImGui::TreeNode("Material"))
 					{
-						ImGui::Text(std::format("Loaded Shader: {}", selObj->getShaderPtr()->getName()).c_str());
-
 						ImGui::Text("Color");
 						ImGui::SameLine();
 						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
 						ImGui::ColorEdit4("Color", *color, ImGuiColorEditFlags_NoInputs);
+
+						ImGui::Text(std::format("Loaded Shader: {}", selObj->getShaderPtr()->getName()).c_str());
+
+						static char loadShaderBuffer[256] = "";
+
+						ImGui::InputText("##2354", loadShaderBuffer, IM_ARRAYSIZE(loadShaderBuffer));
+						ImGui::SameLine();
+						if (ImGui::Button("Load Shader"))
+						{
+							selObj->setShader(new Shader(loadShaderBuffer));
+						}
 
 						ImGui::TreePop();
 					}
