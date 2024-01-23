@@ -3,18 +3,17 @@
 out vec4 FragColor;
 
 uniform vec4 color;
-uniform vec3 camPos;
 
+in vec3 fragToCamera;
 in vec3 fragPos;
 in vec3 fragNorm;
 
 void main()
 {
-	vec3 lightColor = vec3(1.0);
-	vec3 norm = normalize(fragNorm);
+	float cosAngle = dot(normalize(fragToCamera), vec3(0.0, 0.0, -1.0));
+	float brightness = 1.0 - cosAngle;
 
-	vec3 lightDir = normalize(camPos - fragPos);
-	float diff = max(dot(norm, lightDir), 0.0);
-	
-	FragColor = vec4(color.xyz * diff * lightColor, color.w);
+	brightness = clamp(brightness, 0.0, 1.0);
+
+	FragColor = vec4(color.x * brightness, color.y * brightness, color.z * brightness, color.w);
 } 

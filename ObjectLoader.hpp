@@ -68,9 +68,19 @@ namespace ObjectLoader
 					int normalIndex = std::stoi(chars[2]) - 1;
 
 					Vertex vertex = Vertex(glm::vec3(vertices[vertexIndex]), glm::vec3(normals[normalIndex]), glm::vec2(uvs[uvIndex]));
+					auto iterator = std::find(mesh->getVerticesPtr()->begin(), mesh->getVerticesPtr()->end(), vertex);
 
-					mesh->getVerticesPtr()->push_back(vertex);
-					mesh->getIndicesPtr()->push_back(vertexIndex);
+					if (iterator != mesh->getVerticesPtr()->end())
+					{
+						// contains
+						mesh->getIndicesPtr()->push_back(iterator - mesh->getVerticesPtr()->begin());
+					}
+					else
+					{
+						// does not contain
+						mesh->getVerticesPtr()->push_back(vertex);
+						mesh->getIndicesPtr()->push_back(glm::max((int)mesh->getVerticesPtr()->size() - 1, 0));
+					}
 				}
 			}
 		}
@@ -84,19 +94,23 @@ namespace ObjectLoader
 		std::vector<std::string> tokens;
 		std::string token;
 
-		for (char ch : input) {
-			if (ch != delimiter) {
+		for (char ch : input)
+		{
+			if (ch != delimiter)
+			{
 				token += ch;
 			}
-			else {
-				tokens.push_back(token);
+			else
+			{
+				tokens.push_back(token.c_str());
 				token.clear();
 			}
 		}
 
 		// Add the last token if the string doesn't end with the delimiter
-		if (!token.empty()) {
-			tokens.push_back(token);
+		if (!token.empty())
+		{
+			tokens.push_back(token.c_str());
 		}
 
 		return tokens;
