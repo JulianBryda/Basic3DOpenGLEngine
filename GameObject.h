@@ -27,11 +27,14 @@ public:
 	virtual void updateBuffers();
 
 	virtual void draw();
+	virtual void drawWireframe();
 
 	void loadTexture(std::string textureName);
 	static void loadTexture(std::string textureName, GLuint* texture);
 
 	bool getIsHidden() const;
+	bool getIsDrawWireframe() const;
+	bool* getIsDrawWireframePtr();
 
 	glm::vec3 getPosition() const;
 	glm::vec3* getPositionPtr();
@@ -40,7 +43,6 @@ public:
 	glm::vec3* getScalePtr();
 
 	glm::mat4 getModelMatrix() const;
-	glm::mat4 getScaleMatrix() const;
 
 	GLuint getTexture() const;
 
@@ -58,7 +60,6 @@ public:
 	void setShader(Shader* shader);
 
 	std::string getName() const;
-
 
 protected:
 
@@ -80,6 +81,6 @@ private:
 
 	Material* material;
 
-	bool isHidden;
+	bool isHidden, isDrawWireframe;
 
 };

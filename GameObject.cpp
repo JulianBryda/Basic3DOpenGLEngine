@@ -10,6 +10,7 @@ GameObject::GameObject(std::string name, Mesh mesh, std::string shaderName, Coll
 	this->rotation = glm::vec3(0.0f);
 	this->scale = glm::vec3(5.0f);
 	this->isHidden = false;
+	this->isDrawWireframe = false;
 
 	this->material = new Material(glm::vec4(1.0f));
 	this->m_shader = new Shader(shaderName);
@@ -25,6 +26,7 @@ GameObject::GameObject(std::string name, std::string path, std::string shaderNam
 	this->rotation = glm::vec3(0.0f);
 	this->scale = glm::vec3(5.0f);
 	this->isHidden = false;
+	this->isDrawWireframe = false;
 
 	this->material = new Material(glm::vec4(1.0f));
 	this->m_shader = new Shader(shaderName);
@@ -94,14 +96,21 @@ void GameObject::updateBuffers()
 
 void GameObject::draw()
 {
-	// uncomment this to draw wireframe
-	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
 	glBindVertexArray(vao);
-	glDrawElements(GL_TRIANGLES, this->mesh.getIndices().size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, this->mesh.getIndicesPtr()->size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
+void GameObject::drawWireframe()
+{
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	glBindVertexArray(vao);
+	glDrawElements(GL_TRIANGLES, this->mesh.getIndicesPtr()->size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
 
 void GameObject::loadTexture(std::string textureName)
 {
@@ -114,7 +123,7 @@ void GameObject::loadTexture(std::string textureName)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	int width, height, nrChannels;
-	unsigned char* data = stbi_load(("Assets\\" + textureName).c_str(), &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load(("C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\" + textureName).c_str(), &width, &height, &nrChannels, 0);
 	if (data)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -139,7 +148,7 @@ void GameObject::loadTexture(std::string textureName, GLuint* texture)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	int width, height, nrChannels;
-	unsigned char* data = stbi_load(("Assets\\" + textureName).c_str(), &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load(("C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\" + textureName).c_str(), &width, &height, &nrChannels, 0);
 	if (data)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -154,6 +163,8 @@ void GameObject::loadTexture(std::string textureName, GLuint* texture)
 }
 
 bool GameObject::getIsHidden() const { return this->isHidden; }
+bool GameObject::getIsDrawWireframe() const { return this->isDrawWireframe; }
+bool* GameObject::getIsDrawWireframePtr() { return &this->isDrawWireframe; }
 
 glm::vec3 GameObject::getPosition() const { return position; }
 glm::vec3* GameObject::getPositionPtr() { return &position; }
@@ -161,8 +172,7 @@ glm::vec3 GameObject::getRotation() const { return rotation; }
 glm::vec3 GameObject::getScale() const { return scale; }
 glm::vec3* GameObject::getScalePtr() { return &scale; }
 
-glm::mat4 GameObject::getModelMatrix() const { return glm::translate(glm::mat4(1.0f), position); }
-glm::mat4 GameObject::getScaleMatrix() const { return glm::scale(glm::mat4(1.0f), scale); }
+glm::mat4 GameObject::getModelMatrix() const { return glm::scale(glm::translate(glm::mat4(1.0f), position), this->scale); }
 
 GLuint GameObject::getTexture() const { return texture; }
 

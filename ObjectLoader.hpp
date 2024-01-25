@@ -61,7 +61,6 @@ namespace ObjectLoader
 				std::vector<std::string> arr = splitString(data, ' ');
 				for (size_t i = 0; i < arr.size(); i++)
 				{
-					// not working, fix this shit! :(
 					std::vector<std::string> chars = splitString(arr[i], '/');
 					int vertexIndex = std::stoi(chars[0]) - 1;
 					int uvIndex = std::stoi(chars[1]) - 1;

@@ -31,8 +31,7 @@ public:
 	glm::vec3 getScale() const { return this->scale; }
 	glm::vec3* getScalePtr() { return &this->scale; }
 
-	glm::mat4 getModelMatrix() const { return glm::translate(glm::mat4(1.0f), *anchor); }
-	glm::mat4 getScaleMatrix() const { return glm::scale(glm::mat4(1.0f), scale); }
+	glm::mat4 getModelMatrix() const { return glm::scale(glm::translate(glm::mat4(1.0f), *anchor), scale); }
 
 	ColliderType getColliderType() const { return this->colliderType; }
 

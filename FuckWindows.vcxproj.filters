@@ -135,6 +135,9 @@
     <ClCompile Include="InputHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ShaderLib.cpp">
+      <Filter>Source Files\Renderer\Shader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InputHandler.hpp">
@@ -217,6 +220,9 @@
     </ClInclude>
     <ClInclude Include="Vertex.hpp">
       <Filter>Header Files\Objects\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderLib.hpp">
+      <Filter>Header Files\Shader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

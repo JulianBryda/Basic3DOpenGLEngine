@@ -150,6 +150,7 @@
     <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="PhysicEngine.cpp" />
     <ClCompile Include="RendererPipeline.cpp" />
+    <ClCompile Include="ShaderLib.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.hpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="Renderer.hpp" />
     <ClInclude Include="RendererPipeline.hpp" />
     <ClInclude Include="Shader.hpp" />
+    <ClInclude Include="ShaderLib.hpp" />
     <ClInclude Include="Skybox.hpp" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Vertex.hpp" />

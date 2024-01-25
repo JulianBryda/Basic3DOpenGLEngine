@@ -8,6 +8,7 @@
 #include "ObjectRenderer.hpp"
 #include "ImguiRenderer.hpp"
 #include "PhysicEngine.hpp"
+#include "ShaderLib.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -19,16 +20,15 @@ int main()
 {
 	glfwInit();
 
+	glfwWindowHint(GLFW_SAMPLES, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_SAMPLES, 4);
 
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-	GLFWwindow* window = glfwCreateWindow(1280, 720, "2D Renderer", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(1280, 720, "3D Renderer", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window!\n";
@@ -63,6 +63,9 @@ int main()
 	// enable alpha
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
+
+	// load shader
+	ShaderLib::LoadShader();
 
 	// register object renderer
 	auto objectRenderer = ObjectRenderer(RendererType::Object);

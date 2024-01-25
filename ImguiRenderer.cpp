@@ -175,6 +175,8 @@ void ImguiRenderer::renderObjectManager()
 						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
 						ImGui::InputFloat3("##1", *scale);
 
+						ImGui::Checkbox("Draw Wireframe", selObj->getIsDrawWireframePtr());
+
 						ImGui::TreePop();
 					}
 
