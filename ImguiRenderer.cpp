@@ -13,19 +13,31 @@ void ImguiRenderer::renderMenuBar()
 				if (value != nullptr)
 				{
 					auto renderer = static_cast<ObjectRenderer*>(value);
-					GameObject* obj = new GameObject(std::format("Cube{}", renderer->getObjects().size()), "C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Objects\\Cube.obj", "color", ColliderType::BoundingBox);
+					GameObject* obj = new GameObject(std::format("Cube{}", renderer->getObjects().size()), "C:\\Users\\Julian\\source\\repos\\FuckWindows\\Assets\\Objects\\Cube.obj", "debug", ColliderType::BoundingBox);
 					obj->setIsPhysicsEnabled(true);
 
 					renderer->addObject(obj);
 				}
 			}
-			if (ImGui::MenuItem("Sphere"))
+			else if (ImGui::MenuItem("Sphere"))
 			{
 				auto value = RendererPipeline::getRendererMap().find(RendererType::Object)->second;
 				if (value != nullptr)
 				{
 					auto renderer = static_cast<ObjectRenderer*>(value);
-					GameObject* obj = new GameObject(std::format("Sphere{}", renderer->getObjects().size()), "C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Objects\\Sphere.obj", "color", ColliderType::Circular);
+					GameObject* obj = new GameObject(std::format("Sphere{}", renderer->getObjects().size()), "C:\\Users\\Julian\\source\\repos\\FuckWindows\\Assets\\Objects\\Sphere.obj", "debug", ColliderType::Circular);
+					obj->setIsPhysicsEnabled(true);
+
+					renderer->addObject(obj);
+				}
+			}
+			else if (ImGui::MenuItem("StressTest"))
+			{
+				auto value = RendererPipeline::getRendererMap().find(RendererType::Object)->second;
+				if (value != nullptr)
+				{
+					auto renderer = static_cast<ObjectRenderer*>(value);
+					GameObject* obj = new GameObject(std::format("StressTest{}", renderer->getObjects().size()), "C:\\Users\\Julian\\source\\repos\\FuckWindows\\Assets\\Objects\\StressTest.obj", "debug", ColliderType::BoundingBox);
 					obj->setIsPhysicsEnabled(true);
 
 					renderer->addObject(obj);
@@ -78,7 +90,7 @@ void ImguiRenderer::renderMenuBar()
 			{
 				Mesh mesh;
 
-				ObjectLoader::LoadObjFile("C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Objects\\Cube.obj", &mesh);
+				ObjectLoader::LoadObjFile("C:\\Users\\Julian\\source\\repos\\FuckWindows\\Assets\\Objects\\Cube.obj", &mesh);
 				auto test = 0;
 			}
 
@@ -204,7 +216,6 @@ void ImguiRenderer::renderObjectManager()
 					if (selObj->getIsPhysicsEnabled())
 					{
 						float* vel[3] = { &selObj->getVelocityPtr()->x, &selObj->getVelocityPtr()->y, &selObj->getVelocityPtr()->z };
-						bool* collisionEnabled = new bool(selObj->getIsCollisionEnabled());
 
 						if (ImGui::TreeNode("Physics"))
 						{
@@ -225,7 +236,10 @@ void ImguiRenderer::renderObjectManager()
 
 						if (ImGui::TreeNode("Collisions"))
 						{
-							ImGui::Checkbox("Collision Enabled", collisionEnabled);
+							if (ImGui::Checkbox("Collision Enabled", selObj->getIsCollisionEnabledPtr()))
+							{
+								selObj->checkBuffers();
+							}
 
 							if (selObj->getIsCollisionEnabled())
 							{
@@ -259,6 +273,8 @@ void ImguiRenderer::renderObjectManager()
 									if (ImGui::Button("##6", ImVec2(40, 0))) selObj->snapColliderToObject();
 									ImGui::SameLine();
 									ImGui::Text("Snap Collider To Object");
+
+									ImGui::Text("IMPORTANT! If collider scale = object scale collider won't be visible!");
 								}
 								ImGui::EndChild();
 							}
@@ -271,12 +287,6 @@ void ImguiRenderer::renderObjectManager()
 							renderer->deleteObject(selObj);
 						}
 
-
-						// set collisions
-						selObj->setIsCollisionEnabled(*collisionEnabled);
-
-						// cleanup
-						delete collisionEnabled;
 					}
 
 				}

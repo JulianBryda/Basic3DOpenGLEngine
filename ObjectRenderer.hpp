@@ -31,12 +31,12 @@ public:
 			Shader* shader = object->getShaderPtr();
 			shader->use();
 
-			shader->setFloat4("color", object->getMaterialPtr()->getColor());
-			shader->setFloat3("camPos", activeCamera->getPosition());
-
 			shader->setMat4("projection", activeCamera->getProjectionMatrix());
 			shader->setMat4("view", activeCamera->getViewMatrix());
 			shader->setMat4("model", object->getModelMatrix());
+
+			shader->setFloat3("camPos", activeCamera->getPosition());
+			shader->setFloat4("color", object->getMaterialPtr()->getColor());
 
 			if (object->getTexture() != 0) shader->setTexture(GL_TEXTURE_2D, object->getTexture());
 			else shader->setTexture(GL_TEXTURE_2D, defaultTexture);
@@ -44,11 +44,20 @@ public:
 			object->draw();
 
 
+			// set shader for debug operations
+			shader = ShaderLib::getColorShader();
+			shader->use();
+
+			shader->setMat4("projection", activeCamera->getProjectionMatrix());
+			shader->setMat4("view", activeCamera->getViewMatrix());
+
 			// draw wireframe?
 
 			if (object->getIsDrawWireframe())
 			{
-				shader->setFloat4("color", glm::vec4(0.0f));
+				shader->setMat4("model", object->getModelMatrix());
+
+				shader->setFloat4("color", glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
 				object->drawWireframe();
 			}
@@ -57,9 +66,9 @@ public:
 
 			if (object->getIsDrawCollider())
 			{
-				shader->setFloat4("color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-
 				shader->setMat4("model", object->getColliderPtr()->getModelMatrix());
+
+				shader->setFloat4("color", glm::vec4(1.0f, 0.0f, 0.0f, 0.2f));
 
 				object->drawCollider();
 			}

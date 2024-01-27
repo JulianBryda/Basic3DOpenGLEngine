@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 
 #include "Collider.hpp"
+#include "ShaderLib.hpp"
+#include "Mesh.hpp"
 
 class GameObject;
 
@@ -29,12 +31,13 @@ public:
 
 
 	// setter
-	void setIsCollisionEnabled(bool isCollisionEnabled);
+	void checkBuffers();
 
 	// getter
 	bool getIsDrawCollider() const;
 	bool* getIsDrawColliderPtr();
 	bool getIsCollisionEnabled() const;
+	bool* getIsCollisionEnabledPtr();
 	Collider* getColliderPtr();
 
 
@@ -48,8 +51,8 @@ private:
 	GLuint vao, vbo, ebo;
 	GameObject* gameObject;
 	Collider* collider;
+	Mesh mesh;
 
 	void createCollisionBoxBuffers();
 	void updateCollisionBoxBuffers();
-	void deleteCollisionBoxBuffers() const;
 };

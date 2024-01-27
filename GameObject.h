@@ -12,6 +12,7 @@
 #include "ObjectLoader.hpp"
 #include "Material.hpp"
 #include "Mesh.hpp"
+#include "Vertex.hpp"
 
 class GameObject : public GameObjectPhysics, public GameObjectCollisions
 {
@@ -67,19 +68,19 @@ protected:
 
 	glm::vec3 position;
 
-	Mesh mesh;
-
 private:
 
 	std::string name;
 
-	GLuint vbo, ibo, texture;
+	GLuint vbo, ebo, texture;
 
 	glm::vec3 rotation, scale;
 
 	Shader* m_shader;
 
 	Material* material;
+
+	Mesh mesh;
 
 	bool isHidden, isDrawWireframe;
 

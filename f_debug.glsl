@@ -10,8 +10,10 @@ in vec3 fragNorm;
 
 void main()
 {
-    float diff = max(dot(normalize(fragNorm), normalize(camPos - fragPos)), 0.0);
-    vec3 diffuse = diff * vec3(1.0) * color.rgb;
+	vec3 norm = normalize(fragNorm);
 
-    FragColor = vec4(diffuse, 1.0);
+	vec3 lightDir = normalize(camPos - fragPos);
+	float diff = max(dot(norm, lightDir), 0.0);
+	
+	FragColor = vec4(diff * color.rgb, color.a);
 } 

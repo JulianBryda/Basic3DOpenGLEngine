@@ -14,7 +14,7 @@ namespace ObjectLoader
 
 	static std::vector<std::string> splitString(std::string input, const char delimiter);
 
-	static void LoadObjFile(std::string path, Mesh* mesh)
+	static void LoadObjFile(const char* path, Mesh* mesh)
 	{
 		std::ifstream inputFile(path);
 

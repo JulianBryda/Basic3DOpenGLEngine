@@ -11,13 +11,20 @@ GameObjectCollisions::GameObjectCollisions(GameObject* gameObject, ColliderType 
 	this->isDrawCollider = false;
 	this->isCollisionEnabled = false;
 	this->collider = new Collider(gameObject->getPositionPtr(), gameObject->getScale(), colliderType);
+	
+	std::string objName = (colliderType == ColliderType::BoundingBox) ? "Cube" : "Sphere";
+	std::string path = std::format("C:\\Users\\Julian\\source\\repos\\FuckWindows\\Assets\\Objects\\{}.obj", objName);
+
+	ObjectLoader::LoadObjFile(path.c_str(), &this->mesh);
 }
 
 
 GameObjectCollisions::~GameObjectCollisions()
 {
+	glDeleteVertexArrays(1, &vao);
+	glDeleteBuffers(1, &vbo);
+	glDeleteBuffers(1, &ebo);
 	delete this->collider;
-	deleteCollisionBoxBuffers();
 }
 
 
@@ -69,7 +76,7 @@ bool GameObjectCollisions::checkSATCollision(GameObject* object)
 void GameObjectCollisions::drawCollider()
 {
 	glBindVertexArray(vao);
-	glDrawElements(GL_LINES, gameObject->getMeshPtr()->getIndicesPtr()->size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, mesh.getIndicesPtr()->size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
@@ -79,9 +86,9 @@ void GameObjectCollisions::snapColliderToObject()
 }
 
 // setter
-void GameObjectCollisions::setIsCollisionEnabled(bool isCollisionEnabled)
+void GameObjectCollisions::checkBuffers()
 {
-	if (isCollisionEnabled)
+	if (this->isCollisionEnabled)
 	{
 		if (this->vao == 0)
 		{
@@ -91,8 +98,6 @@ void GameObjectCollisions::setIsCollisionEnabled(bool isCollisionEnabled)
 		else
 			this->updateCollisionBoxBuffers();
 	}
-
-	this->isCollisionEnabled = isCollisionEnabled;
 }
 
 
@@ -101,6 +106,7 @@ bool GameObjectCollisions::getIsDrawCollider() const { return this->isDrawCollid
 bool* GameObjectCollisions::getIsDrawColliderPtr() { return &this->isDrawCollider; }
 Collider* GameObjectCollisions::getColliderPtr() { return this->collider; }
 bool GameObjectCollisions::getIsCollisionEnabled() const { return this->isCollisionEnabled; }
+bool* GameObjectCollisions::getIsCollisionEnabledPtr() { return &this->isCollisionEnabled; }
 
 
 void GameObjectCollisions::createCollisionBoxBuffers()
@@ -112,18 +118,18 @@ void GameObjectCollisions::createCollisionBoxBuffers()
 	glBindVertexArray(vao);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * gameObject->getMesh().getVerticesPtr()->size(), gameObject->getMesh().getVerticesPtr()->data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * mesh.getVerticesPtr()->size(), mesh.getVerticesPtr()->data(), GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * gameObject->getMesh().getIndicesPtr()->size(), gameObject->getMesh().getIndicesPtr()->data(), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * mesh.getIndicesPtr()->size(), mesh.getIndicesPtr()->data(), GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(glm::vec3)));
 	glEnableVertexAttribArray(1);
 
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(2 * sizeof(glm::vec3)));
 	glEnableVertexAttribArray(2);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -136,28 +142,21 @@ void GameObjectCollisions::updateCollisionBoxBuffers()
 	glBindVertexArray(vao);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * gameObject->getMesh().getVertices().size(), gameObject->getMesh().getVertices().data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * mesh.getVertices().size(), mesh.getVertices().data(), GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * gameObject->getMesh().getIndices().size(), gameObject->getMesh().getIndices().data(), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * mesh.getIndices().size(), mesh.getIndices().data(), GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(glm::vec3)));
 	glEnableVertexAttribArray(1);
 
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(2 * sizeof(glm::vec3)));
 	glEnableVertexAttribArray(2);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}
-
-void GameObjectCollisions::deleteCollisionBoxBuffers() const
-{
-	glDeleteVertexArrays(1, &vao);
-	glDeleteBuffers(1, &vbo);
-	glDeleteBuffers(1, &ebo);
 }
