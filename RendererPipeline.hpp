@@ -37,6 +37,11 @@ public:
 		return rendererMap;
 	}
 
+	static Renderer* getRendererPtr(RendererType rendererType)
+	{
+		return RendererPipeline::getRendererMap().find(rendererType)->second;
+	}
+
 	static void addCamera(Camera* camera)
 	{
 		cameras.push_back(camera);
@@ -54,7 +59,7 @@ public:
 		activeCameraIndex = index;
 	}
 
-	static Camera* getActiveCamera()
+	static Camera* getActiveCameraPtr()
 	{
 		return cameras[activeCameraIndex];
 	}

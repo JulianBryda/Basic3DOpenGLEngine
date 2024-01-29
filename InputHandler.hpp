@@ -5,6 +5,7 @@
 #include <ctime>
 
 #include "glm/glm.hpp"
+#include "ImguiRenderer.hpp"
 
 
 class InputHandler
@@ -25,8 +26,8 @@ public:
 		double xpos, ypos;
 		glfwGetCursorPos(window, &xpos, &ypos);
 
-		float* horizontalAngle = RendererPipeline::getActiveCamera()->getHorizontalAnglePtr();
-		float* verticalAngle = RendererPipeline::getActiveCamera()->getVerticalAnglePtr();
+		float* horizontalAngle = RendererPipeline::getActiveCameraPtr()->getHorizontalAnglePtr();
+		float* verticalAngle = RendererPipeline::getActiveCameraPtr()->getVerticalAnglePtr();
 
 		if (mouse_middle)
 		{
@@ -38,12 +39,12 @@ public:
 			glm::vec3 dir = glm::vec3(cos(*verticalAngle) * sin(*horizontalAngle), 1.0f, cos(*verticalAngle) * cos(*horizontalAngle));
 			moveOff = dir * glm::vec3(last_xpos - xpos, last_ypos - ypos, last_xpos - xpos) * deltaTime * (speed / 3);
 			moveOff = glm::vec3(-moveOff.z, moveOff.y, moveOff.x);
-			*RendererPipeline::getActiveCamera()->getAnchorPtr() -= moveOff;
+			*RendererPipeline::getActiveCameraPtr()->getAnchorPtr() -= moveOff;
 		}
 
-		*RendererPipeline::getActiveCamera()->getPositionPtr() = *RendererPipeline::getActiveCamera()->getAnchorPtr() + glm::vec3(cos(*verticalAngle) * sin(*horizontalAngle), -sin(*verticalAngle), cos(*verticalAngle) * cos(*horizontalAngle)) * RendererPipeline::getActiveCamera()->getDistance();
+		*RendererPipeline::getActiveCameraPtr()->getPositionPtr() = *RendererPipeline::getActiveCameraPtr()->getAnchorPtr() + glm::vec3(cos(*verticalAngle) * sin(*horizontalAngle), -sin(*verticalAngle), cos(*verticalAngle) * cos(*horizontalAngle)) * RendererPipeline::getActiveCameraPtr()->getDistance();
 
-		*RendererPipeline::getActiveCamera()->getViewMatrixPtr() = glm::lookAt(RendererPipeline::getActiveCamera()->getPosition(), RendererPipeline::getActiveCamera()->getAnchor(), glm::vec3(0.0f, 1.0f, 0.0f));
+		*RendererPipeline::getActiveCameraPtr()->getViewMatrixPtr() = glm::lookAt(RendererPipeline::getActiveCameraPtr()->getPosition(), RendererPipeline::getActiveCameraPtr()->getAnchor(), glm::vec3(0.0f, 1.0f, 0.0f));
 
 		last_xpos = xpos;
 		last_ypos = ypos;
@@ -73,6 +74,9 @@ public:
 				shift_mouse_middle = false;
 				mouse_middle = false;
 				break;
+			case GLFW_MOUSE_BUTTON_LEFT:
+				selectObject();
+				break;
 			default:
 				break;
 			}
@@ -82,7 +86,7 @@ public:
 	static void HandleScrollInput(int offset)
 	{
 		float off = offset / 10.0f;
-		*RendererPipeline::getActiveCamera()->getDistancePtr() *= 1.0f - off;
+		*RendererPipeline::getActiveCameraPtr()->getDistancePtr() *= 1.0f - off;
 	}
 
 	static void HandleKeyInput(int key, int action)
@@ -127,6 +131,52 @@ public:
 				break;
 			}
 		}
+	}
+
+	static void selectObject()
+	{
+		auto worldCoords = calcWorldCoordinates();
+		auto value = RendererPipeline::getRendererPtr(RendererType::Object);
+		if (value == nullptr) return;
+
+		auto renderer = static_cast<ObjectRenderer*>(value);
+
+		for (auto object : renderer->getObjects())
+		{
+			std::cout << object->getPositionPtr()->x << " " << object->getPositionPtr()->y << " " << object->getPositionPtr()->z << "\n";
+			std::cout << worldCoords.x << " " << worldCoords.y << " " << worldCoords.z << "\n";
+
+			if (object->checkBoundingBoxCollision(worldCoords))
+			{
+				ImguiRenderer::setSelectedObject(object);
+			}
+		}
+
+	}
+
+	static glm::vec3 calcWorldCoordinates()
+	{
+		int width, height;
+		double mouseX, mouseY;
+
+		glfwGetWindowSize(window, &width, &height);
+		glfwGetCursorPos(window, &mouseX, &mouseY);
+
+
+		float ndcX = (2.0 * mouseX) / width - 1.0;
+		float ndcY = 1.0 - (2.0 * mouseY) / height;
+
+		float depth;
+		glReadPixels(mouseX, height - mouseY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+
+		glm::vec4 ndcPosition = glm::vec4(ndcX, ndcY, depth * 2.0 - 1.0, 1.0);
+		glm::mat4 invProjection = glm::inverse(RendererPipeline::getActiveCameraPtr()->getProjectionMatrix());
+		glm::vec4 eyePosition = invProjection * ndcPosition;
+
+		glm::mat4 invModelView = glm::inverse(RendererPipeline::getActiveCameraPtr()->getViewMatrix());
+		glm::vec4 worldPosition = invModelView * eyePosition;
+
+		return glm::vec3(worldPosition) / worldPosition.w;
 	}
 
 	static void saveScreenShot();

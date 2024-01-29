@@ -40,6 +40,18 @@ bool GameObjectCollisions::checkBoundingBoxCollision(GameObject* object)
 		gameObject->getColliderPtr()->getAnchorPositionPtr()->z - gameObject->getColliderPtr()->getScale().z / 2 < object->getColliderPtr()->getAnchorPositionPtr()->z + object->getColliderPtr()->getScale().z / 2;
 }
 
+// Bounding Box Collision detection
+bool GameObjectCollisions::checkBoundingBoxCollision(glm::vec3 value)
+{
+	//NOTE: maybe the z axis collision detection is broken
+	return gameObject->getColliderPtr()->getAnchorPositionPtr()->x + gameObject->getColliderPtr()->getScale().x / 2 > value.x &&
+		gameObject->getColliderPtr()->getAnchorPositionPtr()->x - gameObject->getColliderPtr()->getScale().x / 2 < value.x &&
+		gameObject->getColliderPtr()->getAnchorPositionPtr()->y + gameObject->getColliderPtr()->getScale().y / 2 > value.y &&
+		gameObject->getColliderPtr()->getAnchorPositionPtr()->y - gameObject->getColliderPtr()->getScale().y / 2 < value.y &&
+		gameObject->getColliderPtr()->getAnchorPositionPtr()->z + gameObject->getColliderPtr()->getScale().z / 2 > value.z &&
+		gameObject->getColliderPtr()->getAnchorPositionPtr()->z - gameObject->getColliderPtr()->getScale().z / 2 < value.z;
+}
+
 bool GameObjectCollisions::checkBoundingBoxCollisionX(GameObject* object)
 {
 	return gameObject->getColliderPtr()->getAnchorPositionPtr()->x + gameObject->getColliderPtr()->getScale().x / 2 > object->getColliderPtr()->getAnchorPositionPtr()->x - object->getColliderPtr()->getScale().x / 2 &&

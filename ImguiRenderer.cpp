@@ -139,12 +139,12 @@ void ImguiRenderer::renderObjectManager()
 
 					for (size_t i = 0; i < renderer->getObjects().size(); i++)
 					{
-						auto& obj = renderer->getObjects()[i];
+						auto obj = renderer->getObjects()[i];
 
-						ImGui::Selectable(obj->getName().c_str(), selectedObjectIndex == i);
+						ImGui::Selectable(obj->getName().c_str(), selectedObject == obj);
 						if (ImGui::IsItemClicked())
 						{
-							selectedObjectIndex = i;
+							selectedObject = obj;
 						}
 					}
 				}
@@ -158,153 +158,150 @@ void ImguiRenderer::renderObjectManager()
 
 		ImGui::BeginChild("Detail View", ImVec2(0, 0), true);
 		{
-			auto value = RendererPipeline::getRendererMap().find(RendererType::Object)->second;
-			if (value != nullptr)
+			if (selectedObject != nullptr)
 			{
-				auto renderer = static_cast<ObjectRenderer*>(value);
-				auto& objects = renderer->getObjects();
+				float* pos[3] = { &selectedObject->getPositionPtr()->x, &selectedObject->getPositionPtr()->y, &selectedObject->getPositionPtr()->z };
+				float* scale[3] = { &selectedObject->getScalePtr()->x, &selectedObject->getScalePtr()->y, &selectedObject->getScalePtr()->z };
+				float* color[4] = { &selectedObject->getMaterialPtr()->getColorPtr()->x, &selectedObject->getMaterialPtr()->getColorPtr()->y, &selectedObject->getMaterialPtr()->getColorPtr()->z, &selectedObject->getMaterialPtr()->getColorPtr()->w };
 
-				if (selectedObjectIndex >= 0 && selectedObjectIndex < objects.size())
+				ImGui::Text("Selected Object: %s", selectedObject->getName().c_str());
+				ImGui::Separator();
+
+				if (ImGui::TreeNode("Object"))
 				{
-					GameObject* selObj = objects[selectedObjectIndex];
+					ImGui::Text("Position");
+					ImGui::SameLine();
+					ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+					ImGui::InputFloat3("##0", *pos);
 
-					float* pos[3] = { &selObj->getPositionPtr()->x, &selObj->getPositionPtr()->y, &selObj->getPositionPtr()->z };
-					float* scale[3] = { &selObj->getScalePtr()->x, &selObj->getScalePtr()->y, &selObj->getScalePtr()->z };
-					float* color[4] = { &selObj->getMaterialPtr()->getColorPtr()->x, &selObj->getMaterialPtr()->getColorPtr()->y, &selObj->getMaterialPtr()->getColorPtr()->z, &selObj->getMaterialPtr()->getColorPtr()->w };
+					ImGui::Text("Scale");
+					ImGui::SameLine();
+					ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+					ImGui::InputFloat3("##1", *scale);
 
-					ImGui::Text("Selected Object: %s", selObj->getName().c_str());
-					ImGui::Separator();
+					ImGui::Checkbox("Draw Wireframe", selectedObject->getIsDrawWireframePtr());
 
-					if (ImGui::TreeNode("Object"))
+					ImGui::TreePop();
+				}
+
+				if (ImGui::TreeNode("Material"))
+				{
+					ImGui::Text("Color");
+					ImGui::SameLine();
+					ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+					ImGui::ColorEdit4("Color", *color, ImGuiColorEditFlags_NoInputs);
+
+					ImGui::Text(std::format("Loaded Shader: {}", selectedObject->getShaderPtr()->getName()).c_str());
+
+					static char loadShaderBuffer[256] = "";
+
+					ImGui::InputText("##2354", loadShaderBuffer, IM_ARRAYSIZE(loadShaderBuffer));
+					ImGui::SameLine();
+					if (ImGui::Button("Load Shader"))
 					{
-						ImGui::Text("Position");
-						ImGui::SameLine();
-						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
-						ImGui::InputFloat3("##0", *pos);
-
-						ImGui::Text("Scale");
-						ImGui::SameLine();
-						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
-						ImGui::InputFloat3("##1", *scale);
-
-						ImGui::Checkbox("Draw Wireframe", selObj->getIsDrawWireframePtr());
-
-						ImGui::TreePop();
+						selectedObject->setShader(new Shader(loadShaderBuffer));
 					}
 
-					if (ImGui::TreeNode("Material"))
+					ImGui::Image((void*)(intptr_t)selectedObject->getTexture(), ImVec2(150, 150));
+					ImGui::SameLine();
+					ImGui::BeginChild("Container", ImVec2(0, 150));
 					{
-						ImGui::Text("Color");
-						ImGui::SameLine();
-						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
-						ImGui::ColorEdit4("Color", *color, ImGuiColorEditFlags_NoInputs);
-
-						ImGui::Text(std::format("Loaded Shader: {}", selObj->getShaderPtr()->getName()).c_str());
-
-						static char loadShaderBuffer[256] = "";
-
-						ImGui::InputText("##2354", loadShaderBuffer, IM_ARRAYSIZE(loadShaderBuffer));
-						ImGui::SameLine();
-						if (ImGui::Button("Load Shader"))
+						ImGui::BeginChild("Textures", ImVec2(0, 120), true);
 						{
-							selObj->setShader(new Shader(loadShaderBuffer));
-						}
-
-						ImGui::Image((void*)(intptr_t)selObj->getTexture(), ImVec2(150, 150));
-						ImGui::SameLine();
-						ImGui::BeginChild("Container", ImVec2(0, 150));
-						{
-							ImGui::BeginChild("Textures", ImVec2(0, 120), true);
-							{
-								renderFolderStructure("C:\\Users\\Julian\\source\\repos\\FuckWindows\\Assets\\Textures");
-							}
-							ImGui::EndChild();
-
-							if (ImGui::Button("Load Texture"))
-							{
-								selObj->loadTexture(selectedTexturePath);
-							}
+							renderFolderStructure("C:\\Users\\Julian\\source\\repos\\FuckWindows\\Assets\\Textures");
 						}
 						ImGui::EndChild();
 
+						if (ImGui::Button("Load Texture"))
+						{
+							selectedObject->loadTexture(selectedTexturePath);
+						}
+					}
+					ImGui::EndChild();
+
+					ImGui::TreePop();
+				}
+
+				if (selectedObject->getIsPhysicsEnabled())
+				{
+					float* vel[3] = { &selectedObject->getVelocityPtr()->x, &selectedObject->getVelocityPtr()->y, &selectedObject->getVelocityPtr()->z };
+
+					if (ImGui::TreeNode("Physics"))
+					{
+						ImGui::Text("Velocity");
+						ImGui::SameLine();
+						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+						ImGui::InputFloat3("##2", *vel);
+
+						ImGui::Text("Linear Drag");
+						ImGui::SameLine();
+						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+						ImGui::InputFloat("##3", selectedObject->getLinearDragPtr());
+
+						ImGui::Checkbox("Gravity", selectedObject->getIsGravityEnabledPtr());
+
 						ImGui::TreePop();
 					}
 
-					if (selObj->getIsPhysicsEnabled())
+					if (ImGui::TreeNode("Collisions"))
 					{
-						float* vel[3] = { &selObj->getVelocityPtr()->x, &selObj->getVelocityPtr()->y, &selObj->getVelocityPtr()->z };
-
-						if (ImGui::TreeNode("Physics"))
+						if (ImGui::Checkbox("Collision Enabled", selectedObject->getIsCollisionEnabledPtr()))
 						{
-							ImGui::Text("Velocity");
-							ImGui::SameLine();
-							ImGui::SetCursorPosX(ImGui::GetCursorPosX());
-							ImGui::InputFloat3("##2", *vel);
-
-							ImGui::Text("Linear Drag");
-							ImGui::SameLine();
-							ImGui::SetCursorPosX(ImGui::GetCursorPosX());
-							ImGui::InputFloat("##3", selObj->getLinearDragPtr());
-
-							ImGui::Checkbox("Gravity", selObj->getIsGravityEnabledPtr());
-
-							ImGui::TreePop();
+							selectedObject->checkBuffers();
 						}
 
-						if (ImGui::TreeNode("Collisions"))
+						if (selectedObject->getIsCollisionEnabled())
 						{
-							if (ImGui::Checkbox("Collision Enabled", selObj->getIsCollisionEnabledPtr()))
+							ImGui::Checkbox("Draw Collision Box", selectedObject->getIsDrawColliderPtr());
+
+							if (ImGui::Checkbox("Hide objects to far away for collision", &highlightCloseCollidableObjects))
 							{
-								selObj->checkBuffers();
+								if (PhysicEngine::getFocusedGameObject() == nullptr)
+									PhysicEngine::setFocusedGameObject(selectedObject);
+								else
+									PhysicEngine::setFocusedGameObject(nullptr);
 							}
 
-							if (selObj->getIsCollisionEnabled())
+							ImGui::BeginChild("Collider", ImVec2(0, 0), true);
 							{
-								ImGui::Checkbox("Draw Collision Box", selObj->getIsDrawColliderPtr());
+								float* anchor[3] = { &selectedObject->getColliderPtr()->getAnchorPositionPtr()->x, &selectedObject->getColliderPtr()->getAnchorPositionPtr()->y , &selectedObject->getColliderPtr()->getAnchorPositionPtr()->z };
+								float* colliderScale[3] = { &selectedObject->getColliderPtr()->getScalePtr()->x, &selectedObject->getColliderPtr()->getScalePtr()->y , &selectedObject->getColliderPtr()->getScalePtr()->z };
 
-								if (ImGui::Checkbox("Hide objects to far away for collision", &highlightCloseCollidableObjects))
-								{
-									if (PhysicEngine::getFocusedGameObject() == nullptr)
-										PhysicEngine::setFocusedGameObject(selObj);
-									else
-										PhysicEngine::setFocusedGameObject(nullptr);
-								}
+								ImGui::Text("Anchor");
+								ImGui::SameLine();
+								ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+								ImGui::InputFloat3("##4", *anchor);
 
-								ImGui::BeginChild("Collider", ImVec2(0, 0), true);
-								{
-									float* anchor[3] = { &selObj->getColliderPtr()->getAnchorPositionPtr()->x, &selObj->getColliderPtr()->getAnchorPositionPtr()->y , &selObj->getColliderPtr()->getAnchorPositionPtr()->z };
-									float* colliderScale[3] = { &selObj->getColliderPtr()->getScalePtr()->x, &selObj->getColliderPtr()->getScalePtr()->y , &selObj->getColliderPtr()->getScalePtr()->z };
+								ImGui::Text("Scale");
+								ImGui::SameLine();
+								ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+								ImGui::InputFloat3("##5", *colliderScale);
 
-									ImGui::Text("Anchor");
-									ImGui::SameLine();
-									ImGui::SetCursorPosX(ImGui::GetCursorPosX());
-									ImGui::InputFloat3("##4", *anchor);
+								ImGui::Spacing();
 
-									ImGui::Text("Scale");
-									ImGui::SameLine();
-									ImGui::SetCursorPosX(ImGui::GetCursorPosX());
-									ImGui::InputFloat3("##5", *colliderScale);
+								if (ImGui::Button("##6", ImVec2(40, 0))) selectedObject->snapColliderToObject();
+								ImGui::SameLine();
+								ImGui::Text("Snap Collider To Object");
 
-									ImGui::Spacing();
-
-									if (ImGui::Button("##6", ImVec2(40, 0))) selObj->snapColliderToObject();
-									ImGui::SameLine();
-									ImGui::Text("Snap Collider To Object");
-
-									ImGui::Text("IMPORTANT! If collider scale = object scale collider won't be visible!");
-								}
-								ImGui::EndChild();
+								ImGui::Text("IMPORTANT! If collider scale = object scale collider won't be visible!");
 							}
-
-							ImGui::TreePop();
+							ImGui::EndChild();
 						}
 
-						if (ImGui::Button("Delete"))
-						{
-							renderer->deleteObject(selObj);
-						}
-
+						ImGui::TreePop();
 					}
+
+					if (ImGui::Button("Delete"))
+					{
+						auto value = RendererPipeline::getRendererPtr(RendererType::Object);
+						if (value != nullptr)
+						{
+							auto renderer = static_cast<ObjectRenderer*>(value);
+							renderer->deleteObject(selectedObject);
+						}
+					}
+
+
 
 				}
 			}
@@ -376,4 +373,8 @@ void ImguiRenderer::setImguiStyle()
 	style.FrameRounding = 4.0f;
 	style.GrabRounding = 3.0f;
 	style.ScrollbarRounding = 2.0f;
+
 }
+
+
+GameObject* ImguiRenderer::selectedObject;

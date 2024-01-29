@@ -79,6 +79,13 @@ public:
 		}
 	}
 
+	// static
+
+	static void setSelectedObject(GameObject* object)
+	{
+		selectedObject = object;
+	}
+
 private:
 
 	void setImguiStyle();
@@ -87,9 +94,11 @@ private:
 	void renderDebugInfo();
 	void renderObjectManager();
 
-
-	int selectedObjectIndex = 0;
 	char selectedTexturePath[_MAX_PATH] = "";
 
 	bool m_showDebugInfo = false, m_showObjectManager = false, highlightCloseCollidableObjects = false;
+
+	// static
+
+	static GameObject* selectedObject;
 };

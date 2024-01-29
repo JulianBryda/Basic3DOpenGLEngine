@@ -22,6 +22,8 @@ public:
 
 	// collision detection
 	bool checkBoundingBoxCollision(GameObject* object);
+	bool checkBoundingBoxCollision(glm::vec3 value);
+
 	bool checkBoundingBoxCollisionX(GameObject* object);
 	bool checkBoundingBoxCollisionY(GameObject* object);
 	bool checkBoundingBoxCollisionZ(GameObject* object);
