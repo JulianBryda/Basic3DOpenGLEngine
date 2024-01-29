@@ -30,8 +30,8 @@ public:
 	virtual void draw();
 	virtual void drawWireframe();
 
-	void loadTexture(std::string textureName);
-	static void loadTexture(std::string textureName, GLuint* texture);
+	void loadTexture(const char* path);
+	static void loadTexture(const char* path, GLuint* texture);
 
 	bool getIsHidden() const;
 	bool getIsDrawWireframe() const;

@@ -210,6 +210,23 @@ void ImguiRenderer::renderObjectManager()
 							selObj->setShader(new Shader(loadShaderBuffer));
 						}
 
+						ImGui::Image((void*)(intptr_t)selObj->getTexture(), ImVec2(150, 150));
+						ImGui::SameLine();
+						ImGui::BeginChild("Container", ImVec2(0, 150));
+						{
+							ImGui::BeginChild("Textures", ImVec2(0, 120), true);
+							{
+								renderFolderStructure("C:\\Users\\Julian\\source\\repos\\FuckWindows\\Assets\\Textures");
+							}
+							ImGui::EndChild();
+
+							if (ImGui::Button("Load Texture"))
+							{
+								selObj->loadTexture(selectedTexturePath);
+							}
+						}
+						ImGui::EndChild();
+
 						ImGui::TreePop();
 					}
 

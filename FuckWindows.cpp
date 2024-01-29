@@ -64,8 +64,14 @@ int main()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
 
+	// set line width for better visualization
+	glLineWidth(2.0f);
+
 	// load shader
 	ShaderLib::LoadShader();
+
+	// init InputHandler
+	InputHandler::init(window);
 
 	// register object renderer
 	auto objectRenderer = ObjectRenderer(RendererType::Object);
@@ -83,7 +89,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// handle input
-		InputHandler::handleInput(window);
+		InputHandler::handleInput();
 
 		// do fancy physic stuff
 		PhysicEngine::update();

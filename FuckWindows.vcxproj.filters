@@ -224,6 +224,9 @@
     <ClInclude Include="ShaderLib.hpp">
       <Filter>Header Files\Shader</Filter>
     </ClInclude>
+    <ClInclude Include="stb_image_write.h">
+      <Filter>Header Files\Libraries\stb</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="v_color.glsl">
@@ -240,6 +243,12 @@
       <Filter>Source Files\Renderer\Shader\Fragment</Filter>
     </None>
     <None Include="v_debug.glsl">
+      <Filter>Source Files\Renderer\Shader\Vertex</Filter>
+    </None>
+    <None Include="f_texture.glsl">
+      <Filter>Source Files\Renderer\Shader\Fragment</Filter>
+    </None>
+    <None Include="v_texture.glsl">
       <Filter>Source Files\Renderer\Shader\Vertex</Filter>
     </None>
   </ItemGroup>

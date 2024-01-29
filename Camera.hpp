@@ -14,7 +14,7 @@ public:
 		this->view = glm::lookAt(this->position, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		this->horizontalAngle = 3.14f;
 		this->verticalAngle = 0.0f;
-		this->distance = 5.0f;
+		this->distance = 15.0f;
 
 		if (isOrtho)
 			this->projection = glm::ortho(-1280.0f * 0.05f, 1280.0f * 0.05f, -720.0f * 0.05f, 720.0f * 0.05f, 0.1f, 1000.0f);

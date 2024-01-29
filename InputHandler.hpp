@@ -2,6 +2,8 @@
 #include <iostream>
 #include "RendererPipeline.hpp"
 #include <GLFW/glfw3.h>
+#include <ctime>
+
 #include "glm/glm.hpp"
 
 
@@ -10,7 +12,12 @@ class InputHandler
 
 public:
 
-	static void handleInput(GLFWwindow* window)
+	static void init(GLFWwindow* window)
+	{
+		InputHandler::window = window;
+	}
+
+	static void handleInput()
 	{
 		updateDeltaTime();
 
@@ -85,23 +92,9 @@ public:
 			// pressed
 			switch (key)
 			{
-			case GLFW_KEY_H:
-
-				break;
-			case GLFW_KEY_W:
-
-				break;
-			case GLFW_KEY_S:
-
-				break;
-			case GLFW_KEY_D:
-
-				break;
-			case GLFW_KEY_A:
-
-				break;
-			case GLFW_KEY_SPACE:
-
+			case GLFW_KEY_F2:
+				// screenshot
+				saveScreenShot();
 				break;
 			default:
 				break;
@@ -136,9 +129,11 @@ public:
 		}
 	}
 
+	static void saveScreenShot();
 
 private:
 
+	static GLFWwindow* window;
 	static bool mouse_middle, shift_mouse_middle;
 	static double last_xpos, last_ypos;
 	static float movementSpeed, deltaTime, lastFrameTime, mouseSpeed, speed;

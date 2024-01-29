@@ -8,7 +8,7 @@ class Skybox : public GameObject
 
 public:
 
-	Skybox(std::string name, std::vector<glm::vec3> vertices, std::vector<GLuint> indices) : GameObject(name, vertices, indices, "color")
+	Skybox(std::string name, Mesh mesh, ColliderType colliderType) : GameObject(name, mesh, "color", colliderType)
 	{
 
 	}
@@ -18,7 +18,7 @@ public:
 		glDisable(GL_DEPTH_TEST);
 
 		glBindVertexArray(vao);
-		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, this->getMeshPtr()->getIndicesPtr()->size(), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 
 		glEnable(GL_DEPTH_TEST);

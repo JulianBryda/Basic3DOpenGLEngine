@@ -1,5 +1,6 @@
 #pragma once
 #include <format>
+#include <filesystem>
 
 #include "Imgui/imgui.h"
 #include "Imgui/imgui_impl_glfw.h"
@@ -54,6 +55,30 @@ public:
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	}
 
+	void renderFolderStructure(const char* path)
+	{
+		for (const auto& entry : std::filesystem::directory_iterator(path))
+		{
+			if (std::filesystem::is_directory(entry.status()))
+			{
+				if (ImGui::TreeNode(entry.path().filename().string().c_str()))
+				{
+					renderFolderStructure(entry.path().string().c_str());
+
+					ImGui::TreePop();
+				}
+			}
+			else
+			{
+				ImGui::Selectable(entry.path().filename().string().c_str(), !std::strcmp(selectedTexturePath, entry.path().string().c_str()));
+				if (ImGui::IsItemClicked())
+				{
+					std::strcpy(selectedTexturePath, entry.path().string().c_str());
+				}
+			}
+		}
+	}
+
 private:
 
 	void setImguiStyle();
@@ -64,6 +89,7 @@ private:
 
 
 	int selectedObjectIndex = 0;
+	char selectedTexturePath[_MAX_PATH] = "";
 
 	bool m_showDebugInfo = false, m_showObjectManager = false, highlightCloseCollidableObjects = false;
 };
