@@ -155,6 +155,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.hpp" />
     <ClInclude Include="Collider.hpp" />
+    <ClInclude Include="EnvironmentRenderer.hpp" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameObjectCollisions.h" />
     <ClInclude Include="GameObjectPhysics.h" />
@@ -187,10 +188,12 @@
     <None Include="cpp.hint" />
     <None Include="f_color.glsl" />
     <None Include="f_debug.glsl" />
+    <None Include="f_skybox.glsl" />
     <None Include="f_texture.glsl" />
     <None Include="ObjectLoader.hpp" />
     <None Include="v_color.glsl" />
     <None Include="v_debug.glsl" />
+    <None Include="v_skybox.glsl" />
     <None Include="v_texture.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

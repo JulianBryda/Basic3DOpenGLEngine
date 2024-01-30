@@ -9,6 +9,7 @@
 #include "Renderer.hpp"
 #include "RendererPipeline.hpp"
 #include "ObjectRenderer.hpp"
+#include "EnvironmentRenderer.hpp"
 #include "Primitives.hpp"
 #include "PhysicEngine.hpp"
 
@@ -17,7 +18,7 @@ class ImguiRenderer : public Renderer
 
 public:
 
-	ImguiRenderer(RendererType type, GLFWwindow* window) : Renderer(type)
+	ImguiRenderer(GLFWwindow* window) : Renderer(RendererType::UserInterface)
 	{
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();

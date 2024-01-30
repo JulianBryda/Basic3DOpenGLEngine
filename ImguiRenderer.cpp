@@ -13,7 +13,7 @@ void ImguiRenderer::renderMenuBar()
 				if (value != nullptr)
 				{
 					auto renderer = static_cast<ObjectRenderer*>(value);
-					GameObject* obj = new GameObject(std::format("Cube{}", renderer->getObjects().size()), "C:\\Users\\Julian\\source\\repos\\FuckWindows\\Assets\\Objects\\Cube.obj", "debug", ColliderType::BoundingBox);
+					GameObject* obj = new GameObject(std::format("Cube{}", renderer->getObjects().size()), "C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Objects\\Cube.obj", "debug", ColliderType::BoundingBox);
 					obj->setIsPhysicsEnabled(true);
 
 					renderer->addObject(obj);
@@ -25,7 +25,7 @@ void ImguiRenderer::renderMenuBar()
 				if (value != nullptr)
 				{
 					auto renderer = static_cast<ObjectRenderer*>(value);
-					GameObject* obj = new GameObject(std::format("Sphere{}", renderer->getObjects().size()), "C:\\Users\\Julian\\source\\repos\\FuckWindows\\Assets\\Objects\\Sphere.obj", "debug", ColliderType::Circular);
+					GameObject* obj = new GameObject(std::format("Sphere{}", renderer->getObjects().size()), "C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Objects\\Sphere.obj", "debug", ColliderType::Circular);
 					obj->setIsPhysicsEnabled(true);
 
 					renderer->addObject(obj);
@@ -37,7 +37,7 @@ void ImguiRenderer::renderMenuBar()
 				if (value != nullptr)
 				{
 					auto renderer = static_cast<ObjectRenderer*>(value);
-					GameObject* obj = new GameObject(std::format("StressTest{}", renderer->getObjects().size()), "C:\\Users\\Julian\\source\\repos\\FuckWindows\\Assets\\Objects\\StressTest.obj", "debug", ColliderType::BoundingBox);
+					GameObject* obj = new GameObject(std::format("StressTest{}", renderer->getObjects().size()), "C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Objects\\StressTest.obj", "debug", ColliderType::BoundingBox);
 					obj->setIsPhysicsEnabled(true);
 
 					renderer->addObject(obj);
@@ -90,7 +90,7 @@ void ImguiRenderer::renderMenuBar()
 			{
 				Mesh mesh;
 
-				ObjectLoader::LoadObjFile("C:\\Users\\Julian\\source\\repos\\FuckWindows\\Assets\\Objects\\Cube.obj", &mesh);
+				ObjectLoader::LoadObjFile("C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Objects\\Cube.obj", &mesh);
 				auto test = 0;
 			}
 
@@ -126,16 +126,37 @@ void ImguiRenderer::renderDebugInfo()
 
 void ImguiRenderer::renderObjectManager()
 {
-	ImGui::Begin("Object Manager");
+	ImGui::Begin("Object Manager", nullptr);
 	{
 		ImGui::BeginChild("Objects", ImVec2(200, 0), true);
 		{
-			if (ImGui::TreeNode("Object Renderer"))
+			if (ImGui::TreeNode("Objects"))
 			{
 				auto value = RendererPipeline::getRendererMap().find(RendererType::Object)->second;
 				if (value != nullptr)
 				{
 					auto renderer = static_cast<ObjectRenderer*>(value);
+
+					for (size_t i = 0; i < renderer->getObjects().size(); i++)
+					{
+						auto obj = renderer->getObjects()[i];
+
+						ImGui::Selectable(obj->getName().c_str(), selectedObject == obj);
+						if (ImGui::IsItemClicked())
+						{
+							selectedObject = obj;
+						}
+					}
+				}
+
+				ImGui::TreePop();
+			}
+			if (ImGui::TreeNode("Environment"))
+			{
+				auto value = RendererPipeline::getRendererMap().find(RendererType::Environment)->second;
+				if (value != nullptr)
+				{
+					auto renderer = static_cast<EnvironmentRenderer*>(value);
 
 					for (size_t i = 0; i < renderer->getObjects().size(); i++)
 					{
@@ -208,7 +229,7 @@ void ImguiRenderer::renderObjectManager()
 					{
 						ImGui::BeginChild("Textures", ImVec2(0, 120), true);
 						{
-							renderFolderStructure("C:\\Users\\Julian\\source\\repos\\FuckWindows\\Assets\\Textures");
+							renderFolderStructure("C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Textures");
 						}
 						ImGui::EndChild();
 
@@ -297,11 +318,14 @@ void ImguiRenderer::renderObjectManager()
 						if (value != nullptr)
 						{
 							auto renderer = static_cast<ObjectRenderer*>(value);
-							renderer->deleteObject(selectedObject);
+
+							PhysicEngine::removeObject(selectedObject);
+							renderer->removeObject(selectedObject);
+
+							delete selectedObject;
+							selectedObject = nullptr;
 						}
 					}
-
-
 
 				}
 			}

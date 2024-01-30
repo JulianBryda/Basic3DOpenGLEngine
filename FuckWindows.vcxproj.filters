@@ -227,6 +227,9 @@
     <ClInclude Include="stb_image_write.h">
       <Filter>Header Files\Libraries\stb</Filter>
     </ClInclude>
+    <ClInclude Include="EnvironmentRenderer.hpp">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="v_color.glsl">
@@ -249,6 +252,12 @@
       <Filter>Source Files\Renderer\Shader\Fragment</Filter>
     </None>
     <None Include="v_texture.glsl">
+      <Filter>Source Files\Renderer\Shader\Vertex</Filter>
+    </None>
+    <None Include="f_skybox.glsl">
+      <Filter>Source Files\Renderer\Shader\Fragment</Filter>
+    </None>
+    <None Include="v_skybox.glsl">
       <Filter>Source Files\Renderer\Shader\Vertex</Filter>
     </None>
   </ItemGroup>

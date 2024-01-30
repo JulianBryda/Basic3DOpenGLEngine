@@ -7,10 +7,9 @@
 
 enum RendererType
 {
+	Environment,
+	MIN = Environment,
 	Object,
-	MIN = Object,
-	Terrain,
-	Light,
 	UserInterface,
 	MAX = UserInterface
 };

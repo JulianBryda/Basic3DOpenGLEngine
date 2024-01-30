@@ -143,12 +143,13 @@ public:
 
 		for (auto object : renderer->getObjects())
 		{
-			std::cout << object->getPositionPtr()->x << " " << object->getPositionPtr()->y << " " << object->getPositionPtr()->z << "\n";
-			std::cout << worldCoords.x << " " << worldCoords.y << " " << worldCoords.z << "\n";
+			glm::vec3 distance = glm::abs(object->getPosition() - worldCoords);
+			glm::vec3 objectScale = object->getScale();
 
-			if (object->checkBoundingBoxCollision(worldCoords))
+			if (distance.x < objectScale.x && distance.y < objectScale.y && distance.z < objectScale.z)
 			{
 				ImguiRenderer::setSelectedObject(object);
+				break;
 			}
 		}
 

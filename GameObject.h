@@ -33,6 +33,9 @@ public:
 	void loadTexture(const char* path);
 	static void loadTexture(const char* path, GLuint* texture);
 
+	void loadCubeMap(std::vector<const char*> faces);
+	static void loadCubeMap(std::vector<const char*> faces, GLuint* texture);
+
 	bool getIsHidden() const;
 	bool getIsDrawWireframe() const;
 	bool* getIsDrawWireframePtr();
@@ -43,9 +46,10 @@ public:
 	glm::vec3 getScale() const;
 	glm::vec3* getScalePtr();
 
-	glm::mat4 getModelMatrix() const;
+	virtual glm::mat4 getModelMatrix() const;
 
 	GLuint getTexture() const;
+	GLenum getTextureType() const;
 
 	Shader* getShaderPtr() const;
 
@@ -73,6 +77,7 @@ private:
 	std::string name;
 
 	GLuint vbo, ebo, texture;
+	GLenum textureType;
 
 	glm::vec3 rotation, scale;
 

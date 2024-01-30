@@ -105,36 +105,15 @@ void GameObject::drawWireframe()
 {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	glBindVertexArray(vao);
-	glDrawElements(GL_TRIANGLES, this->mesh.getIndicesPtr()->size(), GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
+	this->draw();
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 void GameObject::loadTexture(const char* path)
 {
-	if (texture == 0) glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	int width, height, nrChannels;
-	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture \"" << path << "\"!\n";
-	}
-
-	stbi_image_free(data);
+	loadTexture(path, &this->texture);
+	this->textureType = GL_TEXTURE_2D;
 }
 
 void GameObject::loadTexture(const char* path, GLuint* texture)
@@ -162,19 +141,56 @@ void GameObject::loadTexture(const char* path, GLuint* texture)
 	stbi_image_free(data);
 }
 
+void GameObject::loadCubeMap(std::vector<const char*> faces)
+{
+	loadCubeMap(faces, &this->texture);
+	this->textureType = GL_TEXTURE_CUBE_MAP;
+}
+
+void GameObject::loadCubeMap(std::vector<const char*> faces, GLuint* texture)
+{
+	if (*texture == 0) glGenTextures(1, texture);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, *texture);
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	int width, height, nrChannels;
+	unsigned char* data;
+	for (size_t i = 0; i < faces.size(); i++)
+	{
+		data = stbi_load(faces[i], &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+			stbi_image_free(data);
+		}
+		else
+		{
+			std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+			stbi_image_free(data);
+		}
+	}
+}
+
+
 bool GameObject::getIsHidden() const { return this->isHidden; }
 bool GameObject::getIsDrawWireframe() const { return this->isDrawWireframe; }
 bool* GameObject::getIsDrawWireframePtr() { return &this->isDrawWireframe; }
 
-glm::vec3 GameObject::getPosition() const { return position; }
-glm::vec3* GameObject::getPositionPtr() { return &position; }
+glm::vec3 GameObject::getPosition() const { return this->position; }
+glm::vec3* GameObject::getPositionPtr() { return &this->position; }
 glm::vec3 GameObject::getRotation() const { return rotation; }
 glm::vec3 GameObject::getScale() const { return scale; }
 glm::vec3* GameObject::getScalePtr() { return &scale; }
 
 glm::mat4 GameObject::getModelMatrix() const { return glm::scale(glm::translate(glm::mat4(1.0f), this->position), this->scale); }
 
-GLuint GameObject::getTexture() const { return texture; }
+GLuint GameObject::getTexture() const { return this->texture; }
+GLenum GameObject::getTextureType() const { return this->textureType; }
 
 Shader* GameObject::getShaderPtr() const { return m_shader; }
 

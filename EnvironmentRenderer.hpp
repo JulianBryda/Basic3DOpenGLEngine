@@ -8,16 +8,14 @@
 #include "Shader.hpp"
 #include "ShaderLib.hpp"
 
-class ObjectRenderer : public Renderer
+class EnvironmentRenderer : public Renderer
 {
 
 public:
 
-	ObjectRenderer() : Renderer(RendererType::Object)
+	EnvironmentRenderer() : Renderer(RendererType::Environment)
 	{
-		Camera* camera = new Camera("Camera", false);
-		camera->setPosition(glm::vec3(0.0f, 0.0f, 5.0f));
-		RendererPipeline::addCamera(camera);
+
 	}
 
 	void render(Camera* activeCamera) override
@@ -32,9 +30,6 @@ public:
 			shader->setMat4("projection", activeCamera->getProjectionMatrix());
 			shader->setMat4("view", activeCamera->getViewMatrix());
 			shader->setMat4("model", object->getModelMatrix());
-
-			shader->setFloat3("camPos", activeCamera->getPosition());
-			shader->setFloat4("color", object->getMaterialPtr()->getColor());
 
 			shader->setTexture(object->getTextureType(), object->getTexture());
 
@@ -78,9 +73,11 @@ public:
 		m_objects.push_back(object);
 	}
 
-	void removeObject(GameObject* object)
+	void deleteObject(GameObject* object)
 	{
 		m_objects.erase(std::remove(m_objects.begin(), m_objects.end(), object), m_objects.end());
+
+		delete object;
 	}
 
 	std::vector<GameObject*>& getObjects()

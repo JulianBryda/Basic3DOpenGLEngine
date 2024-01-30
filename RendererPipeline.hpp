@@ -29,6 +29,12 @@ public:
 
 	static void registerRenderer(Renderer* renderer, RendererType type)
 	{
+		if (rendererMap.contains(type))
+		{
+			std::cout << "Failed to add new renderer! Type: " << type << " already registered!\n";
+			return;
+		}
+
 		rendererMap.insert(std::pair<RendererType, Renderer*>(type, renderer));
 	}
 
@@ -41,6 +47,7 @@ public:
 	{
 		return RendererPipeline::getRendererMap().find(rendererType)->second;
 	}
+
 
 	static void addCamera(Camera* camera)
 	{
@@ -73,6 +80,9 @@ public:
 	{
 		return activeCameraIndex;
 	}
+
+
+	static void addObjectToRenderer(GameObject* object, RendererType type);
 
 private:
 

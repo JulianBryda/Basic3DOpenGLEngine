@@ -9,6 +9,8 @@
 #include "ImguiRenderer.hpp"
 #include "PhysicEngine.hpp"
 #include "ShaderLib.hpp"
+#include "EnvironmentRenderer.hpp"
+#include "Skybox.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -74,12 +76,32 @@ int main()
 	InputHandler::init(window);
 
 	// register object renderer
-	auto objectRenderer = ObjectRenderer(RendererType::Object);
+	auto objectRenderer = ObjectRenderer();
 	RendererPipeline::registerRenderer(&objectRenderer, RendererType::Object);
 
 	// register imgui renderer to render user interface
-	auto imguiRenderer = ImguiRenderer(RendererType::UserInterface, window);
+	auto imguiRenderer = ImguiRenderer(window);
 	RendererPipeline::registerRenderer(&imguiRenderer, RendererType::UserInterface);
+
+	// register environment renderer
+	auto environmentRenderer = EnvironmentRenderer();
+	RendererPipeline::registerRenderer(&environmentRenderer, RendererType::Environment);
+
+	// add skybox
+	std::vector<const char*> faces =
+	{
+		"C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Textures\\Skybox\\Skybox_Left.png",
+		"C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Textures\\Skybox\\Skybox_Right.png",
+		"C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Textures\\Skybox\\Skybox_Top.png",
+		"C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Textures\\Skybox\\Skybox_Bottom.png",
+		"C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Textures\\Skybox\\Skybox_Back.png",
+		"C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Textures\\Skybox\\Skybox_Front.png"
+	};
+
+	Skybox skybox = Skybox("Skybox");
+	skybox.loadCubeMap(faces);
+
+	environmentRenderer.addObject(&skybox);
 
 
 	// window lopp
