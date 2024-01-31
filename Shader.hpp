@@ -28,8 +28,8 @@ public:
 		try
 		{
 			// open files
-			vShaderFile.open(std::format("v_{}.glsl", shaderName).c_str());
-			fShaderFile.open(std::format("f_{}.glsl", shaderName).c_str());
+			vShaderFile.open(std::format("Shader\\v_{}.glsl", shaderName).c_str());
+			fShaderFile.open(std::format("Shader\\f_{}.glsl", shaderName).c_str());
 			std::stringstream vShaderStream, fShaderStream;
 			// read file's buffer contents into streams
 			vShaderStream << vShaderFile.rdbuf();

@@ -90,12 +90,12 @@ int main()
 	// add skybox
 	std::vector<const char*> faces =
 	{
-		"C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Textures\\Skybox\\Skybox_Left.png",
-		"C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Textures\\Skybox\\Skybox_Right.png",
-		"C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Textures\\Skybox\\Skybox_Top.png",
-		"C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Textures\\Skybox\\Skybox_Bottom.png",
-		"C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Textures\\Skybox\\Skybox_Back.png",
-		"C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Textures\\Skybox\\Skybox_Front.png"
+		"\\Assets\\Textures\\Skybox\\Skybox_Left.png",
+		"\\Assets\\Textures\\Skybox\\Skybox_Right.png",
+		"\\Assets\\Textures\\Skybox\\Skybox_Top.png",
+		"\\Assets\\Textures\\Skybox\\Skybox_Bottom.png",
+		"\\Assets\\Textures\\Skybox\\Skybox_Back.png",
+		"\\Assets\\Textures\\Skybox\\Skybox_Front.png"
 	};
 
 	Skybox skybox = Skybox("Skybox");

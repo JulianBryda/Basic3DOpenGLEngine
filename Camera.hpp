@@ -7,7 +7,7 @@ class Camera : public GameObject
 
 public:
 
-	Camera(std::string name, bool isOrtho) : GameObject(name, "C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Objects\\Camera.obj", "color", ColliderType::NONE)
+	Camera(std::string name, bool isOrtho) : GameObject(name, "\\Assets\\Objects\\Camera.obj", "color", ColliderType::NONE)
 	{
 		this->anchor = glm::vec3(0.0f);
 		this->view = glm::lookAt(this->position, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
