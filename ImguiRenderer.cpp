@@ -13,7 +13,7 @@ void ImguiRenderer::renderMenuBar()
 				if (value != nullptr)
 				{
 					auto renderer = static_cast<ObjectRenderer*>(value);
-					GameObject* obj = new GameObject(std::format("Cube{}", renderer->getObjects().size()), "C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Objects\\Cube.obj", "debug", ColliderType::BoundingBox);
+					GameObject* obj = new GameObject(std::format("Cube{}", renderer->getObjects().size()), "\\Assets\\Objects\\Cube.obj", "debug", ColliderType::BoundingBox);
 					obj->setIsPhysicsEnabled(true);
 
 					renderer->addObject(obj);
@@ -25,7 +25,7 @@ void ImguiRenderer::renderMenuBar()
 				if (value != nullptr)
 				{
 					auto renderer = static_cast<ObjectRenderer*>(value);
-					GameObject* obj = new GameObject(std::format("Sphere{}", renderer->getObjects().size()), "C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Objects\\Sphere.obj", "debug", ColliderType::Circular);
+					GameObject* obj = new GameObject(std::format("Sphere{}", renderer->getObjects().size()), "\\Assets\\Objects\\Sphere.obj", "debug", ColliderType::Circular);
 					obj->setIsPhysicsEnabled(true);
 
 					renderer->addObject(obj);
@@ -37,7 +37,7 @@ void ImguiRenderer::renderMenuBar()
 				if (value != nullptr)
 				{
 					auto renderer = static_cast<ObjectRenderer*>(value);
-					GameObject* obj = new GameObject(std::format("StressTest{}", renderer->getObjects().size()), "C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Objects\\StressTest.obj", "debug", ColliderType::BoundingBox);
+					GameObject* obj = new GameObject(std::format("StressTest{}", renderer->getObjects().size()), "\\Assets\\Objects\\StressTest.obj", "debug", ColliderType::BoundingBox);
 					obj->setIsPhysicsEnabled(true);
 
 					renderer->addObject(obj);
@@ -90,7 +90,7 @@ void ImguiRenderer::renderMenuBar()
 			{
 				Mesh mesh;
 
-				ObjectLoader::load_obj_file("C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Objects\\Cube.obj", &mesh);
+				ObjectLoader::LoadObjFile("\\Assets\\Objects\\Cube.obj", &mesh);
 				auto test = 0;
 			}
 
@@ -229,7 +229,7 @@ void ImguiRenderer::renderObjectManager()
 					{
 						ImGui::BeginChild("Textures", ImVec2(0, 120), true);
 						{
-							renderFolderStructure("C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Textures");
+							renderFolderStructure("\\Assets\\Textures");
 						}
 						ImGui::EndChild();
 
