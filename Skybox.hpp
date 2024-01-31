@@ -9,7 +9,7 @@ class Skybox : public GameObject
 
 public:
 
-	Skybox(std::string name) : GameObject(name, "\\Assets\\Objects\\Cube.obj", "skybox", ColliderType::NONE)
+	Skybox(std::string name) : GameObject(name, ".\\Assets\\Objects\\Cube.obj", "skybox", ColliderType::NONE)
 	{
 
 	}
