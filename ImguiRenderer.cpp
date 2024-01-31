@@ -77,7 +77,7 @@ void ImguiRenderer::renderMenuBar()
 			{
 				if (ImGui::Checkbox(RendererPipeline::getCameras()[i]->getName().c_str(), new bool(i == RendererPipeline::getActiveCameraIndex())))
 				{
-					RendererPipeline::setActiveCamera(i);
+					RendererPipeline::setActiveCamera((int)i);
 				}
 			}
 
@@ -90,7 +90,7 @@ void ImguiRenderer::renderMenuBar()
 			{
 				Mesh mesh;
 
-				ObjectLoader::LoadObjFile("C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Objects\\Cube.obj", &mesh);
+				ObjectLoader::load_obj_file("C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Objects\\Cube.obj", &mesh);
 				auto test = 0;
 			}
 

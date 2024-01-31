@@ -13,7 +13,7 @@ public:
 		this->view = glm::lookAt(this->position, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		this->horizontalAngle = 3.14f;
 		this->verticalAngle = 0.0f;
-		this->distance = 15.0f;
+		this->m_Distance = 15.0f;
 
 		if (isOrtho)
 			this->projection = glm::ortho(-1280.0f * 0.05f, 1280.0f * 0.05f, -720.0f * 0.05f, 720.0f * 0.05f, 0.1f, 1000.0f);
@@ -31,13 +31,13 @@ public:
 
 	float* getHorizontalAnglePtr() { return &this->horizontalAngle; }
 	float* getVerticalAnglePtr() { return &this->verticalAngle; }
-	float getDistance() const { return this->distance; }
-	float* getDistancePtr() { return &this->distance; }
-
+	float getDistance() const { return this->m_Distance; }
+	inline void setDistance(const float distance) { m_Distance = distance; };
+	inline void multiplyDistance(const float multiplier) { m_Distance = m_Distance * multiplier; };
 private:
 
 	glm::mat4 projection, view;
 	glm::vec3 anchor;
 
-	float horizontalAngle, verticalAngle, distance;
+	float horizontalAngle, verticalAngle, m_Distance;
 };

@@ -144,7 +144,7 @@ private:
 
 	static void updateDeltaTime()
 	{
-		float currentFrameTime = glfwGetTime();
+		float currentFrameTime = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrameTime - lastFrameTime;
 		lastFrameTime = currentFrameTime;
 	}

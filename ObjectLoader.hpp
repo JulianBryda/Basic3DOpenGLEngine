@@ -11,10 +11,34 @@
 
 namespace ObjectLoader
 {
+	inline std::vector<std::string> splitString(std::string input, const char delimiter)
+	{
+		std::vector<std::string> tokens;
+		std::string token;
 
-	static std::vector<std::string> splitString(std::string input, const char delimiter);
+		for (char ch : input)
+		{
+			if (ch != delimiter)
+			{
+				token += ch;
+			}
+			else
+			{
+				tokens.push_back(token.c_str());
+				token.clear();
+			}
+		}
 
-	static void LoadObjFile(const char* path, Mesh* mesh)
+		// Add the last token if the string doesn't end with the delimiter
+		if (!token.empty())
+		{
+			tokens.push_back(token.c_str());
+		}
+
+		return tokens;
+	}
+
+	inline void load_obj_file(const char* path, Mesh* mesh)
 	{
 		std::ifstream inputFile(path);
 
@@ -72,7 +96,7 @@ namespace ObjectLoader
 					if (iterator != mesh->getVerticesPtr()->end())
 					{
 						// contains
-						mesh->getIndicesPtr()->push_back(iterator - mesh->getVerticesPtr()->begin());
+						mesh->getIndicesPtr()->push_back(static_cast<GLuint>(iterator - mesh->getVerticesPtr()->begin()));
 					}
 					else
 					{
@@ -86,33 +110,6 @@ namespace ObjectLoader
 
 		// close file otherwise windows machen dudu
 		inputFile.close();
-	}
-
-	static std::vector<std::string> splitString(std::string input, const char delimiter)
-	{
-		std::vector<std::string> tokens;
-		std::string token;
-
-		for (char ch : input)
-		{
-			if (ch != delimiter)
-			{
-				token += ch;
-			}
-			else
-			{
-				tokens.push_back(token.c_str());
-				token.clear();
-			}
-		}
-
-		// Add the last token if the string doesn't end with the delimiter
-		if (!token.empty())
-		{
-			tokens.push_back(token.c_str());
-		}
-
-		return tokens;
 	}
 
 };

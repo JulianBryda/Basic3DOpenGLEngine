@@ -55,5 +55,5 @@ bool* GameObjectPhysics::getIsGravityEnabledPtr() { return &this->isGravityEnabl
 
 // math functions
 float GameObjectPhysics::getSpeed() const { return glm::length(this->velocity); }
-float GameObjectPhysics::getKineticEnergy() const { return 0.5f * this->mass * glm::pow(this->getSpeed(), 2); }
+float GameObjectPhysics::getKineticEnergy() const { return 0.5f * this->mass * static_cast<float>(glm::pow(this->getSpeed(), 2)); }
 float GameObjectPhysics::getPotentialEnergy() const { return this->mass * this->gravity; }

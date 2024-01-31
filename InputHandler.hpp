@@ -26,8 +26,8 @@ public:
 		double xpos, ypos;
 		glfwGetCursorPos(window, &xpos, &ypos);
 
-		float* horizontalAngle = RendererPipeline::getActiveCameraPtr()->getHorizontalAnglePtr();
-		float* verticalAngle = RendererPipeline::getActiveCameraPtr()->getVerticalAnglePtr();
+		float* horizontalAngle = RendererPipeline::getActiveCamera()->getHorizontalAnglePtr();
+		float* verticalAngle = RendererPipeline::getActiveCamera()->getVerticalAnglePtr();
 
 		if (mouse_middle)
 		{
@@ -39,12 +39,12 @@ public:
 			glm::vec3 dir = glm::vec3(cos(*verticalAngle) * sin(*horizontalAngle), 1.0f, cos(*verticalAngle) * cos(*horizontalAngle));
 			moveOff = dir * glm::vec3(last_xpos - xpos, last_ypos - ypos, last_xpos - xpos) * deltaTime * (speed / 3);
 			moveOff = glm::vec3(-moveOff.z, moveOff.y, moveOff.x);
-			*RendererPipeline::getActiveCameraPtr()->getAnchorPtr() -= moveOff;
+			*RendererPipeline::getActiveCamera()->getAnchorPtr() -= moveOff;
 		}
 
-		*RendererPipeline::getActiveCameraPtr()->getPositionPtr() = *RendererPipeline::getActiveCameraPtr()->getAnchorPtr() + glm::vec3(cos(*verticalAngle) * sin(*horizontalAngle), -sin(*verticalAngle), cos(*verticalAngle) * cos(*horizontalAngle)) * RendererPipeline::getActiveCameraPtr()->getDistance();
+		*RendererPipeline::getActiveCamera()->getPositionPtr() = *RendererPipeline::getActiveCamera()->getAnchorPtr() + glm::vec3(cos(*verticalAngle) * sin(*horizontalAngle), -sin(*verticalAngle), cos(*verticalAngle) * cos(*horizontalAngle)) * RendererPipeline::getActiveCamera()->getDistance();
 
-		*RendererPipeline::getActiveCameraPtr()->getViewMatrixPtr() = glm::lookAt(RendererPipeline::getActiveCameraPtr()->getPosition(), RendererPipeline::getActiveCameraPtr()->getAnchor(), glm::vec3(0.0f, 1.0f, 0.0f));
+		*RendererPipeline::getActiveCamera()->getViewMatrixPtr() = glm::lookAt(RendererPipeline::getActiveCamera()->getPosition(), RendererPipeline::getActiveCamera()->getAnchor(), glm::vec3(0.0f, 1.0f, 0.0f));
 
 		last_xpos = xpos;
 		last_ypos = ypos;
@@ -83,10 +83,10 @@ public:
 		}
 	}
 
-	static void HandleScrollInput(int offset)
+	static void HandleScrollInput(double offset)
 	{
-		float off = offset / 10.0f;
-		*RendererPipeline::getActiveCameraPtr()->getDistancePtr() *= 1.0f - off;
+		float off = static_cast<float>(offset) / 10.0f;
+		RendererPipeline::getActiveCamera()->multiplyDistance(1.0f - off);
 	}
 
 	static void HandleKeyInput(int key, int action)
@@ -163,18 +163,17 @@ public:
 		glfwGetWindowSize(window, &width, &height);
 		glfwGetCursorPos(window, &mouseX, &mouseY);
 
-
-		float ndcX = (2.0 * mouseX) / width - 1.0;
-		float ndcY = 1.0 - (2.0 * mouseY) / height;
+		double ndcX = (2.0 * mouseX) / width - 1.0;
+		double ndcY = 1.0 - (2.0 * mouseY) / height;
 
 		float depth;
-		glReadPixels(mouseX, height - mouseY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+		glReadPixels(static_cast<int>(mouseX), height - static_cast<int>(mouseY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
 
 		glm::vec4 ndcPosition = glm::vec4(ndcX, ndcY, depth * 2.0 - 1.0, 1.0);
-		glm::mat4 invProjection = glm::inverse(RendererPipeline::getActiveCameraPtr()->getProjectionMatrix());
+		glm::mat4 invProjection = glm::inverse(RendererPipeline::getActiveCamera()->getProjectionMatrix());
 		glm::vec4 eyePosition = invProjection * ndcPosition;
 
-		glm::mat4 invModelView = glm::inverse(RendererPipeline::getActiveCameraPtr()->getViewMatrix());
+		glm::mat4 invModelView = glm::inverse(RendererPipeline::getActiveCamera()->getViewMatrix());
 		glm::vec4 worldPosition = invModelView * eyePosition;
 
 		return glm::vec3(worldPosition) / worldPosition.w;
@@ -191,7 +190,7 @@ private:
 
 	static void updateDeltaTime()
 	{
-		float currentFrameTime = glfwGetTime();
+		float currentFrameTime = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrameTime - lastFrameTime;
 		lastFrameTime = currentFrameTime;
 	}

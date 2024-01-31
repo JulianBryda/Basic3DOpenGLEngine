@@ -15,7 +15,7 @@ GameObjectCollisions::GameObjectCollisions(GameObject* gameObject, ColliderType 
 	std::string objName = (colliderType == ColliderType::BoundingBox) ? "Cube" : "Sphere";
 	std::string path = std::format("C:\\Users\\JulianBrydaVeloce\\source\\repos\\FuckWindows\\Assets\\Objects\\{}.obj", objName);
 
-	ObjectLoader::LoadObjFile(path.c_str(), &this->mesh);
+	ObjectLoader::load_obj_file(path.c_str(), &this->mesh);
 }
 
 

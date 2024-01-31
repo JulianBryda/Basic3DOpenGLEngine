@@ -20,7 +20,7 @@ public:
 		glDisable(GL_DEPTH_TEST);
 
 		glBindVertexArray(vao);
-		glDrawElements(GL_TRIANGLES, this->getMeshPtr()->getIndicesPtr()->size(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(this->getMeshPtr()->getIndicesPtr()->size()), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 
 		glEnable(GL_DEPTH_TEST);
@@ -28,6 +28,6 @@ public:
 	}
 
 
-	glm::mat4 getModelMatrix() const override { return glm::scale(glm::translate(glm::mat4(1.0f), RendererPipeline::getActiveCameraPtr()->getPosition() + this->position), this->getScale()); }
+	glm::mat4 getModelMatrix() const override { return glm::scale(glm::translate(glm::mat4(1.0f), RendererPipeline::getActiveCamera()->getPosition() + this->position), this->getScale()); }
 
 };

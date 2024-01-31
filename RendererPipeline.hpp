@@ -66,7 +66,7 @@ public:
 		activeCameraIndex = index;
 	}
 
-	static Camera* getActiveCameraPtr()
+	static Camera* getActiveCamera()
 	{
 		return cameras[activeCameraIndex];
 	}
