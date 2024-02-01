@@ -19,7 +19,7 @@ void ImguiRenderer::renderMenuBar()
 					renderer->addObject(obj);
 				}
 			}
-			else if (ImGui::MenuItem("Sphere"))
+			if (ImGui::MenuItem("Sphere"))
 			{
 				auto value = RendererPipeline::getRendererMap().find(RendererType::Object)->second;
 				if (value != nullptr)
@@ -31,7 +31,7 @@ void ImguiRenderer::renderMenuBar()
 					renderer->addObject(obj);
 				}
 			}
-			else if (ImGui::MenuItem("StressTest"))
+			if (ImGui::MenuItem("StressTest"))
 			{
 				auto value = RendererPipeline::getRendererMap().find(RendererType::Object)->second;
 				if (value != nullptr)
@@ -53,38 +53,57 @@ void ImguiRenderer::renderMenuBar()
 
 			ImGui::EndMenu();
 		}
-		else if (ImGui::BeginMenu("View"))
+		if (ImGui::BeginMenu("Viewport"))
 		{
-			if (ImGui::MenuItem("Add Ortho"))
-			{
-				Camera* camera = new Camera(std::format("Camera{}", RendererPipeline::getCameras().size()), true);
-				camera->setPosition(glm::vec3(0.0f, 0.0f, 1.0f));
-
-				RendererPipeline::addCamera(camera);
-			}
-
-			if (ImGui::MenuItem("Add Pers"))
-			{
-				Camera* camera = new Camera(std::format("Camera{}", RendererPipeline::getCameras().size()), false);
-				camera->setPosition(glm::vec3(0.0f, 0.0f, 1.0f));
-
-				RendererPipeline::addCamera(camera);
-			}
-
 			ImGui::Checkbox("Show Debug Info", &m_showDebugInfo);
 
-			for (size_t i = 0; i < RendererPipeline::getCameras().size(); i++)
+			if (ImGui::BeginMenu("Camera"))
 			{
-				if (ImGui::Checkbox(RendererPipeline::getCameras()[i]->getName().c_str(), new bool(i == RendererPipeline::getActiveCameraIndex())))
+				if (ImGui::MenuItem("Add Pers"))
 				{
-					RendererPipeline::setActiveCamera((int)i);
+					Camera* camera = new Camera(std::format("Camera{}", RendererPipeline::getCameras().size()), false);
+					camera->setPosition(glm::vec3(0.0f, 0.0f, 1.0f));
+
+					RendererPipeline::addCamera(camera);
 				}
+
+				if (ImGui::MenuItem("Add Ortho", nullptr, nullptr, false))
+				{
+					Camera* camera = new Camera(std::format("Camera{}", RendererPipeline::getCameras().size()), true);
+					camera->setPosition(glm::vec3(0.0f, 0.0f, 1.0f));
+
+					RendererPipeline::addCamera(camera);
+				}
+
+				for (size_t i = 0; i < RendererPipeline::getCameras().size(); i++)
+				{
+					if (ImGui::Checkbox(RendererPipeline::getCameras()[i]->getName().c_str(), new bool(i == RendererPipeline::getActiveCameraIndex())))
+					{
+						RendererPipeline::setActiveCamera((int)i);
+					}
+				}
+
+				ImGui::EndMenu();
 			}
 
+			if (ImGui::BeginMenu("Render Mode"))
+			{
+				if (ImGui::MenuItem("Debug"))
+				{
+					RendererPipeline::setGlobalRenderMode(RenderMode::Debug);
+				}
+
+				if (ImGui::MenuItem("Render"))
+				{
+					RendererPipeline::setGlobalRenderMode(RenderMode::Render);
+				}
+
+				ImGui::EndMenu();
+			}
 
 			ImGui::EndMenu();
 		}
-		else if (ImGui::BeginMenu("Test"))
+		if (ImGui::BeginMenu("Test"))
 		{
 			if (ImGui::Button("Test File"))
 			{

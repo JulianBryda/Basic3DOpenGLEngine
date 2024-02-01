@@ -85,6 +85,12 @@
     <Filter Include="Header Files\Objects\Mesh">
       <UniqueIdentifier>{8c303374-be63-4fc7-8cee-38f5b9a79f77}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Scene">
+      <UniqueIdentifier>{900359c5-b793-49e7-a8a4-f59dc76f7909}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Scene\Lighting">
+      <UniqueIdentifier>{924a5f48-0e9b-457b-b977-f3ea27c4ee1f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FuckWindows.cpp">
@@ -229,6 +235,12 @@
     </ClInclude>
     <ClInclude Include="EnvironmentRenderer.hpp">
       <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.hpp">
+      <Filter>Header Files\Scene\Lighting</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.hpp">
+      <Filter>Header Files\Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

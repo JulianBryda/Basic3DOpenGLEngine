@@ -14,6 +14,13 @@ enum RendererType
 	MAX = UserInterface
 };
 
+enum RenderMode
+{
+	Debug,
+	Render
+};
+
+
 class Renderer
 {
 public:
@@ -24,6 +31,11 @@ public:
 	}
 
 	virtual void render(Camera* activeCamera) = 0;
+
+	virtual void setRenderMode(RenderMode renderMode)
+	{
+		std::cout << "Change render mode not implemented in " << type << "\n";
+	}
 
 private:
 

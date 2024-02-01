@@ -73,6 +73,27 @@ public:
 
 	}
 
+	void setRenderMode(RenderMode renderMode) override
+	{
+		switch (renderMode)
+		{
+		case Debug:
+			for (auto const& object : m_objects)
+			{
+				object->setShader(ShaderLib::getDebugShader());
+			}
+			break;
+		case Render:
+			for (auto const& object : m_objects)
+			{
+				object->setShader(ShaderLib::getRenderShader());
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
 	void addObject(GameObject* object)
 	{
 		m_objects.push_back(object);

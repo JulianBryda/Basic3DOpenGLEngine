@@ -187,6 +187,7 @@ Xcopy $(ProjectDir)\Shader $(ProjectDir)\x64\Release\Shader /E/H/C/I</Command>
     <ClInclude Include="Imgui\imstb_textedit.h" />
     <ClInclude Include="Imgui\imstb_truetype.h" />
     <ClInclude Include="InputHandler.hpp" />
+    <ClInclude Include="Light.hpp" />
     <ClInclude Include="Material.hpp" />
     <ClInclude Include="Mesh.hpp" />
     <ClInclude Include="ObjectRenderer.hpp" />
@@ -194,6 +195,7 @@ Xcopy $(ProjectDir)\Shader $(ProjectDir)\x64\Release\Shader /E/H/C/I</Command>
     <ClInclude Include="Primitives.hpp" />
     <ClInclude Include="Renderer.hpp" />
     <ClInclude Include="RendererPipeline.hpp" />
+    <ClInclude Include="Scene.hpp" />
     <ClInclude Include="Shader.hpp" />
     <ClInclude Include="ShaderLib.hpp" />
     <ClInclude Include="Skybox.hpp" />

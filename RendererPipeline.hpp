@@ -38,6 +38,14 @@ public:
 		rendererMap.insert(std::pair<RendererType, Renderer*>(type, renderer));
 	}
 
+	static void setGlobalRenderMode(RenderMode renderMode)
+	{
+		for (auto const& x : rendererMap)
+		{
+			x.second->setRenderMode(renderMode);
+		}
+	}
+
 	static std::multimap<RendererType, Renderer*>& getRendererMap()
 	{
 		return rendererMap;
