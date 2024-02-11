@@ -15,9 +15,7 @@ public:
 
 	ObjectRenderer() : Renderer(RendererType::Object)
 	{
-		Camera* camera = new Camera("Camera", false);
-		camera->setPosition(glm::vec3(0.0f, 0.0f, 5.0f));
-		RendererPipeline::addCamera(camera);
+
 	}
 
 	void render(Camera* activeCamera) override
@@ -33,8 +31,14 @@ public:
 			shader->setMat4("view", activeCamera->getViewMatrix());
 			shader->setMat4("model", object->getModelMatrix());
 
-			shader->setFloat3("camPos", activeCamera->getPosition());
-			shader->setFloat4("color", object->getMaterialPtr()->getColor());
+			shader->setFloat3("viewPos", activeCamera->getPosition());
+			shader->setMaterial(object->getMaterialPtr());
+
+			// TODO REMOVE!!!
+			auto light = new Light("Light", glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(1.0f));
+			light->setPosition(glm::vec3(0.0f, 5.0f, 0.0f));
+
+			shader->setLight(light);
 
 			shader->setTexture(object->getTextureType(), object->getTexture());
 

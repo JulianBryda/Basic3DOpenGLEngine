@@ -103,6 +103,9 @@ int main()
 
 	environmentRenderer.addObject(&skybox);
 
+	// add default scene to Pipeline
+	RendererPipeline::addScene(new Scene());
+
 
 	// window lopp
 	while (!glfwWindowShouldClose(window))

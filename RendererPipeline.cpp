@@ -3,8 +3,8 @@
 #include "EnvironmentRenderer.hpp"
 
 std::multimap<RendererType, Renderer*> RendererPipeline::rendererMap;
-std::vector<Camera*> RendererPipeline::cameras;
-int RendererPipeline::activeCameraIndex;
+std::vector<Scene*> RendererPipeline::scenes;
+int RendererPipeline::activeSceneIndex;
 
 void RendererPipeline::addObjectToRenderer(GameObject* object, RendererType type)
 {

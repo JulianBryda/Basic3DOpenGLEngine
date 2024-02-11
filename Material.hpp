@@ -7,9 +7,13 @@ class Material
 
 public:
 
-	Material(glm::vec4 color)
+	Material(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess)
 	{
-		this->color = color;
+		this->ambient = ambient;
+		this->diffuse = diffuse;
+		this->specular = specular;
+
+		this->shininess = shininess;
 	}
 
 	~Material()
@@ -18,15 +22,32 @@ public:
 	}
 
 	// getter
-	glm::vec4 getColor() const { return this->color; }
-	glm::vec4* getColorPtr() { return &this->color; }
+	inline glm::vec3 getAmbient() const { return this->ambient; }
+	inline glm::vec3* getAmbientPtr() { return &this->ambient; }
+
+	inline glm::vec3 getDiffuse() const { return this->diffuse; }
+	inline glm::vec3* getDiffusePtr() { return &this->diffuse; }
+
+	inline glm::vec3 getSpecular() const { return this->specular; }
+	inline glm::vec3* getSpecularPtr() { return &this->specular; }
+
+	inline float getShininess() const { return this->shininess; }
+	inline float* getShininessPtr() { return &this->shininess; }
 
 	// setter
-	void setColor(glm::vec4 color) { this->color = color; }
+	inline void setAmbient(glm::vec3 ambient) { this->ambient = ambient; }
+	inline void setDiffuse(glm::vec3 diffuse) { this->diffuse = diffuse; }
+	inline void setSpecular(glm::vec3 specular) { this->specular = specular; }
+
+	inline void setShininess(float shininess) { this->shininess = shininess; }
 
 
 private:
 
-	glm::vec4 color;
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+
+	float shininess;
 
 };

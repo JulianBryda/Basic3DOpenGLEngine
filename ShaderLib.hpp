@@ -19,5 +19,5 @@ public:
 
 private:
 
-	static Shader *colorShader, *debugShader, *renderShader;
+	static Shader* colorShader, * debugShader, * renderShader;
 };

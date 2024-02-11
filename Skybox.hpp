@@ -28,6 +28,6 @@ public:
 	}
 
 
-	glm::mat4 getModelMatrix() const override { return glm::scale(glm::translate(glm::mat4(1.0f), RendererPipeline::getActiveCamera()->getPosition() + this->position), this->getScale()); }
+	glm::mat4 getModelMatrix() const override { return glm::scale(glm::translate(glm::mat4(1.0f), RendererPipeline::getActiveScenePtr()->getActiveCameraPtr()->getPosition() + this->position), this->getScale()); }
 
 };

@@ -61,25 +61,25 @@ void ImguiRenderer::renderMenuBar()
 			{
 				if (ImGui::MenuItem("Add Pers"))
 				{
-					Camera* camera = new Camera(std::format("Camera{}", RendererPipeline::getCameras().size()), false);
+					Camera* camera = new Camera(std::format("Camera{}", RendererPipeline::getActiveScenePtr()->getCamerasPtr()->size()), false);
 					camera->setPosition(glm::vec3(0.0f, 0.0f, 1.0f));
 
-					RendererPipeline::addCamera(camera);
+					RendererPipeline::getActiveScenePtr()->addCamera(camera);
 				}
 
 				if (ImGui::MenuItem("Add Ortho", nullptr, nullptr, false))
 				{
-					Camera* camera = new Camera(std::format("Camera{}", RendererPipeline::getCameras().size()), true);
+					Camera* camera = new Camera(std::format("Camera{}", RendererPipeline::getActiveScenePtr()->getCamerasPtr()->size()), true);
 					camera->setPosition(glm::vec3(0.0f, 0.0f, 1.0f));
 
-					RendererPipeline::addCamera(camera);
+					RendererPipeline::getActiveScenePtr()->addCamera(camera);
 				}
 
-				for (size_t i = 0; i < RendererPipeline::getCameras().size(); i++)
+				for (int i = 0; i < RendererPipeline::getActiveScenePtr()->getCamerasPtr()->size(); i++)
 				{
-					if (ImGui::Checkbox(RendererPipeline::getCameras()[i]->getName().c_str(), new bool(i == RendererPipeline::getActiveCameraIndex())))
+					if (ImGui::Checkbox(RendererPipeline::getActiveScenePtr()->getCamerasPtr()->at(i)->getName().c_str(), new bool(i == RendererPipeline::getActiveScenePtr()->getActiveCameraIndex())))
 					{
-						RendererPipeline::setActiveCamera((int)i);
+						RendererPipeline::getActiveScenePtr()->setActiveCamera(i);
 					}
 				}
 
@@ -202,7 +202,9 @@ void ImguiRenderer::renderObjectManager()
 			{
 				float* pos[3] = { &selectedObject->getPositionPtr()->x, &selectedObject->getPositionPtr()->y, &selectedObject->getPositionPtr()->z };
 				float* scale[3] = { &selectedObject->getScalePtr()->x, &selectedObject->getScalePtr()->y, &selectedObject->getScalePtr()->z };
-				float* color[4] = { &selectedObject->getMaterialPtr()->getColorPtr()->x, &selectedObject->getMaterialPtr()->getColorPtr()->y, &selectedObject->getMaterialPtr()->getColorPtr()->z, &selectedObject->getMaterialPtr()->getColorPtr()->w };
+				float* ambient[3] = { &selectedObject->getMaterialPtr()->getAmbientPtr()->x, &selectedObject->getMaterialPtr()->getAmbientPtr()->y, &selectedObject->getMaterialPtr()->getAmbientPtr()->z };
+				float* diffuse[3] = { &selectedObject->getMaterialPtr()->getDiffusePtr()->x, &selectedObject->getMaterialPtr()->getDiffusePtr()->y, &selectedObject->getMaterialPtr()->getDiffusePtr()->z };
+				float* specular[3] = { &selectedObject->getMaterialPtr()->getSpecularPtr()->x, &selectedObject->getMaterialPtr()->getSpecularPtr()->y, &selectedObject->getMaterialPtr()->getSpecularPtr()->z };
 
 				ImGui::Text("Selected Object: %s", selectedObject->getName().c_str());
 				ImGui::Separator();
@@ -226,10 +228,12 @@ void ImguiRenderer::renderObjectManager()
 
 				if (ImGui::TreeNode("Material"))
 				{
-					ImGui::Text("Color");
+					ImGui::ColorEdit3("Ambient", *ambient, ImGuiColorEditFlags_NoInputs);
 					ImGui::SameLine();
-					ImGui::SetCursorPosX(ImGui::GetCursorPosX());
-					ImGui::ColorEdit4("Color", *color, ImGuiColorEditFlags_NoInputs);
+					ImGui::ColorEdit3("Diffuse", *diffuse, ImGuiColorEditFlags_NoInputs);
+					ImGui::SameLine();
+					ImGui::ColorEdit3("Specular", *specular, ImGuiColorEditFlags_NoInputs);
+
 
 					ImGui::Text(std::format("Loaded Shader: {}", selectedObject->getShaderPtr()->getName()).c_str());
 

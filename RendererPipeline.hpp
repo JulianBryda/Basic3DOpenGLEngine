@@ -2,6 +2,7 @@
 #include <map>
 
 #include "Renderer.hpp"
+#include "Scene.hpp"
 
 class RendererPipeline
 {
@@ -21,12 +22,35 @@ public:
 
 			for (auto& it = values.first; it != values.second; ++it)
 			{
-				it->second->render(cameras[activeCameraIndex]);
+				it->second->render(getActiveScenePtr()->getActiveCameraPtr());
 			}
 		}
 	}
 
 
+	// getter
+	static std::multimap<RendererType, Renderer*>& getRendererMap() { return rendererMap; }
+
+	static Renderer* getRendererPtr(RendererType rendererType) { return RendererPipeline::getRendererMap().find(rendererType)->second; }
+
+	static Scene* getActiveScenePtr()
+	{
+		assert(scenes.size() != 0); // no scene!
+		return scenes[activeSceneIndex];
+	}
+
+
+	// setter
+	static void setGlobalRenderMode(RenderMode renderMode)
+	{
+		for (auto const& x : rendererMap)
+		{
+			x.second->setRenderMode(renderMode);
+		}
+	}
+
+
+	// modifier
 	static void registerRenderer(Renderer* renderer, RendererType type)
 	{
 		if (rendererMap.contains(type))
@@ -38,64 +62,21 @@ public:
 		rendererMap.insert(std::pair<RendererType, Renderer*>(type, renderer));
 	}
 
-	static void setGlobalRenderMode(RenderMode renderMode)
+	static void addScene(Scene* scene) { scenes.push_back(scene); }
+	static void deleteScene(Scene* scene)
 	{
-		for (auto const& x : rendererMap)
-		{
-			x.second->setRenderMode(renderMode);
-		}
+		scenes.erase(std::remove(scenes.begin(), scenes.end(), scene), scenes.end());
+
+		delete scene;
 	}
-
-	static std::multimap<RendererType, Renderer*>& getRendererMap()
-	{
-		return rendererMap;
-	}
-
-	static Renderer* getRendererPtr(RendererType rendererType)
-	{
-		return RendererPipeline::getRendererMap().find(rendererType)->second;
-	}
-
-
-	static void addCamera(Camera* camera)
-	{
-		cameras.push_back(camera);
-	}
-
-	static void deleteCamera(Camera* camera)
-	{
-		cameras.erase(std::remove(cameras.begin(), cameras.end(), camera), cameras.end());
-
-		delete camera;
-	}
-
-	static void setActiveCamera(int index)
-	{
-		activeCameraIndex = index;
-	}
-
-	static Camera* getActiveCamera()
-	{
-		return cameras[activeCameraIndex];
-	}
-
-	static std::vector<Camera*> getCameras()
-	{
-		return cameras;
-	}
-
-	static int getActiveCameraIndex()
-	{
-		return activeCameraIndex;
-	}
-
 
 	static void addObjectToRenderer(GameObject* object, RendererType type);
 
 private:
 
 	static std::multimap<RendererType, Renderer*> rendererMap;
-	static std::vector<Camera*> cameras;
-	static int activeCameraIndex;
+
+	static std::vector<Scene*> scenes;
+	static int activeSceneIndex;
 
 };

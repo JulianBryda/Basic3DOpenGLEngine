@@ -8,6 +8,9 @@
 #include <format>
 #include <iostream>
 
+#include "Material.hpp"
+#include "Light.hpp"
+
 class Shader
 {
 public:
@@ -135,6 +138,22 @@ public:
 	inline void setTexture(GLenum type, GLuint texture) const
 	{
 		glBindTexture(type, texture);
+	}
+	inline void setMaterial(Material* material) const
+	{
+		this->setFloat3("material.ambient", material->getAmbient());
+		this->setFloat3("material.diffuse", material->getDiffuse());
+		this->setFloat3("material.specular", material->getSpecular());
+
+		this->setFloat("material.shininess", material->getShininess());
+	}
+	inline void setLight(Light* light) const
+	{
+		this->setFloat3("light.position", light->getPosition());
+
+		this->setFloat3("light.ambient", light->getAmbient());
+		this->setFloat3("light.diffuse", light->getDiffuse());
+		this->setFloat3("light.specular", light->getSpecular());
 	}
 
 private:
