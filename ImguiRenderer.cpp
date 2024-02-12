@@ -127,7 +127,7 @@ void ImguiRenderer::renderMenuBar()
 			{
 				Mesh mesh;
 
-				ObjectLoader::load_obj_file(".\\Assets\\Objects\\Cube.obj", &mesh);
+				ObjectLoader::load_obj_file_async(".\\Assets\\Objects\\Cube.obj", &mesh);
 				auto test = 0;
 			}
 

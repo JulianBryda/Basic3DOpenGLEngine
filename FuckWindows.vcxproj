@@ -148,8 +148,11 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;kernel32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>Xcopy $(ProjectDir)\Assets $(ProjectDir)\x64\Release\Assets /E/H/C/I
-Xcopy $(ProjectDir)\Shader $(ProjectDir)\x64\Release\Shader /E/H/C/I</Command>
+      <Command>rmdir $(ProjectDir)x64\Debug\Assets /S /Q
+rmdir $(ProjectDir)x64\Debug\Shader /S /Q
+
+Xcopy $(ProjectDir)Assets $(ProjectDir)x64\Debug\Assets /E/H/C/I
+Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

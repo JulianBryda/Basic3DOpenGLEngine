@@ -31,7 +31,7 @@ GameObject::GameObject(std::string name, std::string path, std::string shaderNam
 	this->material = new Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 1.0f);
 	this->m_shader = new Shader(shaderName);
 
-	ObjectLoader::load_obj_file(path.c_str(), &mesh);
+	ObjectLoader::load_obj_file_async(path.c_str(), &mesh);
 
 	genBuffers();
 }
