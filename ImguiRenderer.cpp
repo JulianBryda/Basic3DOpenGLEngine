@@ -50,6 +50,24 @@ void ImguiRenderer::renderMenuBar()
 
 			ImGui::Checkbox("Object Manager", &m_showObjectManager);
 
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Lighting"))
+		{
+			if (ImGui::MenuItem("PointLight"))
+			{
+				Scene* activeScene = RendererPipeline::getActiveScenePtr();
+				std::string* name = new std::string();
+				name->assign(std::format("PointLight{}", activeScene->getPointLightsPtr()->size()));
+
+				activeScene->addPointLight(new PointLight(name->c_str(), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(1.0f)));
+			}
+
+			ImGui::Spacing();
+			ImGui::Separator();
+			ImGui::Spacing();
+
+			ImGui::Checkbox("Light Manager", &showLightManager);
 
 			ImGui::EndMenu();
 		}
@@ -233,6 +251,9 @@ void ImguiRenderer::renderObjectManager()
 					ImGui::ColorEdit3("Diffuse", *diffuse, ImGuiColorEditFlags_NoInputs);
 					ImGui::SameLine();
 					ImGui::ColorEdit3("Specular", *specular, ImGuiColorEditFlags_NoInputs);
+					ImGui::SameLine();
+					ImGui::SetNextItemWidth(100.0f);
+					ImGui::InputFloat("Shininess", selectedObject->getMaterialPtr()->getShininessPtr());
 
 
 					ImGui::Text(std::format("Loaded Shader: {}", selectedObject->getShaderPtr()->getName()).c_str());
@@ -359,6 +380,142 @@ void ImguiRenderer::renderObjectManager()
 	ImGui::End();
 }
 
+void ImguiRenderer::renderLightManager()
+{
+	ImGui::Begin("Light Manager", nullptr);
+	{
+		ImGui::BeginChild("Lights", ImVec2(200, 0), true);
+		{
+			if (ImGui::TreeNode("PointLights"))
+			{
+				for (size_t i = 0; i < RendererPipeline::getActiveScenePtr()->getPointLightsPtr()->size(); i++)
+				{
+					auto light = RendererPipeline::getActiveScenePtr()->getPointLightsPtr()->at(i);
+
+					ImGui::Selectable(light->getName(), selectedLight == light);
+					if (ImGui::IsItemClicked())
+					{
+						selectedLight = light;
+					}
+				}
+
+				ImGui::TreePop();
+			}
+			if (ImGui::TreeNode("DirectionalLights"))
+			{
+				auto light = RendererPipeline::getActiveScenePtr()->getDirectionalLightPtr();
+
+				ImGui::Selectable(light->getName(), selectedLight == light);
+				if (ImGui::IsItemClicked())
+				{
+					selectedLight = light;
+				}
+
+				ImGui::TreePop();
+			}
+		}
+		ImGui::EndChild();
+		ImGui::SameLine();
+		ImGui::BeginChild("Detail View", ImVec2(0, 0), true);
+		{
+			if (selectedLight != nullptr)
+			{
+				ImGui::Text("Selected Light: %s", selectedLight->getName());
+				ImGui::Separator();
+
+				if (ImGui::TreeNode("Light"))
+				{
+					if (selectedLight->getLightType() == LightType::Point)
+					{
+						PointLight* light = static_cast<PointLight*>(selectedLight);
+						float* pos[3] = { &light->getPositionPtr()->x, &light->getPositionPtr()->y, &light->getPositionPtr()->z };
+
+						ImGui::Text("Position");
+						ImGui::SameLine();
+						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+						ImGui::InputFloat3("##0", *pos);
+
+						renderLightMaterialView();
+
+						ImGui::SetNextItemWidth(80.0f);
+						ImGui::InputFloat("Constant", light->getConstantPtr());
+						ImGui::SameLine();
+						ImGui::SetNextItemWidth(80.0f);
+						ImGui::InputFloat("Linear", light->getLinearPtr());
+						ImGui::SameLine();
+						ImGui::SetNextItemWidth(80.0f);
+						ImGui::InputFloat("Quadratic", light->getQuadraticPtr());
+					}
+					else if (selectedLight->getLightType() == LightType::Spot)
+					{
+						SpotLight* light = static_cast<SpotLight*>(selectedLight);
+						float* pos[3] = { &light->getPositionPtr()->x, &light->getPositionPtr()->y, &light->getPositionPtr()->z };
+						float* dir[3] = { &light->getDirectionPtr()->x, &light->getDirectionPtr()->y, &light->getDirectionPtr()->z };
+
+						ImGui::Text("Position");
+						ImGui::SameLine();
+						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+						ImGui::InputFloat3("##0", *pos);
+
+						ImGui::Text("Direction");
+						ImGui::SameLine();
+						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+						ImGui::InputFloat3("##1", *dir);
+
+						renderLightMaterialView();
+
+						ImGui::InputFloat("CutOff", light->getCutOffPtr());
+						ImGui::SameLine();
+						ImGui::InputFloat("OuterCutOff", light->getOuterCutOffPtr());
+					}
+					else
+					{
+						DirectionalLight* light = static_cast<DirectionalLight*>(selectedLight);
+						float* dir[3] = { &light->getDirectionPtr()->x, &light->getDirectionPtr()->y, &light->getDirectionPtr()->z };
+
+						ImGui::Text("Direction");
+						ImGui::SameLine();
+						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+						ImGui::InputFloat3("##0", *dir);
+
+						renderLightMaterialView();
+					}
+
+					ImGui::TreePop();
+				}
+
+				if (ImGui::Button("Delete"))
+				{
+					switch (selectedLight->getLightType())
+					{
+					case LightType::Point:
+						RendererPipeline::getActiveScenePtr()->deletePointLight(static_cast<PointLight*>(selectedLight));
+						break;
+					default:
+						break;
+					}
+
+					selectedLight = nullptr;
+				}
+			}
+		}
+		ImGui::EndChild();
+	}
+	ImGui::End();
+}
+
+void ImguiRenderer::renderLightMaterialView()
+{
+	float* ambient[3] = { &selectedLight->getAmbientPtr()->x, &selectedLight->getAmbientPtr()->y, &selectedLight->getAmbientPtr()->z };
+	float* diffuse[3] = { &selectedLight->getDiffusePtr()->x, &selectedLight->getDiffusePtr()->y, &selectedLight->getDiffusePtr()->z };
+	float* specular[3] = { &selectedLight->getSpecularPtr()->x, &selectedLight->getSpecularPtr()->y, &selectedLight->getSpecularPtr()->z };
+
+	ImGui::ColorEdit3("Ambient", *ambient, ImGuiColorEditFlags_NoInputs);
+	ImGui::SameLine();
+	ImGui::ColorEdit3("Diffuse", *diffuse, ImGuiColorEditFlags_NoInputs);
+	ImGui::SameLine();
+	ImGui::ColorEdit3("Specular", *specular, ImGuiColorEditFlags_NoInputs);
+}
 
 
 void ImguiRenderer::setImguiStyle()

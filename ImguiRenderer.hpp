@@ -50,6 +50,7 @@ public:
 		renderMenuBar();
 		if (m_showDebugInfo) renderDebugInfo();
 		if (m_showObjectManager) renderObjectManager();
+		if (showLightManager) renderLightManager();
 
 
 		ImGui::Render();
@@ -94,12 +95,18 @@ private:
 	void renderMenuBar();
 	void renderDebugInfo();
 	void renderObjectManager();
+	void renderLightManager();
+	void renderLightMaterialView();
 
 	char selectedTexturePath[_MAX_PATH] = "";
 
-	bool m_showDebugInfo = false, m_showObjectManager = false, highlightCloseCollidableObjects = false;
+	bool m_showDebugInfo = false,
+		m_showObjectManager = false,
+		highlightCloseCollidableObjects = false,
+		showLightManager = false;
+
+	Light* selectedLight;
 
 	// static
-
 	static GameObject* selectedObject;
 };

@@ -236,11 +236,20 @@
     <ClInclude Include="EnvironmentRenderer.hpp">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Light.hpp">
+    <ClInclude Include="PointLight.hpp">
       <Filter>Header Files\Scene\Lighting</Filter>
     </ClInclude>
     <ClInclude Include="Scene.hpp">
       <Filter>Header Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectionalLight.hpp">
+      <Filter>Header Files\Scene\Lighting</Filter>
+    </ClInclude>
+    <ClInclude Include="SpotLight.hpp">
+      <Filter>Header Files\Scene\Lighting</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.hpp">
+      <Filter>Header Files\Scene\Lighting</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -272,10 +281,10 @@
     <None Include="Shader\v_texture.glsl">
       <Filter>Source Files\Renderer\Shader\Vertex</Filter>
     </None>
-    <None Include="f_render.glsl">
+    <None Include="Shader\f_render.glsl">
       <Filter>Source Files\Renderer\Shader\Fragment</Filter>
     </None>
-    <None Include="v_render.glsl">
+    <None Include="Shader\v_render.glsl">
       <Filter>Source Files\Renderer\Shader\Vertex</Filter>
     </None>
   </ItemGroup>

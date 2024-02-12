@@ -34,11 +34,19 @@ public:
 			shader->setFloat3("viewPos", activeCamera->getPosition());
 			shader->setMaterial(object->getMaterialPtr());
 
-			// TODO REMOVE!!!
-			auto light = new Light("Light", glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(1.0f));
-			light->setPosition(glm::vec3(0.0f, 5.0f, 0.0f));
 
-			shader->setLight(light);
+			Scene* activeScene = RendererPipeline::getActiveScenePtr();
+
+			// set directional light
+			shader->setDirectionalLight(activeScene->getDirectionalLightPtr());
+
+			// set point lights and point light count
+			shader->setFloat("pointLightCount", activeScene->getPointLightsPtr()->size());
+
+			for (size_t i = 0; i < activeScene->getPointLightsPtr()->size(); i++)
+			{
+				shader->setPointLight(activeScene->getPointLightsPtr()->at(i), i);
+			}
 
 			shader->setTexture(object->getTextureType(), object->getTexture());
 

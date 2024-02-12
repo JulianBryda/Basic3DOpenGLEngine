@@ -9,7 +9,8 @@
 #include <iostream>
 
 #include "Material.hpp"
-#include "Light.hpp"
+#include "PointLight.hpp"
+#include "DirectionalLight.hpp"
 
 class Shader
 {
@@ -147,13 +148,45 @@ public:
 
 		this->setFloat("material.shininess", material->getShininess());
 	}
-	inline void setLight(Light* light) const
+	inline void setPointLight(PointLight* light) const
 	{
-		this->setFloat3("light.position", light->getPosition());
+		this->setFloat3("pointLight.position", light->getPosition());
 
-		this->setFloat3("light.ambient", light->getAmbient());
-		this->setFloat3("light.diffuse", light->getDiffuse());
-		this->setFloat3("light.specular", light->getSpecular());
+		this->setFloat3("pointLight.ambient", light->getAmbient());
+		this->setFloat3("pointLight.diffuse", light->getDiffuse());
+		this->setFloat3("pointLight.specular", light->getSpecular());
+
+		this->setFloat("pointLight.constant", light->getConstant());
+		this->setFloat("pointLight.linear", light->getLinear());
+		this->setFloat("pointLight.quadratic", light->getQuadratic());
+	}
+	inline void setPointLight(PointLight* light, int index) const
+	{
+		this->setFloat3(std::format("pointLights[{}].position", index).c_str(), light->getPosition());
+
+		this->setFloat3(std::format("pointLights[{}].ambient", index).c_str(), light->getAmbient());
+		this->setFloat3(std::format("pointLights[{}].diffuse", index).c_str(), light->getDiffuse());
+		this->setFloat3(std::format("pointLights[{}].specular", index).c_str(), light->getSpecular());
+
+		this->setFloat(std::format("pointLights[{}].constant", index).c_str(), light->getConstant());
+		this->setFloat(std::format("pointLights[{}].linear", index).c_str(), light->getLinear());
+		this->setFloat(std::format("pointLights[{}].quadratic", index).c_str(), light->getQuadratic());
+	}
+	inline void setDirectionalLight(DirectionalLight* light) const
+	{
+		this->setFloat3("directionalLight.direction", light->getDirection());
+
+		this->setFloat3("directionalLight.ambient", light->getAmbient());
+		this->setFloat3("directionalLight.diffuse", light->getDiffuse());
+		this->setFloat3("directionalLight.specular", light->getSpecular());
+	}
+	inline void setDirectionalLight(DirectionalLight* light, int index) const
+	{
+		this->setFloat3(std::format("directionalLights[{}].direction", index).c_str(), light->getDirection());
+
+		this->setFloat3(std::format("directionalLights[{}].ambient", index).c_str(), light->getAmbient());
+		this->setFloat3(std::format("directionalLights[{}].diffuse", index).c_str(), light->getDiffuse());
+		this->setFloat3(std::format("directionalLights[{}].specular", index).c_str(), light->getSpecular());
 	}
 
 private:

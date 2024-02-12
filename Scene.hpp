@@ -2,7 +2,9 @@
 #include <iostream>
 #include <vector>
 
-#include "Light.hpp"
+#include "PointLight.hpp"
+#include "DirectionalLight.hpp"
+#include "SpotLight.hpp"
 #include "Camera.hpp"
 
 
@@ -13,6 +15,8 @@ public:
 
 	Scene()
 	{
+		this->directionalLight = new DirectionalLight("Sun", glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f));
+
 		Camera* camera = new Camera("Camera", false);
 		camera->setPosition(glm::vec3(0.0f, 0.0f, 5.0f));
 		this->addCamera(camera);
@@ -20,18 +24,20 @@ public:
 
 	~Scene()
 	{
-
+		delete directionalLight;
 	}
 
 
 	// getter
-	inline std::vector<Light*>* getLightsPtr() { return &this->lights; }
+	inline std::vector<PointLight*>* getPointLightsPtr() { return &this->pointLights; }
 
 	inline Camera* getActiveCameraPtr() const { return this->cameras[activeCameraIndex]; }
 
 	inline std::vector<Camera*>* getCamerasPtr() { return &this->cameras; }
 
 	inline int getActiveCameraIndex() const { return this->activeCameraIndex; }
+
+	inline DirectionalLight* getDirectionalLightPtr() const { return this->directionalLight; }
 
 
 	// setter
@@ -47,18 +53,19 @@ public:
 		delete camera;
 	}
 
-	inline void addLight(Light* light) { this->lights.push_back(light); }
-
-	void deleteLight(Light* light)
+	inline void addPointLight(PointLight* light) { this->pointLights.push_back(light); }
+	void deletePointLight(PointLight* light)
 	{
-		lights.erase(std::remove(lights.begin(), lights.end(), light), lights.end());
+		pointLights.erase(std::remove(pointLights.begin(), pointLights.end(), light), pointLights.end());
 
 		delete light;
 	}
 
 private:
 
-	std::vector<Light*> lights;
+	DirectionalLight* directionalLight;
+
+	std::vector<PointLight*> pointLights;
 
 	std::vector<Camera*> cameras;
 	int activeCameraIndex;

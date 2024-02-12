@@ -1,20 +1,28 @@
 #pragma once
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
+
+enum LightType
+{
+	Point,
+	Directional,
+	Spot
+};
 
 class Light
 {
-
 public:
 
-
-	Light(const char* name, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular)
+	Light(const char* name, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, LightType lightType)
 	{
 		this->name = name;
-		this->position = glm::vec3(0.0f);
 
 		this->ambient = ambient;
 		this->diffuse = diffuse;
 		this->specular = specular;
+
+		this->position = glm::vec3(0.0f);
+
+		this->lightType = lightType;
 	}
 
 	~Light()
@@ -26,9 +34,6 @@ public:
 	// getter
 	inline const char* getName() const { return this->name; }
 
-	inline glm::vec3 getPosition() const { return this->position; }
-	inline glm::vec3* getPositionPtr() { return &this->position; }
-
 	inline glm::vec3 getAmbient() const { return this->ambient; }
 	inline glm::vec3* getAmbientPtr() { return &this->ambient; }
 
@@ -38,26 +43,25 @@ public:
 	inline glm::vec3 getSpecular() const { return this->specular; }
 	inline glm::vec3* getSpecularPtr() { return &this->specular; }
 
-	// setter
-	inline void setPosition(glm::vec3 position) { this->position = position; }
+	inline LightType getLightType() const { return this->lightType; }
 
+	// setter
 	inline void setAmbient(glm::vec3 ambient) { this->ambient = ambient; }
 	inline void setDiffuse(glm::vec3 diffuse) { this->diffuse = diffuse; }
 	inline void setSpecular(glm::vec3 specular) { this->specular = specular; }
 
+protected:
 
-
+	glm::vec3 position;
 
 private:
 
 	const char* name;
 
-	glm::vec3 position;
-
 	glm::vec3 ambient;
 	glm::vec3 diffuse;
 	glm::vec3 specular;
 
-
+	LightType lightType;
 
 };
