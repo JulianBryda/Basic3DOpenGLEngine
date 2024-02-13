@@ -27,25 +27,33 @@ public:
 		double xpos, ypos;
 		glfwGetCursorPos(window, &xpos, &ypos);
 
-		float* horizontalAngle = activeCamera->getHorizontalAnglePtr();
-		float* verticalAngle = activeCamera->getVerticalAnglePtr();
+		float horizontalAngle = activeCamera->getHorizontalAngle();
+		float verticalAngle = activeCamera->getVerticalAngle();
+		glm::vec3 anchor = activeCamera->getAnchor();
 
 		if (mouse_middle)
 		{
-			*horizontalAngle += mouseSpeed * deltaTime * float(last_xpos - xpos);
-			*verticalAngle += mouseSpeed * deltaTime * float(last_ypos - ypos);
+			horizontalAngle += mouseSpeed * deltaTime * float(last_xpos - xpos);
+			verticalAngle += mouseSpeed * deltaTime * float(last_ypos - ypos);
+
+			activeCamera->setHorizontalAngle(horizontalAngle);
+			activeCamera->setVerticalAngle(verticalAngle);
 		}
 		else if (shift_mouse_middle)
 		{
-			glm::vec3 dir = glm::vec3(cos(*verticalAngle) * sin(*horizontalAngle), 1.0f, cos(*verticalAngle) * cos(*horizontalAngle));
-			moveOff = dir * glm::vec3(last_xpos - xpos, last_ypos - ypos, last_xpos - xpos) * deltaTime * (speed / 3);
+			float distance = glm::length(anchor - activeCamera->getPosition());
+
+			glm::vec3 dir = glm::vec3(cos(verticalAngle) * sin(horizontalAngle), 1.0f, cos(verticalAngle) * cos(horizontalAngle));
+			moveOff = dir * glm::vec3(last_xpos - xpos, last_ypos - ypos, last_xpos - xpos) * deltaTime * (distance * 0.25f);
 			moveOff = glm::vec3(-moveOff.z, moveOff.y, moveOff.x);
-			*activeCamera->getAnchorPtr() -= moveOff;
+
+			// Update anchor position
+			anchor -= moveOff;
 		}
 
-		*activeCamera->getPositionPtr() = *activeCamera->getAnchorPtr() + glm::vec3(cos(*verticalAngle) * sin(*horizontalAngle), -sin(*verticalAngle), cos(*verticalAngle) * cos(*horizontalAngle)) * activeCamera->getDistance();
-
-		*activeCamera->getViewMatrixPtr() = glm::lookAt(activeCamera->getPosition(), activeCamera->getAnchor(), glm::vec3(0.0f, 1.0f, 0.0f));
+		activeCamera->setPosition(anchor + glm::vec3(cos(verticalAngle) * sin(horizontalAngle), -sin(verticalAngle), cos(verticalAngle) * cos(horizontalAngle)) * activeCamera->getDistance());
+		activeCamera->setViewMatrix(glm::lookAt(activeCamera->getPosition(), anchor, activeCamera->getUp()));
+		activeCamera->setAnchor(anchor);
 
 		last_xpos = xpos;
 		last_ypos = ypos;
@@ -134,6 +142,11 @@ public:
 		}
 	}
 
+	static void moveObject()
+	{
+
+	}
+
 	static void selectObject()
 	{
 		auto worldCoords = calcWorldCoordinates();
@@ -156,11 +169,11 @@ public:
 
 	}
 
+#pragma region World Coords Calculations
 	static glm::vec3 calcWorldCoordinates()
 	{
 		int width, height;
 		double mouseX, mouseY;
-		Camera* activeCamera = RendererPipeline::getActiveScenePtr()->getActiveCameraPtr();
 
 		glfwGetWindowSize(window, &width, &height);
 		glfwGetCursorPos(window, &mouseX, &mouseY);
@@ -171,6 +184,27 @@ public:
 		float depth;
 		glReadPixels(static_cast<int>(mouseX), height - static_cast<int>(mouseY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
 
+		return calcWorldCoordinates(width, height, mouseX, mouseY, depth);
+	}
+
+	static glm::vec3 calcWorldCoordinates(double mouseX, double mouseY)
+	{
+		int width, height;
+		glfwGetWindowSize(window, &width, &height);
+
+		float depth;
+		glReadPixels(static_cast<int>(mouseX), height - static_cast<int>(mouseY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+
+		return calcWorldCoordinates(width, height, mouseX, mouseY, depth);
+	}
+
+	static glm::vec3 calcWorldCoordinates(int width, int height, double mouseX, double mouseY, float depth)
+	{
+		Camera* activeCamera = RendererPipeline::getActiveScenePtr()->getActiveCameraPtr();
+
+		double ndcX = (2.0 * mouseX) / width - 1.0;
+		double ndcY = 1.0 - (2.0 * mouseY) / height;
+
 		glm::vec4 ndcPosition = glm::vec4(ndcX, ndcY, depth * 2.0 - 1.0, 1.0);
 		glm::mat4 invProjection = glm::inverse(activeCamera->getProjectionMatrix());
 		glm::vec4 eyePosition = invProjection * ndcPosition;
@@ -180,6 +214,7 @@ public:
 
 		return glm::vec3(worldPosition) / worldPosition.w;
 	}
+#pragma endregion
 
 	static void saveScreenShot();
 
