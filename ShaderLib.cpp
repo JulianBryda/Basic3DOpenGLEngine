@@ -2,4 +2,5 @@
 
 Shader* ShaderLib::colorShader,
 * ShaderLib::debugShader,
-* ShaderLib::renderShader;
+* ShaderLib::renderShader,
+* ShaderLib::skyboxShader;

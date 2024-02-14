@@ -12,79 +12,42 @@
 #include "PointLight.hpp"
 #include "DirectionalLight.hpp"
 
+
+struct LibraryShader
+{
+	const char* shaderPath;
+	GLenum shaderType;
+	GLuint shaderId;
+};
+
 class Shader
 {
 public:
 
-	Shader(std::string shaderName)
+	template<typename... Args>
+	Shader(std::string_view vShaderPath, std::string_view fShaderPath, Args&&... rest)
 	{
-		this->name = shaderName;
+		this->name = vShaderPath.substr(vShaderPath.find_last_of("\\") + 3);
 
-		// 1. retrieve the vertex/fragment source code from filePath
-		std::string vertexCode;
-		std::string fragmentCode;
-		std::ifstream vShaderFile;
-		std::ifstream fShaderFile;
-		// ensure ifstream objects can throw exceptions:
-		vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-		fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-
-		try
-		{
-			// open files
-			vShaderFile.open(std::format(".\\Shader\\v_{}.glsl", shaderName).c_str());
-			fShaderFile.open(std::format(".\\Shader\\f_{}.glsl", shaderName).c_str());
-			std::stringstream vShaderStream, fShaderStream;
-			// read file's buffer contents into streams
-			vShaderStream << vShaderFile.rdbuf();
-			fShaderStream << fShaderFile.rdbuf();
-			// close file handlers
-			vShaderFile.close();
-			fShaderFile.close();
-			// convert stream into string
-			vertexCode = vShaderStream.str();
-			fragmentCode = fShaderStream.str();
-		}
-		catch (std::ifstream::failure e)
-		{
-			std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
-		}
-		const char* vShaderCode = vertexCode.c_str();
-		const char* fShaderCode = fragmentCode.c_str();
-
-		// 2. compile shaders
 		GLuint vertex, fragment;
 		int success;
 		char infoLog[512];
 
-		// vertex Shader
-		vertex = glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(vertex, 1, &vShaderCode, NULL);
-		glCompileShader(vertex);
-		// print compile errors if any
-		glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
-		if (!success)
-		{
-			glGetShaderInfoLog(vertex, 512, NULL, infoLog);
-			std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-		};
+		// compile shader
+		this->compile_shader(vShaderPath, vertex, GL_VERTEX_SHADER);
+		this->compile_shader(fShaderPath, fragment, GL_FRAGMENT_SHADER);
 
-		// fragment Shader
-		fragment = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(fragment, 1, &fShaderCode, NULL);
-		glCompileShader(fragment);
-		// print compile errors if any
-		glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
-		if (!success)
-		{
-			glGetShaderInfoLog(fragment, 512, NULL, infoLog);
-			std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-		};
+		// compile libraries if available
+		this->compile_shader_pack(std::forward<Args>(rest)...);
 
 		// shader Program
-		Id = glCreateProgram();
+		this->Id = glCreateProgram();
 		glAttachShader(Id, vertex);
 		glAttachShader(Id, fragment);
+
+		// attach library shaders
+		this->attach_shader_pack(this->Id, std::forward<Args>(rest)...);
+
 		glLinkProgram(Id);
 		// print linking errors if any
 		glGetProgramiv(Id, GL_LINK_STATUS, &success);
@@ -190,6 +153,94 @@ public:
 	}
 
 private:
+
+
+	void create_shader(GLuint& shaderId, const char* shaderCode, GLenum shaderType)
+	{
+		int success;
+		char infoLog[512];
+
+		// vertex Shader
+		shaderId = glCreateShader(shaderType);
+		glShaderSource(shaderId, 1, &shaderCode, NULL);
+		glCompileShader(shaderId);
+		// print compile errors if any
+		glGetShaderiv(shaderId, GL_COMPILE_STATUS, &success);
+		if (!success)
+		{
+			glGetShaderInfoLog(shaderId, 512, NULL, infoLog);
+			std::cout << "ERROR::SHADER::COMPILATION_FAILED\n" << infoLog << std::endl;
+		};
+	}
+
+	void read_shader_from_file(std::string_view shaderPath, std::string& shaderCode, GLenum shaderType)
+	{
+		// 1. retrieve the source code from filePath
+		std::ifstream shaderFile;
+		// ensure ifstream objects can throw exceptions:
+		shaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+		try
+		{
+			// open files
+			switch (shaderType)
+			{
+			case GL_VERTEX_SHADER:
+				shaderFile.open(std::format(".\\Shader\\{}", shaderPath).c_str());
+				break;
+			case GL_FRAGMENT_SHADER:
+				shaderFile.open(std::format(".\\Shader\\{}", shaderPath).c_str());
+				break;
+			default:
+				return;
+			}
+
+			std::stringstream shaderStream;
+			// read file's buffer contents into streams
+			shaderStream << shaderFile.rdbuf();
+			// close file handlers
+			shaderFile.close();
+			// convert stream into string
+			shaderCode = shaderStream.str();
+		}
+		catch (std::ifstream::failure e)
+		{
+			std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+		}
+	}
+
+	void attach_shader_pack(GLuint programId) {}
+
+	template<typename ...Args>
+	void attach_shader_pack(GLuint programId, LibraryShader& first, Args&&... rest)
+	{
+		glAttachShader(programId, first.shaderId);
+
+		this->attach_shader_pack(programId, std::forward<Args>(rest)...);
+	}
+
+#pragma region Shader compilation
+	void compile_shader(std::string_view shaderPath, GLuint& shaderId, GLenum shaderType)
+	{
+		std::string shaderCode;
+
+		// read shader code
+		this->read_shader_from_file(shaderPath, shaderCode, shaderType);
+
+		// create shader
+		this->create_shader(shaderId, shaderCode.c_str(), shaderType);
+	}
+
+	void compile_shader_pack() {}
+
+	template<typename... Args>
+	void compile_shader_pack(LibraryShader& first, Args&&... rest)
+	{
+		this->compile_shader(first.shaderPath, first.shaderId, first.shaderType);
+
+		this->compile_shader_pack(std::forward<Args>(rest)...);
+	}
+#pragma endregion
 
 	GLuint Id;
 

@@ -54,7 +54,7 @@ public:
 
 
 			// set shader for debug operations
-			shader = ShaderLib::getColorShader();
+			shader = ShaderLib::getColorShaderPtr();
 			shader->use();
 
 			shader->setMat4("projection", activeCamera->getProjectionMatrix());
@@ -92,13 +92,13 @@ public:
 		case Debug:
 			for (auto const& object : m_objects)
 			{
-				object->setShader(ShaderLib::getDebugShader());
+				object->setShader(ShaderLib::getDebugShaderPtr());
 			}
 			break;
 		case Render:
 			for (auto const& object : m_objects)
 			{
-				object->setShader(ShaderLib::getRenderShader());
+				object->setShader(ShaderLib::getRenderShaderPtr());
 			}
 			break;
 		default:

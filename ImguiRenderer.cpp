@@ -13,7 +13,7 @@ void ImguiRenderer::renderMenuBar()
 				if (value != nullptr)
 				{
 					auto renderer = static_cast<ObjectRenderer*>(value);
-					GameObject* obj = new GameObject(std::format("Cube{}", renderer->getObjects().size()), ".\\Assets\\Objects\\Cube.obj", "debug", ColliderType::BoundingBox);
+					GameObject* obj = new GameObject(std::format("Cube{}", renderer->getObjects().size()), ".\\Assets\\Objects\\Cube.obj", ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
 					obj->setIsPhysicsEnabled(true);
 
 					renderer->addObject(obj);
@@ -25,7 +25,7 @@ void ImguiRenderer::renderMenuBar()
 				if (value != nullptr)
 				{
 					auto renderer = static_cast<ObjectRenderer*>(value);
-					GameObject* obj = new GameObject(std::format("Sphere{}", renderer->getObjects().size()), ".\\Assets\\Objects\\Sphere.obj", "debug", ColliderType::Circular);
+					GameObject* obj = new GameObject(std::format("Sphere{}", renderer->getObjects().size()), ".\\Assets\\Objects\\Sphere.obj", ShaderLib::getDebugShaderPtr(), ColliderType::Circular);
 					obj->setIsPhysicsEnabled(true);
 
 					renderer->addObject(obj);
@@ -37,7 +37,7 @@ void ImguiRenderer::renderMenuBar()
 				if (value != nullptr)
 				{
 					auto renderer = static_cast<ObjectRenderer*>(value);
-					GameObject* obj = new GameObject(std::format("StressTest{}", renderer->getObjects().size()), ".\\Assets\\Objects\\StressTest.obj", "debug", ColliderType::BoundingBox);
+					GameObject* obj = new GameObject(std::format("StressTest{}", renderer->getObjects().size()), ".\\Assets\\Objects\\StressTest.obj", ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
 					obj->setIsPhysicsEnabled(true);
 
 					renderer->addObject(obj);
@@ -264,7 +264,8 @@ void ImguiRenderer::renderObjectManager()
 					ImGui::SameLine();
 					if (ImGui::Button("Load Shader"))
 					{
-						selectedObject->setShader(new Shader(loadShaderBuffer));
+						std::cout << "DISABLED!\n";
+						// selectedObject->setShader(new Shader(loadShaderBuffer));
 					}
 
 					ImGui::Image((void*)(intptr_t)selectedObject->getTexture(), ImVec2(150, 150));

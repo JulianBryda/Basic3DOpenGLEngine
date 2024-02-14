@@ -3,7 +3,7 @@
 #include "stb_image.h"
 
 
-GameObject::GameObject(std::string name, Mesh mesh, std::string shaderName, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
+GameObject::GameObject(std::string name, Mesh mesh, Shader* shader, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
 {
 	this->name = name;
 	this->position = glm::vec3(0.0f);
@@ -13,13 +13,13 @@ GameObject::GameObject(std::string name, Mesh mesh, std::string shaderName, Coll
 	this->isDrawWireframe = false;
 
 	this->material = new Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 1.0f);
-	this->m_shader = new Shader(shaderName);
+	this->m_shader = shader;
 	this->mesh = mesh;
 
 	genBuffers();
 }
 
-GameObject::GameObject(std::string name, std::string path, std::string shaderName, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
+GameObject::GameObject(std::string name, std::string path, Shader* shader, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
 {
 	this->name = name;
 	this->position = glm::vec3(0.0f);
@@ -29,7 +29,7 @@ GameObject::GameObject(std::string name, std::string path, std::string shaderNam
 	this->isDrawWireframe = false;
 
 	this->material = new Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 1.0f);
-	this->m_shader = new Shader(shaderName);
+	this->m_shader = shader;
 
 	ObjectLoader::load_model_mesh_assimp(path.c_str(), &mesh);
 

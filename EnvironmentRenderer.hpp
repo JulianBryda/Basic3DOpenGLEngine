@@ -37,7 +37,7 @@ public:
 
 
 			// set shader for debug operations
-			shader = ShaderLib::getColorShader();
+			shader = ShaderLib::getColorShaderPtr();
 			shader->use();
 
 			shader->setMat4("projection", activeCamera->getProjectionMatrix());

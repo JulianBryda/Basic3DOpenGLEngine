@@ -19,8 +19,8 @@ class GameObject : public GameObjectPhysics, public GameObjectCollisions
 
 public:
 
-	GameObject(std::string name, std::string path, std::string shaderName, ColliderType colliderType);
-	GameObject(std::string name, Mesh mesh, std::string shaderName, ColliderType colliderType);
+	GameObject(std::string name, std::string path, Shader* shader, ColliderType colliderType);
+	GameObject(std::string name, Mesh mesh, Shader* shader, ColliderType colliderType);
 
 	~GameObject();
 

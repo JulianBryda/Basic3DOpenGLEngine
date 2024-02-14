@@ -8,16 +8,18 @@ public:
 
 	static void LoadShader()
 	{
-		colorShader = new Shader("color");
-		debugShader = new Shader("debug");
-		renderShader = new Shader("render");
+		colorShader = new Shader(".\\v_color.glsl", ".\\f_color.glsl");
+		debugShader = new Shader(".\\v_debug.glsl", ".\\f_debug.glsl");
+		renderShader = new Shader(".\\v_render.glsl", ".\\f_render.glsl");
+		skyboxShader = new Shader(".\\v_skybox.glsl", ".\\f_skybox.glsl");
 	}
 
-	static Shader* getColorShader() { return colorShader; }
-	static Shader* getDebugShader() { return debugShader; }
-	static Shader* getRenderShader() { return renderShader; }
+	static Shader* getColorShaderPtr() { return colorShader; }
+	static Shader* getDebugShaderPtr() { return debugShader; }
+	static Shader* getRenderShaderPtr() { return renderShader; }
+	static Shader* getSkyboxShaderPtr() { return skyboxShader; }
 
 private:
 
-	static Shader* colorShader, * debugShader, * renderShader;
+	static Shader* colorShader, * debugShader, * renderShader, * skyboxShader;
 };
