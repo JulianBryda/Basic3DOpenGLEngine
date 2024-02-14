@@ -91,6 +91,9 @@
     <Filter Include="Header Files\Scene\Lighting">
       <UniqueIdentifier>{924a5f48-0e9b-457b-b977-f3ea27c4ee1f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Renderer\Shader\LibraryShader">
+      <UniqueIdentifier>{9746164f-dc08-4c77-b734-662f60a29f38}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FuckWindows.cpp">
@@ -286,6 +289,9 @@
     </None>
     <None Include="Shader\v_render.glsl">
       <Filter>Source Files\Renderer\Shader\Vertex</Filter>
+    </None>
+    <None Include="Shader\LibraryShader\structs.glsl">
+      <Filter>Source Files\Renderer\Shader\LibraryShader</Filter>
     </None>
   </ItemGroup>
 </Project>

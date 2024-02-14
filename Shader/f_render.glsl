@@ -1,43 +1,5 @@
 #version 460 core
-struct Material
-{
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
-	float shininess;
-};
-
-struct DirectionalLight 
-{
-	vec3 direction;
-
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
-};
-
-struct PointLight 
-{
-	vec3 position;
-
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
-
-    float constant;
-    float linear;
-    float quadratic;
-};
-
-struct SpotLight 
-{
-	vec3 direction;
-
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
-};
-
+#include "C:\Users\JulianBrydaVeloce\source\repos\FuckWindows\Shader\LibraryShader\structs.glsl"
 
 out vec4 FragColor;
 

@@ -10,7 +10,7 @@ public:
 	{
 		colorShader = new Shader(".\\v_color.glsl", ".\\f_color.glsl");
 		debugShader = new Shader(".\\v_debug.glsl", ".\\f_debug.glsl");
-		renderShader = new Shader(".\\v_render.glsl", ".\\f_render.glsl");
+		renderShader = new Shader(".\\v_render.glsl", ".\\f_render.glsl", ".\\LibraryShader\\structs.glsl");
 		skyboxShader = new Shader(".\\v_skybox.glsl", ".\\f_skybox.glsl");
 	}
 

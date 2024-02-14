@@ -211,12 +211,12 @@ private:
 
 	void attach_shader_pack(GLuint programId) {}
 
-	template<typename ...Args>
-	void attach_shader_pack(GLuint programId, LibraryShader& first, Args&&... rest)
+	template<struct LibraryShader, typename ...Args>
+	void attach_shader_pack(GLuint programId, LibraryShader& first, Args&... rest)
 	{
 		glAttachShader(programId, first.shaderId);
 
-		this->attach_shader_pack(programId, std::forward<Args>(rest)...);
+		this->attach_shader_pack(programId, rest...);
 	}
 
 #pragma region Shader compilation
@@ -233,12 +233,12 @@ private:
 
 	void compile_shader_pack() {}
 
-	template<typename... Args>
-	void compile_shader_pack(LibraryShader& first, Args&&... rest)
+	template<struct LibraryShader, typename... Args>
+	void compile_shader_pack(LibraryShader& first, Args&... rest)
 	{
 		this->compile_shader(first.shaderPath, first.shaderId, first.shaderType);
 
-		this->compile_shader_pack(std::forward<Args>(rest)...);
+		this->compile_shader_pack(rest...);
 	}
 #pragma endregion
 

@@ -219,6 +219,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <None Include="Shader\f_render.glsl" />
     <None Include="Shader\f_skybox.glsl" />
     <None Include="Shader\f_texture.glsl" />
+    <None Include="Shader\LibraryShader\structs.glsl" />
     <None Include="Shader\v_color.glsl" />
     <None Include="Shader\v_debug.glsl" />
     <None Include="Shader\v_render.glsl" />
