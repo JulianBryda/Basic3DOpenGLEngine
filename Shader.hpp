@@ -13,8 +13,11 @@
 #include "DirectionalLight.hpp"
 
 
-struct LibraryShader
+class LibraryShader
 {
+public:
+	LibraryShader(const char* shaderPath, GLenum shaderType) : shaderPath(shaderPath), shaderType(shaderType), shaderId(0) {}
+
 	const char* shaderPath;
 	GLenum shaderType;
 	GLuint shaderId;
@@ -25,7 +28,7 @@ class Shader
 public:
 
 	template<typename... Args>
-	Shader(std::string_view vShaderPath, std::string_view fShaderPath, Args&&... rest)
+	Shader(std::string_view vShaderPath, std::string_view fShaderPath, Args&... args)
 	{
 		this->name = vShaderPath.substr(vShaderPath.find_last_of("\\") + 3);
 
@@ -37,8 +40,15 @@ public:
 		this->compile_shader(vShaderPath, vertex, GL_VERTEX_SHADER);
 		this->compile_shader(fShaderPath, fragment, GL_FRAGMENT_SHADER);
 
+		// convert to library shader
+		std::vector<T> libShaders;
+		(libShaders.emplace_back(args, GL_FRAGMENT_SHADER), ...);
+
 		// compile libraries if available
-		this->compile_shader_pack(std::forward<Args>(rest)...);
+		for (LibraryShader& shader : libShaders)
+		{
+			this->compile_shader(shader);
+		}
 
 		// shader Program
 		this->Id = glCreateProgram();
@@ -46,7 +56,10 @@ public:
 		glAttachShader(Id, fragment);
 
 		// attach library shaders
-		this->attach_shader_pack(this->Id, std::forward<Args>(rest)...);
+		for (LibraryShader& shader : libShaders)
+		{
+			glAttachShader(this->Id, shader.shaderId);
+		}
 
 		glLinkProgram(Id);
 		// print linking errors if any
@@ -209,17 +222,18 @@ private:
 		}
 	}
 
-	void attach_shader_pack(GLuint programId) {}
-
-	template<struct LibraryShader, typename ...Args>
-	void attach_shader_pack(GLuint programId, LibraryShader& first, Args&... rest)
+#pragma region Shader compilation
+	void compile_shader(LibraryShader& shader)
 	{
-		glAttachShader(programId, first.shaderId);
+		std::string shaderCode;
 
-		this->attach_shader_pack(programId, rest...);
+		// read shader code
+		this->read_shader_from_file(shader.shaderPath, shaderCode, shader.shaderType);
+
+		// create shader
+		this->create_shader(shader.shaderId, shaderCode.c_str(), shader.shaderType);
 	}
 
-#pragma region Shader compilation
 	void compile_shader(std::string_view shaderPath, GLuint& shaderId, GLenum shaderType)
 	{
 		std::string shaderCode;
@@ -229,16 +243,6 @@ private:
 
 		// create shader
 		this->create_shader(shaderId, shaderCode.c_str(), shaderType);
-	}
-
-	void compile_shader_pack() {}
-
-	template<struct LibraryShader, typename... Args>
-	void compile_shader_pack(LibraryShader& first, Args&... rest)
-	{
-		this->compile_shader(first.shaderPath, first.shaderId, first.shaderType);
-
-		this->compile_shader_pack(rest...);
 	}
 #pragma endregion
 
