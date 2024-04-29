@@ -1,5 +1,35 @@
 #version 460 core
-#include "C:\Users\JulianBrydaVeloce\source\repos\FuckWindows\Shader\LibraryShader\structs.glsl"
+
+struct Material
+{
+	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;
+	float shininess;
+};
+
+struct DirectionalLight 
+{
+	vec3 direction;
+
+	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;
+};
+
+struct PointLight 
+{
+	vec3 position;
+
+	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;
+
+    float constant;
+    float linear;
+    float quadratic;
+};
+
 
 out vec4 FragColor;
 

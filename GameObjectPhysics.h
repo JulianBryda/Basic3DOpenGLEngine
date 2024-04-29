@@ -20,12 +20,17 @@ public:
 	void setIsInteractEnabled(bool isInteractEnabled);
 	void setIsPhysicsEnabled(bool isPhysicsEnabled);
 	void setIsGravityEnabled(bool isGravityEnabled);
+	void setIsPullToObjectEnabled(bool isPullToObjectEnabled);
+
+	bool toggleIsGravityEnabled();
+	bool toggleIsPullToObjectEnabled();
 
 
 	// getter
 	glm::vec3 getVelocity() const;
 	glm::vec3* getVelocityPtr();
 	float getMass() const;
+	float* getMassPtr();
 	float getGravity() const;
 	bool getIsPhysicsEnabled() const;
 	float getLinearDrag() const;
@@ -34,6 +39,8 @@ public:
 	bool* getIsInteractEnabledPtr();
 	bool getIsGravityEnabled() const;
 	bool* getIsGravityEnabledPtr();
+	bool getIsPullToObjectEnabled() const;
+	bool* getIsPullToObjectEnabledPtr();
 
 	// math functions
 	float getSpeed() const;
@@ -45,7 +52,7 @@ protected:
 
 	glm::vec3 velocity;
 	float mass, gravity, linearDrag;
-	bool isPhysicsEnabled, isInteractEnabled, isGravityEnabled;
+	bool isPhysicsEnabled, isInteractEnabled, isGravityEnabled, isPullToObjectEnabled;
 
 
 private:

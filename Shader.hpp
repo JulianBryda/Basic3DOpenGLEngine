@@ -16,22 +16,22 @@
 class LibraryShader
 {
 public:
-	LibraryShader(const char* shaderPath, GLenum shaderType) : shaderPath(shaderPath), shaderType(shaderType), shaderId(0) {}
+	LibraryShader(const char* shaderPath, GLenum shaderType) : path(shaderPath), type(shaderType), id(0) {}
 
-	const char* shaderPath;
-	GLenum shaderType;
-	GLuint shaderId;
+	const char* path;
+	GLenum type;
+	GLuint id;
 };
 
 class Shader
 {
 public:
 
-	template<typename... Args>
-	Shader(std::string_view vShaderPath, std::string_view fShaderPath, Args&... args)
+	Shader(std::string_view vShaderPath, std::string_view fShaderPath, const char* libraryShader = "")
 	{
 		this->name = vShaderPath.substr(vShaderPath.find_last_of("\\") + 3);
 
+		LibraryShader libShader{ libraryShader, GL_FRAGMENT_SHADER };
 		GLuint vertex, fragment;
 		int success;
 		char infoLog[512];
@@ -40,46 +40,38 @@ public:
 		this->compile_shader(vShaderPath, vertex, GL_VERTEX_SHADER);
 		this->compile_shader(fShaderPath, fragment, GL_FRAGMENT_SHADER);
 
-		// convert to library shader
-		std::vector<T> libShaders;
-		(libShaders.emplace_back(args, GL_FRAGMENT_SHADER), ...);
+		bool test = strcmp(libraryShader, "");
 
-		// compile libraries if available
-		for (LibraryShader& shader : libShaders)
-		{
-			this->compile_shader(shader);
-		}
+		if (strcmp(libraryShader, "")) this->compile_shader(libShader);
 
 		// shader Program
 		this->Id = glCreateProgram();
-		glAttachShader(Id, vertex);
-		glAttachShader(Id, fragment);
+		glAttachShader(this->Id, vertex);
+		glAttachShader(this->Id, fragment);
 
 		// attach library shaders
-		for (LibraryShader& shader : libShaders)
-		{
-			glAttachShader(this->Id, shader.shaderId);
-		}
+		if (strcmp(libraryShader, "")) glAttachShader(this->Id, libShader.id);
 
-		glLinkProgram(Id);
+		glLinkProgram(this->Id);
 		// print linking errors if any
-		glGetProgramiv(Id, GL_LINK_STATUS, &success);
+		glGetProgramiv(this->Id, GL_LINK_STATUS, &success);
 		if (!success)
 		{
-			glGetProgramInfoLog(Id, 512, NULL, infoLog);
+			glGetProgramInfoLog(this->Id, 512, NULL, infoLog);
 			std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 		}
 
 		// delete the shaders as they're linked into our program now and no longer necessary
 		glDeleteShader(vertex);
 		glDeleteShader(fragment);
+		if (strcmp(libraryShader, "")) glDeleteShader(libShader.id);
 	}
 
-	~Shader() { glDeleteProgram(Id); }
+	~Shader() { glDeleteProgram(this->Id); }
 
 	void use()
 	{
-		glUseProgram(Id);
+		glUseProgram(this->Id);
 	}
 
 	// getter
@@ -228,10 +220,10 @@ private:
 		std::string shaderCode;
 
 		// read shader code
-		this->read_shader_from_file(shader.shaderPath, shaderCode, shader.shaderType);
+		this->read_shader_from_file(shader.path, shaderCode, shader.type);
 
 		// create shader
-		this->create_shader(shader.shaderId, shaderCode.c_str(), shader.shaderType);
+		this->create_shader(shader.id, shaderCode.c_str(), shader.type);
 	}
 
 	void compile_shader(std::string_view shaderPath, GLuint& shaderId, GLenum shaderType)

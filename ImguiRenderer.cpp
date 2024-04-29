@@ -294,6 +294,11 @@ void ImguiRenderer::renderObjectManager()
 
 					if (ImGui::TreeNode("Physics"))
 					{
+						ImGui::Text("Mass");
+						ImGui::SameLine();
+						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+						ImGui::InputFloat("##4523", selectedObject->getMassPtr());
+
 						ImGui::Text("Velocity");
 						ImGui::SameLine();
 						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
@@ -304,7 +309,15 @@ void ImguiRenderer::renderObjectManager()
 						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
 						ImGui::InputFloat("##3", selectedObject->getLinearDragPtr());
 
-						ImGui::Checkbox("Gravity", selectedObject->getIsGravityEnabledPtr());
+						if (ImGui::Checkbox("Gravity", selectedObject->getIsGravityEnabledPtr()))
+						{
+							if (selectedObject->getIsGravityEnabled()) selectedObject->setIsPullToObjectEnabled(false);
+						}
+
+						if (ImGui::Checkbox("ObjectPull", selectedObject->getIsPullToObjectEnabledPtr()))
+						{
+							if (selectedObject->getIsPullToObjectEnabled()) selectedObject->setIsGravityEnabled(false);
+						}
 
 						ImGui::TreePop();
 					}

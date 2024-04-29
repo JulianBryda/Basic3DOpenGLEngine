@@ -22,17 +22,28 @@ public:
 
 			glm::vec3 velocity = obj->getVelocity();
 			glm::vec3 position = obj->getPosition();
-			glm::vec3 oldPosition = obj->getPosition();
 
 			if (obj->getIsGravityEnabled())
 			{
-				velocity = velocity + glm::vec3(0.0f, -obj->getGravity(), 0.0f) * deltaTime;
+				velocity += glm::vec3(0.0f, -obj->getGravity(), 0.0f) * deltaTime;
+			}
+			else if (obj->getIsPullToObjectEnabled())
+			{
+				for (size_t j = 0; j < m_physicalizedObjects.size(); j++)
+				{
+					if (obj == m_physicalizedObjects[j]) continue;
+
+					glm::vec3 direction = obj->getPosition() - m_physicalizedObjects[j]->getPosition();
+					float distance = glm::length(direction);
+					float forceMagnitude = gravConst * obj->getMass() * m_physicalizedObjects[j]->getMass() / (distance * distance);
+					glm::vec3 force = glm::normalize(direction) * forceMagnitude;
+
+					velocity -= force / obj->getMass();
+				}
 			}
 
 			velocity -= obj->getLinearDrag() * velocity * deltaTime;
 			position += velocity * deltaTime;
-
-			obj->setPosition(position);
 
 			// collision detection
 			for (size_t j = 0; j < m_physicalizedObjects.size(); j++)
@@ -71,20 +82,24 @@ public:
 				{
 				case ColliderType::BoundingBox:
 				{
-					if (obj->checkBoundingBoxCollision(m_physicalizedObjects[j]))
+					if (Collision::checkBoundingBoxCollisionX(position, obj->getScale(), m_physicalizedObjects[j]->getPosition(), m_physicalizedObjects[j]->getScale()))
 					{
-						if (obj->checkBoundingBoxCollisionX(m_physicalizedObjects[j]))
-						{
-							obj->setVelocity(velocity * glm::vec3(0.0f, 1.0f, 1.0f));
-							isColliding = true;
-						}
-
-						if (obj->checkBoundingBoxCollisionY(m_physicalizedObjects[j]))
-						{
-							obj->setVelocity(velocity * glm::vec3(1.0f, 0.0f, 1.0f));
-							isColliding = true;
-						}
+						velocity *= glm::vec3(1.f, 1.f, .1f);
+						position.x = obj->getPositionPtr()->x;
 					}
+
+					if (Collision::checkBoundingBoxCollisionY(position, obj->getScale(), m_physicalizedObjects[j]->getPosition(), m_physicalizedObjects[j]->getScale()))
+					{
+						velocity *= glm::vec3(.1f, 1.f, 1.f);
+						position.x = obj->getPositionPtr()->y;
+					}
+
+					if (Collision::checkBoundingBoxCollisionZ(position, obj->getScale(), m_physicalizedObjects[j]->getPosition(), m_physicalizedObjects[j]->getScale()))
+					{
+						velocity *= glm::vec3(1.f, .1f, 1.f);
+						position.y = obj->getPositionPtr()->z;
+					}
+
 					break;
 				}
 				case ColliderType::Circular:
@@ -92,7 +107,6 @@ public:
 					if (obj->checkCircularCollision(m_physicalizedObjects[j]))
 					{
 						obj->setVelocity(glm::vec3(0.0f));
-						isColliding = true;
 					}
 					break;
 				}
@@ -103,14 +117,8 @@ public:
 				}
 			}
 
-			if (isColliding)
-			{
-				obj->setPosition(oldPosition);
-			}
-			else
-			{
-				obj->setVelocity(velocity);
-			}
+			obj->setPosition(position);
+			obj->setVelocity(velocity);
 		}
 	}
 
@@ -155,4 +163,5 @@ private:
 
 	static GameObject* focusedGameObject;
 
+	static constexpr float gravConst = 6.67430;
 };
