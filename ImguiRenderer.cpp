@@ -153,7 +153,15 @@ void ImguiRenderer::renderMenuBar()
 				// Display the Open dialog box
 				if (GetOpenFileNameA(&ofn) == TRUE) 
 				{
-					auto test = ofn.lpstrFile;
+					auto value = RendererPipeline::getRendererMap().find(RendererType::Object)->second;
+					if (value != nullptr)
+					{
+						auto renderer = static_cast<ObjectRenderer*>(value);
+						GameObject* obj = new GameObject(std::format("Cube{}", renderer->getObjects().size()), ofn.lpstrFile, ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
+						obj->setIsPhysicsEnabled(true);
+
+						renderer->addObject(obj);
+					}
 				}
 			}
 
