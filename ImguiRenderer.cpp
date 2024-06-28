@@ -156,8 +156,10 @@ void ImguiRenderer::renderMenuBar()
 					auto value = RendererPipeline::getRendererMap().find(RendererType::Object)->second;
 					if (value != nullptr)
 					{
+
+						//TODO IF USING SHADERLIB IN GAMEOBJECT, OBJECT WILL DELETE SHADERLIB SINCE IT DELETES ALSO ITS SHADER POINTER
 						auto renderer = static_cast<ObjectRenderer*>(value);
-						GameObject* obj = new GameObject(std::format("Cube{}", renderer->getObjects().size()), ofn.lpstrFile, ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
+						GameObject* obj = new GameObject(std::format("Object{}", renderer->getObjects().size()), ofn.lpstrFile, ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
 						obj->setIsPhysicsEnabled(true);
 
 						renderer->addObject(obj);
