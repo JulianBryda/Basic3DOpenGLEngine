@@ -75,6 +75,9 @@ int main()
 	// init InputHandler
 	InputHandler::init(window);
 
+	// init RenderPipeline
+	RendererPipeline::init();
+
 	// register object renderer
 	auto objectRenderer = ObjectRenderer();
 	RendererPipeline::registerRenderer(&objectRenderer, RendererType::Object);

@@ -24,7 +24,15 @@ public:
 		{
 			if (object->getIsHidden()) continue;
 
-			Shader* shader = object->getShaderPtr();
+			Shader* shader = nullptr;
+			if (RendererPipeline::getRenderMode() == RenderMode::Debug)
+			{
+				shader = ShaderLib::getRenderShaderPtr();
+			}
+			else
+			{
+				shader = object->getShaderPtr();
+			}
 			shader->use();
 
 			shader->setMat4("projection", activeCamera->getProjectionMatrix());
@@ -83,27 +91,6 @@ public:
 			}
 		}
 
-	}
-
-	void setRenderMode(RenderMode renderMode) override
-	{
-		switch (renderMode)
-		{
-		case Debug:
-			for (auto const& object : m_objects)
-			{
-				object->setShader(ShaderLib::getDebugShaderPtr());
-			}
-			break;
-		case Render:
-			for (auto const& object : m_objects)
-			{
-				object->setShader(ShaderLib::getRenderShaderPtr());
-			}
-			break;
-		default:
-			break;
-		}
 	}
 
 	void addObject(GameObject* object)

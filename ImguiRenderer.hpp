@@ -25,6 +25,7 @@ public:
 		ImGuiIO& io = ImGui::GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 		setImguiStyle();
 
@@ -45,6 +46,7 @@ public:
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+		// ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 
 		// render functions here
 		renderMenuBar();

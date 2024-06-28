@@ -4,10 +4,21 @@
 #include "Renderer.hpp"
 #include "Scene.hpp"
 
+enum RenderMode
+{
+	Debug,
+	Render
+};
+
 class RendererPipeline
 {
 
 public:
+
+	static void init()
+	{
+		renderMode = RenderMode::Debug;
+	}
 
 	/// <summary>
 	/// calls the render function of every registered renderer
@@ -39,14 +50,15 @@ public:
 		return scenes[activeSceneIndex];
 	}
 
+	static RenderMode getRenderMode()
+	{
+		return renderMode;
+	}
 
 	// setter
-	static void setGlobalRenderMode(RenderMode renderMode)
+	static void setRenderMode(RenderMode renderMode)
 	{
-		for (auto const& x : rendererMap)
-		{
-			x.second->setRenderMode(renderMode);
-		}
+		RendererPipeline::renderMode = renderMode;
 	}
 
 
@@ -78,5 +90,7 @@ private:
 
 	static std::vector<Scene*> scenes;
 	static int activeSceneIndex;
+	
+	static RenderMode renderMode;
 
 };

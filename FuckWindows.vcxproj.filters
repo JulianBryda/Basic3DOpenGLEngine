@@ -132,9 +132,6 @@
     <ClCompile Include="PhysicEngine.cpp">
       <Filter>Source Files\PhysicEngine</Filter>
     </ClCompile>
-    <ClCompile Include="GameObject.cpp">
-      <Filter>Source Files\Objects\Base</Filter>
-    </ClCompile>
     <ClCompile Include="GameObjectCollisions.cpp">
       <Filter>Source Files\Objects\Physics</Filter>
     </ClCompile>
@@ -146,6 +143,9 @@
     </ClCompile>
     <ClCompile Include="ShaderLib.cpp">
       <Filter>Source Files\Renderer\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Source Files\PhysicEngine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

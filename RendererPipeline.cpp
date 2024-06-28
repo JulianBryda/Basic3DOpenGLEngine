@@ -5,6 +5,7 @@
 std::multimap<RendererType, Renderer*> RendererPipeline::rendererMap;
 std::vector<Scene*> RendererPipeline::scenes;
 int RendererPipeline::activeSceneIndex;
+RenderMode RendererPipeline::renderMode;
 
 void RendererPipeline::addObjectToRenderer(GameObject* object, RendererType type)
 {

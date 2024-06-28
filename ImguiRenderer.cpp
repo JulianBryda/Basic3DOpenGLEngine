@@ -108,12 +108,12 @@ void ImguiRenderer::renderMenuBar()
 			{
 				if (ImGui::MenuItem("Debug"))
 				{
-					RendererPipeline::setGlobalRenderMode(RenderMode::Debug);
+					RendererPipeline::setRenderMode(RenderMode::Debug);
 				}
 
 				if (ImGui::MenuItem("Render"))
 				{
-					RendererPipeline::setGlobalRenderMode(RenderMode::Render);
+					RendererPipeline::setRenderMode(RenderMode::Render);
 				}
 
 				ImGui::EndMenu();
