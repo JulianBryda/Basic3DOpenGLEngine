@@ -2,18 +2,18 @@
 #include <iostream>
 #include <vector>
 
-#include "Renderer.hpp"
+#include "RendererBase.hpp"
 #include "Shader.hpp"
 #include "GameObject.h"
 #include "Shader.hpp"
 #include "ShaderLib.hpp"
 
-class EnvironmentRenderer : public Renderer
+class EnvironmentRenderer : public RendererBase
 {
 
 public:
 
-	EnvironmentRenderer() : Renderer(RendererType::Environment)
+	EnvironmentRenderer() : RendererBase(RendererType::Environment)
 	{
 
 	}
@@ -22,7 +22,7 @@ public:
 	{
 		for (auto& object : m_objects)
 		{
-			if (object->getIsHidden()) continue;
+			if (object->getHidden()) continue;
 
 			Shader* shader = object->getShaderPtr();
 			shader->use();
@@ -45,7 +45,7 @@ public:
 
 			// draw wireframe?
 
-			if (object->getIsDrawWireframe())
+			if (object->getDrawWireframe())
 			{
 				shader->setMat4("model", object->getModelMatrix());
 
@@ -68,14 +68,21 @@ public:
 
 	}
 
-	void addObject(GameObject* object)
+	void addObject(GameObject* object) override
 	{
 		m_objects.push_back(object);
 	}
 
 	void deleteObject(GameObject* object)
 	{
-		m_objects.erase(std::remove(m_objects.begin(), m_objects.end(), object), m_objects.end());
+		for (size_t i = 0; i < m_objects.size(); i++)
+		{
+			if (m_objects[i] == object)
+			{
+				m_objects.erase(m_objects.begin() + i);
+				break;
+			}
+		}
 
 		delete object;
 	}

@@ -12,7 +12,7 @@ class Light
 {
 public:
 
-	Light(const char* name, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, LightType lightType)
+	Light(std::string_view name, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, LightType lightType)
 	{
 		this->name = name;
 
@@ -27,12 +27,12 @@ public:
 
 	~Light()
 	{
-		delete name;
+
 	}
 
 
 	// getter
-	inline const char* getName() const { return this->name; }
+	inline std::string_view getName() const { return this->name; }
 
 	inline glm::vec3 getAmbient() const { return this->ambient; }
 	inline glm::vec3* getAmbientPtr() { return &this->ambient; }
@@ -56,7 +56,7 @@ protected:
 
 private:
 
-	const char* name;
+	std::string_view name;
 
 	glm::vec3 ambient;
 	glm::vec3 diffuse;

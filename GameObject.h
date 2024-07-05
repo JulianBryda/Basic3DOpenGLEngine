@@ -19,8 +19,8 @@ class GameObject : public GameObjectPhysics, public GameObjectCollisions
 
 public:
 
-	GameObject(std::string name, std::string path, Shader* shader, ColliderType colliderType);
-	GameObject(std::string name, Mesh mesh, Shader* shader, ColliderType colliderType);
+	GameObject(std::string name, std::string path, Shader* pShader, ColliderType colliderType);
+	GameObject(std::string name, Mesh mesh, Shader* pShader, ColliderType colliderType);
 
 	~GameObject();
 
@@ -36,9 +36,9 @@ public:
 	void loadCubeMap(std::vector<const char*> faces);
 	static void loadCubeMap(std::vector<const char*> faces, GLuint* texture);
 
-	bool getIsHidden() const;
-	bool getIsDrawWireframe() const;
-	bool* getIsDrawWireframePtr();
+	bool getHidden() const;
+	bool getDrawWireframe() const;
+	bool* getDrawWireframePtr();
 
 	glm::vec3 getPosition() const;
 	glm::vec3* getPositionPtr();
@@ -74,19 +74,19 @@ protected:
 
 private:
 
-	std::string name;
+	std::string m_name;
 
-	GLuint vbo, ebo, texture;
-	GLenum textureType;
+	GLuint m_vbo, m_ebo, m_texture;
+	GLenum m_textureType;
 
-	glm::vec3 rotation, scale;
+	glm::vec3 m_rotation, m_scale;
 
-	Shader* m_shader;
+	Shader* m_pShader;
 
-	Material* material;
+	Material* m_pMaterial;
 
-	Mesh mesh;
+	Mesh m_mesh;
 
-	bool isHidden, isDrawWireframe;
+	bool m_hidden, m_drawWireframe;
 
 };

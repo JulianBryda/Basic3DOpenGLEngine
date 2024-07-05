@@ -50,9 +50,9 @@ public:
 
 	Collider(glm::vec3* anchor, glm::vec3 scale, ColliderType colliderType)
 	{
-		this->anchor = anchor;
-		this->scale = scale;
-		this->colliderType = colliderType;
+		this->m_pAnchor = anchor;
+		this->m_scale = scale;
+		this->m_colliderType = colliderType;
 	}
 
 	~Collider()
@@ -61,23 +61,23 @@ public:
 	}
 
 	// getter
-	glm::vec3* getAnchorPositionPtr() { return this->anchor; }
-	glm::vec3 getScale() const { return this->scale; }
-	glm::vec3* getScalePtr() { return &this->scale; }
+	glm::vec3* getAnchorPositionPtr() { return this->m_pAnchor; }
+	glm::vec3 getScale() const { return this->m_scale; }
+	glm::vec3* getScalePtr() { return &this->m_scale; }
 
-	glm::mat4 getModelMatrix() const { return glm::scale(glm::translate(glm::mat4(1.0f), *anchor), scale); }
+	glm::mat4 getModelMatrix() const { return glm::scale(glm::translate(glm::mat4(1.0f), *m_pAnchor), m_scale); }
 
-	ColliderType getColliderType() const { return this->colliderType; }
+	ColliderType getColliderType() const { return this->m_colliderType; }
 
 
 	// setter
-	void setScale(glm::vec3 scale) { this->scale = scale; }
+	void setScale(glm::vec3 scale) { this->m_scale = scale; }
 
 
 private:
 
-	glm::vec3* anchor;
-	glm::vec3 scale;
+	glm::vec3* m_pAnchor;
+	glm::vec3 m_scale;
 
-	ColliderType colliderType;
+	ColliderType m_colliderType;
 };

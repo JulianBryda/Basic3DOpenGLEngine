@@ -6,19 +6,19 @@
 #include "Imgui/imgui_impl_glfw.h"
 #include "Imgui/imgui_impl_opengl3.h"
 
-#include "Renderer.hpp"
-#include "RendererPipeline.hpp"
+#include "RendererBase.hpp"
+#include "RendererManager.hpp"
 #include "ObjectRenderer.hpp"
 #include "EnvironmentRenderer.hpp"
 #include "Primitives.hpp"
 #include "PhysicEngine.hpp"
 
-class ImguiRenderer : public Renderer
+class ImguiRenderer : public RendererBase
 {
 
 public:
 
-	ImguiRenderer(GLFWwindow* window) : Renderer(RendererType::UserInterface)
+	ImguiRenderer(GLFWwindow* window) : RendererBase(RendererType::UserInterface)
 	{
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();

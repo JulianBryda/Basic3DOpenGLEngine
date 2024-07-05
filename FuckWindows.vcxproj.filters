@@ -25,9 +25,6 @@
     <Filter Include="Header Files\Renderer\Pipeline">
       <UniqueIdentifier>{5f5f7b9c-c247-4f0f-b15a-8ce2ec5a05c6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Renderer\Pipeline">
-      <UniqueIdentifier>{26168db7-b34d-4a90-8a42-969f772f44a3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Objects">
       <UniqueIdentifier>{0d8a494d-006d-4821-8bf6-84197198b1ff}</UniqueIdentifier>
     </Filter>
@@ -102,9 +99,6 @@
     <ClCompile Include="glad.c">
       <Filter>Source Files\Libraries</Filter>
     </ClCompile>
-    <ClCompile Include="RendererPipeline.cpp">
-      <Filter>Source Files\Renderer\Pipeline</Filter>
-    </ClCompile>
     <ClCompile Include="Imgui\imgui_demo.cpp">
       <Filter>Source Files\Libraries\Imgui</Filter>
     </ClCompile>
@@ -132,6 +126,9 @@
     <ClCompile Include="PhysicEngine.cpp">
       <Filter>Source Files\PhysicEngine</Filter>
     </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Source Files\Objects\Base</Filter>
+    </ClCompile>
     <ClCompile Include="GameObjectCollisions.cpp">
       <Filter>Source Files\Objects\Physics</Filter>
     </ClCompile>
@@ -144,18 +141,15 @@
     <ClCompile Include="ShaderLib.cpp">
       <Filter>Source Files\Renderer\Shader</Filter>
     </ClCompile>
-    <ClCompile Include="GameObject.cpp">
-      <Filter>Source Files\PhysicEngine</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InputHandler.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RendererPipeline.hpp">
+    <ClInclude Include="RendererManager.hpp">
       <Filter>Header Files\Renderer\Pipeline</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer.hpp">
+    <ClInclude Include="RendererBase.hpp">
       <Filter>Header Files\Renderer\Pipeline</Filter>
     </ClInclude>
     <ClInclude Include="ObjectRenderer.hpp">

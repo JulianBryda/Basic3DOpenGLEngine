@@ -5,56 +5,56 @@
 
 GameObject::GameObject(std::string name, Mesh mesh, Shader* shader, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
 {
-	this->name = name;
+	this->m_name = name;
 	this->position = glm::vec3(0.0f);
-	this->rotation = glm::vec3(0.0f);
-	this->scale = glm::vec3(5.0f);
-	this->isHidden = false;
-	this->isDrawWireframe = false;
+	this->m_rotation = glm::vec3(0.0f);
+	this->m_scale = glm::vec3(5.0f);
+	this->m_hidden = false;
+	this->m_drawWireframe = false;
 
-	this->material = new Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 1.0f);
-	this->m_shader = shader;
-	this->mesh = mesh;
+	this->m_pMaterial = new Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 1.0f);
+	this->m_pShader = shader;
+	this->m_mesh = mesh;
 
 	genBuffers();
 }
 
 GameObject::GameObject(std::string name, std::string path, Shader* shader, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
 {
-	this->name = name;
+	this->m_name = name;
 	this->position = glm::vec3(0.0f);
-	this->rotation = glm::vec3(0.0f);
-	this->scale = glm::vec3(5.0f);
-	this->isHidden = false;
-	this->isDrawWireframe = false;
+	this->m_rotation = glm::vec3(0.0f);
+	this->m_scale = glm::vec3(5.0f);
+	this->m_hidden = false;
+	this->m_drawWireframe = false;
 
-	this->material = new Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 1.0f);
-	this->m_shader = shader;
+	this->m_pMaterial = new Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 1.0f);
+	this->m_pShader = shader;
 
-	ObjectLoader::load_model_mesh_assimp(path.c_str(), &mesh);
+	ObjectLoader::load_model_mesh_assimp(path.c_str(), &m_mesh);
 
 	genBuffers();
 }
 
 GameObject::~GameObject()
 {
-	delete this->m_shader;
-	delete this->material;
+	delete this->m_pShader;
+	delete this->m_pMaterial;
 }
 
 void GameObject::genBuffers()
 {
 	glGenVertexArrays(1, &vao);
-	glGenBuffers(1, &vbo);
-	glGenBuffers(1, &ebo);
+	glGenBuffers(1, &m_vbo);
+	glGenBuffers(1, &m_ebo);
 
 	glBindVertexArray(vao);
 
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * this->mesh.getVerticesPtr()->size(), this->mesh.getVerticesPtr()->data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * this->m_mesh.getVerticesPtr()->size(), this->m_mesh.getVerticesPtr()->data(), GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * this->mesh.getIndicesPtr()->size(), this->mesh.getIndicesPtr()->data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * this->m_mesh.getIndicesPtr()->size(), this->m_mesh.getIndicesPtr()->data(), GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -74,11 +74,11 @@ void GameObject::updateBuffers()
 {
 	glBindVertexArray(vao);
 
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * this->mesh.getVerticesPtr()->size(), this->mesh.getVerticesPtr()->data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * this->m_mesh.getVerticesPtr()->size(), this->m_mesh.getVerticesPtr()->data(), GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * this->mesh.getIndicesPtr()->size(), this->mesh.getIndicesPtr()->data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * this->m_mesh.getIndicesPtr()->size(), this->m_mesh.getIndicesPtr()->data(), GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -97,7 +97,7 @@ void GameObject::updateBuffers()
 void GameObject::draw()
 {
 	glBindVertexArray(vao);
-	glDrawElements(GL_TRIANGLES, this->mesh.getIndicesPtr()->size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, this->m_mesh.getIndicesPtr()->size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
@@ -112,8 +112,8 @@ void GameObject::drawWireframe()
 
 void GameObject::loadTexture(const char* path)
 {
-	loadTexture(path, &this->texture);
-	this->textureType = GL_TEXTURE_2D;
+	loadTexture(path, &this->m_texture);
+	this->m_textureType = GL_TEXTURE_2D;
 }
 
 void GameObject::loadTexture(const char* path, GLuint* texture)
@@ -143,8 +143,8 @@ void GameObject::loadTexture(const char* path, GLuint* texture)
 
 void GameObject::loadCubeMap(std::vector<const char*> faces)
 {
-	loadCubeMap(faces, &this->texture);
-	this->textureType = GL_TEXTURE_CUBE_MAP;
+	loadCubeMap(faces, &this->m_texture);
+	this->m_textureType = GL_TEXTURE_CUBE_MAP;
 }
 
 void GameObject::loadCubeMap(std::vector<const char*> faces, GLuint* texture)
@@ -177,38 +177,38 @@ void GameObject::loadCubeMap(std::vector<const char*> faces, GLuint* texture)
 }
 
 
-bool GameObject::getIsHidden() const { return this->isHidden; }
-bool GameObject::getIsDrawWireframe() const { return this->isDrawWireframe; }
-bool* GameObject::getIsDrawWireframePtr() { return &this->isDrawWireframe; }
+bool GameObject::getHidden() const { return this->m_hidden; }
+bool GameObject::getDrawWireframe() const { return this->m_drawWireframe; }
+bool* GameObject::getDrawWireframePtr() { return &this->m_drawWireframe; }
 
 glm::vec3 GameObject::getPosition() const { return this->position; }
 glm::vec3* GameObject::getPositionPtr() { return &this->position; }
-glm::vec3 GameObject::getRotation() const { return rotation; }
-glm::vec3 GameObject::getScale() const { return scale; }
-glm::vec3* GameObject::getScalePtr() { return &scale; }
+glm::vec3 GameObject::getRotation() const { return m_rotation; }
+glm::vec3 GameObject::getScale() const { return m_scale; }
+glm::vec3* GameObject::getScalePtr() { return &m_scale; }
 
-glm::mat4 GameObject::getModelMatrix() const { return glm::scale(glm::translate(glm::mat4(1.0f), this->position), this->scale); }
+glm::mat4 GameObject::getModelMatrix() const { return glm::scale(glm::translate(glm::mat4(1.0f), this->position), this->m_scale); }
 
-GLuint GameObject::getTexture() const { return this->texture; }
-GLenum GameObject::getTextureType() const { return this->textureType; }
+GLuint GameObject::getTexture() const { return this->m_texture; }
+GLenum GameObject::getTextureType() const { return this->m_textureType; }
 
-Shader* GameObject::getShaderPtr() const { return m_shader; }
+Shader* GameObject::getShaderPtr() const { return m_pShader; }
 
-Material* GameObject::getMaterialPtr() const { return material; }
+Material* GameObject::getMaterialPtr() const { return m_pMaterial; }
 
-Mesh GameObject::getMesh() const { return this->mesh; }
-Mesh* GameObject::getMeshPtr() { return &this->mesh; }
+Mesh GameObject::getMesh() const { return this->m_mesh; }
+Mesh* GameObject::getMeshPtr() { return &this->m_mesh; }
 
 void GameObject::setPosition(glm::vec3 position) { this->position = position; }
-void GameObject::setRotation(glm::vec3 rotation) { this->rotation = rotation; }
-void GameObject::setScale(glm::vec3 scale) { this->scale = scale; }
+void GameObject::setRotation(glm::vec3 rotation) { this->m_rotation = rotation; }
+void GameObject::setScale(glm::vec3 scale) { this->m_scale = scale; }
 
-void GameObject::setIsHidden(bool isHidden) { this->isHidden = isHidden; }
+void GameObject::setIsHidden(bool isHidden) { this->m_hidden = isHidden; }
 
 void GameObject::setShader(Shader* shader)
 {
-	if (this->m_shader != nullptr) delete this->m_shader;
-	this->m_shader = shader;
+	if (this->m_pShader != nullptr) delete this->m_pShader;
+	this->m_pShader = shader;
 }
 
-std::string GameObject::getName() const { return name; }
+std::string GameObject::getName() const { return m_name; }

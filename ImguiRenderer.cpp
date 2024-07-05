@@ -13,39 +13,25 @@ void ImguiRenderer::renderMenuBar()
 		{
 			if (ImGui::MenuItem("Cube"))
 			{
-				auto value = RendererPipeline::getRendererMap().find(RendererType::Object)->second;
-				if (value != nullptr)
-				{
-					auto renderer = static_cast<ObjectRenderer*>(value);
-					GameObject* obj = new GameObject(std::format("Cube{}", renderer->getObjects().size()), ".\\Assets\\Objects\\Cube.obj", ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
-					obj->setIsPhysicsEnabled(true);
+				GameObject* obj = new GameObject(std::format("Cube{}", 0), ".\\Assets\\Objects\\Cube.obj", ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
+				obj->setIsPhysicsEnabled(true);
 
-					renderer->addObject(obj);
-				}
+				RendererManager::getInstance().addObject(obj, RendererType::Object);
+
 			}
 			if (ImGui::MenuItem("Sphere"))
 			{
-				auto value = RendererPipeline::getRendererMap().find(RendererType::Object)->second;
-				if (value != nullptr)
-				{
-					auto renderer = static_cast<ObjectRenderer*>(value);
-					GameObject* obj = new GameObject(std::format("Sphere{}", renderer->getObjects().size()), ".\\Assets\\Objects\\Sphere.obj", ShaderLib::getDebugShaderPtr(), ColliderType::Circular);
-					obj->setIsPhysicsEnabled(true);
+				GameObject* obj = new GameObject(std::format("Sphere{}", 0), ".\\Assets\\Objects\\Sphere.obj", ShaderLib::getDebugShaderPtr(), ColliderType::Circular);
+				obj->setIsPhysicsEnabled(true);
 
-					renderer->addObject(obj);
-				}
+				RendererManager::getInstance().addObject(obj, RendererType::Object);
 			}
 			if (ImGui::MenuItem("StressTest"))
 			{
-				auto value = RendererPipeline::getRendererMap().find(RendererType::Object)->second;
-				if (value != nullptr)
-				{
-					auto renderer = static_cast<ObjectRenderer*>(value);
-					GameObject* obj = new GameObject(std::format("StressTest{}", renderer->getObjects().size()), ".\\Assets\\Objects\\StressTest.obj", ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
-					obj->setIsPhysicsEnabled(true);
+				GameObject* obj = new GameObject(std::format("StressTest{}", 0), ".\\Assets\\Objects\\StressTest.obj", ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
+				obj->setIsPhysicsEnabled(true);
 
-					renderer->addObject(obj);
-				}
+				RendererManager::getInstance().addObject(obj, RendererType::Object);
 			}
 
 			ImGui::Spacing();
@@ -60,11 +46,12 @@ void ImguiRenderer::renderMenuBar()
 		{
 			if (ImGui::MenuItem("PointLight"))
 			{
-				Scene* activeScene = RendererPipeline::getActiveScenePtr();
+				Scene* activeScene = RendererManager::getInstance().getActiveScene();
 				std::string* name = new std::string();
-				name->assign(std::format("PointLight{}", activeScene->getPointLightsPtr()->size()));
+				name->assign(std::format("PointLight{}", activeScene->getPointLights().size()));
 
-				activeScene->addPointLight(new PointLight(name->c_str(), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(1.0f)));
+				auto light = new PointLight(name->c_str(), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(1.0f));
+				activeScene->addPointLight(light);
 			}
 
 			ImGui::Spacing();
@@ -83,25 +70,25 @@ void ImguiRenderer::renderMenuBar()
 			{
 				if (ImGui::MenuItem("Add Pers"))
 				{
-					Camera* camera = new Camera(std::format("Camera{}", RendererPipeline::getActiveScenePtr()->getCamerasPtr()->size()), false);
+					Camera* camera = new Camera(std::format("Camera{}", RendererManager::getInstance().getActiveScene()->getCameras().size()), false);
 					camera->setPosition(glm::vec3(0.0f, 0.0f, 1.0f));
 
-					RendererPipeline::getActiveScenePtr()->addCamera(camera);
+					RendererManager::getInstance().getActiveScene()->addCamera(camera);
 				}
 
 				if (ImGui::MenuItem("Add Ortho", nullptr, nullptr, false))
 				{
-					Camera* camera = new Camera(std::format("Camera{}", RendererPipeline::getActiveScenePtr()->getCamerasPtr()->size()), true);
+					Camera* camera = new Camera(std::format("Camera{}", RendererManager::getInstance().getActiveScene()->getCameras().size()), true);
 					camera->setPosition(glm::vec3(0.0f, 0.0f, 1.0f));
 
-					RendererPipeline::getActiveScenePtr()->addCamera(camera);
+					RendererManager::getInstance().getActiveScene()->addCamera(camera);
 				}
 
-				for (int i = 0; i < RendererPipeline::getActiveScenePtr()->getCamerasPtr()->size(); i++)
+				for (auto& camera : RendererManager::getInstance().getActiveScene()->getCameras())
 				{
-					if (ImGui::Checkbox(RendererPipeline::getActiveScenePtr()->getCamerasPtr()->at(i)->getName().c_str(), new bool(i == RendererPipeline::getActiveScenePtr()->getActiveCameraIndex())))
+					if (ImGui::Checkbox(camera->getName().c_str(), new bool(camera == RendererManager::getInstance().getActiveScene()->getActiveCamera())))
 					{
-						RendererPipeline::getActiveScenePtr()->setActiveCamera(i);
+						RendererManager::getInstance().getActiveScene()->setActiveCamera(camera);
 					}
 				}
 
@@ -112,12 +99,12 @@ void ImguiRenderer::renderMenuBar()
 			{
 				if (ImGui::MenuItem("Debug"))
 				{
-					RendererPipeline::setRenderMode(RenderMode::Debug);
+					RendererManager::getInstance().setRenderMode(RenderMode::Debug);
 				}
 
 				if (ImGui::MenuItem("Render"))
 				{
-					RendererPipeline::setRenderMode(RenderMode::Render);
+					RendererManager::getInstance().setRenderMode(RenderMode::Render);
 				}
 
 				ImGui::EndMenu();
@@ -151,19 +138,13 @@ void ImguiRenderer::renderMenuBar()
 				ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
 				// Display the Open dialog box
-				if (GetOpenFileNameA(&ofn) == TRUE) 
+				if (GetOpenFileNameA(&ofn) == TRUE)
 				{
-					auto value = RendererPipeline::getRendererMap().find(RendererType::Object)->second;
-					if (value != nullptr)
-					{
+					//TODO IF USING SHADERLIB IN GAMEOBJECT, OBJECT WILL DELETE SHADERLIB SINCE IT DELETES ALSO ITS SHADER POINTER
+					GameObject* obj = new GameObject(std::format("Object{}", 0), ofn.lpstrFile, ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
+					obj->setIsPhysicsEnabled(true);
 
-						//TODO IF USING SHADERLIB IN GAMEOBJECT, OBJECT WILL DELETE SHADERLIB SINCE IT DELETES ALSO ITS SHADER POINTER
-						auto renderer = static_cast<ObjectRenderer*>(value);
-						GameObject* obj = new GameObject(std::format("Object{}", renderer->getObjects().size()), ofn.lpstrFile, ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
-						obj->setIsPhysicsEnabled(true);
-
-						renderer->addObject(obj);
-					}
+					RendererManager::getInstance().addObject(obj, RendererType::Object);
 				}
 			}
 
@@ -205,43 +186,33 @@ void ImguiRenderer::renderObjectManager()
 		{
 			if (ImGui::TreeNode("Objects"))
 			{
-				auto value = RendererPipeline::getRendererMap().find(RendererType::Object)->second;
-				if (value != nullptr)
+				auto renderer = static_cast<ObjectRenderer*>(RendererManager::getInstance().getRenderer(RendererType::Object));
+
+				for (auto& obj : renderer->getObjects())
 				{
-					auto renderer = static_cast<ObjectRenderer*>(value);
-
-					for (size_t i = 0; i < renderer->getObjects().size(); i++)
+					ImGui::Selectable(obj->getName().c_str(), selectedObject == obj);
+					if (ImGui::IsItemClicked())
 					{
-						auto obj = renderer->getObjects()[i];
-
-						ImGui::Selectable(obj->getName().c_str(), selectedObject == obj);
-						if (ImGui::IsItemClicked())
-						{
-							selectedObject = obj;
-						}
+						selectedObject = obj;
 					}
 				}
+
 
 				ImGui::TreePop();
 			}
 			if (ImGui::TreeNode("Environment"))
 			{
-				auto value = RendererPipeline::getRendererMap().find(RendererType::Environment)->second;
-				if (value != nullptr)
+				auto renderer = static_cast<EnvironmentRenderer*>(RendererManager::getInstance().getRenderer(RendererType::Environment));
+
+				for (auto& obj : renderer->getObjects())
 				{
-					auto renderer = static_cast<EnvironmentRenderer*>(value);
-
-					for (size_t i = 0; i < renderer->getObjects().size(); i++)
+					ImGui::Selectable(obj->getName().c_str(), selectedObject == obj);
+					if (ImGui::IsItemClicked())
 					{
-						auto obj = renderer->getObjects()[i];
-
-						ImGui::Selectable(obj->getName().c_str(), selectedObject == obj);
-						if (ImGui::IsItemClicked())
-						{
-							selectedObject = obj;
-						}
+						selectedObject = obj;
 					}
 				}
+
 
 				ImGui::TreePop();
 			}
@@ -275,7 +246,7 @@ void ImguiRenderer::renderObjectManager()
 					ImGui::SetCursorPosX(ImGui::GetCursorPosX());
 					ImGui::InputFloat3("##1", *scale);
 
-					ImGui::Checkbox("Draw Wireframe", selectedObject->getIsDrawWireframePtr());
+					ImGui::Checkbox("Draw Wireframe", selectedObject->getDrawWireframePtr());
 
 					ImGui::TreePop();
 				}
@@ -408,7 +379,7 @@ void ImguiRenderer::renderObjectManager()
 
 					if (ImGui::Button("Delete"))
 					{
-						auto value = RendererPipeline::getRendererPtr(RendererType::Object);
+						auto value = RendererManager::getInstance().getRenderer(RendererType::Object);
 						if (value != nullptr)
 						{
 							auto renderer = static_cast<ObjectRenderer*>(value);
@@ -438,11 +409,9 @@ void ImguiRenderer::renderLightManager()
 		{
 			if (ImGui::TreeNode("PointLights"))
 			{
-				for (size_t i = 0; i < RendererPipeline::getActiveScenePtr()->getPointLightsPtr()->size(); i++)
+				for (auto& light : RendererManager::getInstance().getActiveScene()->getPointLights())
 				{
-					auto light = RendererPipeline::getActiveScenePtr()->getPointLightsPtr()->at(i);
-
-					ImGui::Selectable(light->getName(), selectedLight == light);
+					ImGui::Selectable(light->getName().data(), selectedLight == light);
 					if (ImGui::IsItemClicked())
 					{
 						selectedLight = light;
@@ -453,12 +422,13 @@ void ImguiRenderer::renderLightManager()
 			}
 			if (ImGui::TreeNode("DirectionalLights"))
 			{
-				auto light = RendererPipeline::getActiveScenePtr()->getDirectionalLightPtr();
-
-				ImGui::Selectable(light->getName(), selectedLight == light);
-				if (ImGui::IsItemClicked())
+				for (auto& light : RendererManager::getInstance().getActiveScene()->getDirectionalLights())
 				{
-					selectedLight = light;
+					ImGui::Selectable(light->getName().data(), selectedLight == light);
+					if (ImGui::IsItemClicked())
+					{
+						selectedLight = light;
+					}
 				}
 
 				ImGui::TreePop();
@@ -539,7 +509,7 @@ void ImguiRenderer::renderLightManager()
 					switch (selectedLight->getLightType())
 					{
 					case LightType::Point:
-						RendererPipeline::getActiveScenePtr()->deletePointLight(static_cast<PointLight*>(selectedLight));
+						RendererManager::getInstance().getActiveScene()->deletePointLight(static_cast<PointLight*>(selectedLight));
 						break;
 					default:
 						break;

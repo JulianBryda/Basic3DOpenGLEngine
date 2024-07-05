@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include "RendererPipeline.hpp"
+#include "RendererManager.hpp"
 #include <GLFW/glfw3.h>
 #include <ctime>
 
@@ -22,7 +22,7 @@ public:
 	{
 		updateDeltaTime();
 
-		Camera* activeCamera = RendererPipeline::getActiveScenePtr()->getActiveCameraPtr();
+		Camera* activeCamera = RendererManager::getInstance().getActiveScene()->getActiveCamera();
 		glm::vec3 moveOff = glm::vec3(0.0f);
 		double xpos, ypos;
 		glfwGetCursorPos(window, &xpos, &ypos);
@@ -95,7 +95,7 @@ public:
 	static void HandleScrollInput(double offset)
 	{
 		float off = static_cast<float>(offset) / 10.0f;
-		RendererPipeline::getActiveScenePtr()->getActiveCameraPtr()->multiplyDistance(1.0f - off);
+		RendererManager::getInstance().getActiveScene()->getActiveCamera()->multiplyDistance(1.0f - off);
 	}
 
 	static void HandleKeyInput(int key, int action)
@@ -150,12 +150,12 @@ public:
 	static void selectObject()
 	{
 		auto worldCoords = calcWorldCoordinates();
-		auto value = RendererPipeline::getRendererPtr(RendererType::Object);
+		RendererBase* value = RendererManager::getInstance().getRenderer(RendererType::Object);
 		if (value == nullptr) return;
 
 		auto renderer = static_cast<ObjectRenderer*>(value);
 
-		for (auto object : renderer->getObjects())
+		for (auto& object : renderer->getObjects())
 		{
 			glm::vec3 distance = glm::abs(object->getPosition() - worldCoords);
 			glm::vec3 objectScale = object->getScale();
@@ -200,7 +200,7 @@ public:
 
 	static glm::vec3 calcWorldCoordinates(int width, int height, double mouseX, double mouseY, float depth)
 	{
-		Camera* activeCamera = RendererPipeline::getActiveScenePtr()->getActiveCameraPtr();
+		Camera* activeCamera = RendererManager::getInstance().getActiveScene()->getActiveCamera();
 
 		double ndcX = (2.0 * mouseX) / width - 1.0;
 		double ndcY = 1.0 - (2.0 * mouseY) / height;

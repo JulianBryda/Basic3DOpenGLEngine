@@ -2,18 +2,17 @@
 #include <iostream>
 #include <vector>
 
-#include "Renderer.hpp"
-#include "Shader.hpp"
+#include "RendererManager.hpp"
 #include "GameObject.h"
 #include "Shader.hpp"
 #include "ShaderLib.hpp"
 
-class ObjectRenderer : public Renderer
+class ObjectRenderer : public RendererBase
 {
 
 public:
 
-	ObjectRenderer() : Renderer(RendererType::Object)
+	ObjectRenderer() : RendererBase(RendererType::Object)
 	{
 
 	}
@@ -22,10 +21,10 @@ public:
 	{
 		for (auto& object : m_objects)
 		{
-			if (object->getIsHidden()) continue;
+			if (object->getHidden()) continue;
 
 			Shader* shader = nullptr;
-			if (RendererPipeline::getRenderMode() == RenderMode::Debug)
+			if (RendererManager::getInstance().getRenderMode() == RenderMode::Debug)
 			{
 				shader = ShaderLib::getRenderShaderPtr();
 			}
@@ -43,17 +42,22 @@ public:
 			shader->setMaterial(object->getMaterialPtr());
 
 
-			Scene* activeScene = RendererPipeline::getActiveScenePtr();
+			Scene* activeScene = RendererManager::getInstance().getActiveScene();
 
-			// set directional light
-			shader->setDirectionalLight(activeScene->getDirectionalLightPtr());
+			// set directional lights and directional light count
+			shader->setFloat("directionalLightCount", activeScene->getDirectionalLights().size());
+
+			for (size_t i = 0; i < activeScene->getDirectionalLights().size(); i++)
+			{
+				shader->setDirectionalLight(activeScene->getDirectionalLights().at(i), i);
+			}
 
 			// set point lights and point light count
-			shader->setFloat("pointLightCount", activeScene->getPointLightsPtr()->size());
+			shader->setFloat("pointLightCount", activeScene->getPointLights().size());
 
-			for (size_t i = 0; i < activeScene->getPointLightsPtr()->size(); i++)
+			for (size_t i = 0; i < activeScene->getPointLights().size(); i++)
 			{
-				shader->setPointLight(activeScene->getPointLightsPtr()->at(i), i);
+				shader->setPointLight(activeScene->getPointLights().at(i), i);
 			}
 
 			shader->setTexture(object->getTextureType(), object->getTexture());
@@ -70,7 +74,7 @@ public:
 
 			// draw wireframe?
 
-			if (object->getIsDrawWireframe())
+			if (object->getDrawWireframe())
 			{
 				shader->setMat4("model", object->getModelMatrix());
 
@@ -93,14 +97,21 @@ public:
 
 	}
 
-	void addObject(GameObject* object)
+	void addObject(GameObject* object) override
 	{
 		m_objects.push_back(object);
 	}
 
 	void removeObject(GameObject* object)
 	{
-		m_objects.erase(std::remove(m_objects.begin(), m_objects.end(), object), m_objects.end());
+		for (size_t i = 0; i < m_objects.size(); i++)
+		{
+			if (m_objects[i] == object)
+			{
+				m_objects.erase(m_objects.begin() + i);
+				break;
+			}
+		}
 	}
 
 	std::vector<GameObject*>& getObjects()

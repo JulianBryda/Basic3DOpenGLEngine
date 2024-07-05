@@ -171,7 +171,6 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClCompile Include="Imgui\imgui_widgets.cpp" />
     <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="PhysicEngine.cpp" />
-    <ClCompile Include="RendererPipeline.cpp" />
     <ClCompile Include="ShaderLib.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -200,8 +199,8 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="ObjectRenderer.hpp" />
     <ClInclude Include="PhysicEngine.hpp" />
     <ClInclude Include="Primitives.hpp" />
-    <ClInclude Include="Renderer.hpp" />
-    <ClInclude Include="RendererPipeline.hpp" />
+    <ClInclude Include="RendererBase.hpp" />
+    <ClInclude Include="RendererManager.hpp" />
     <ClInclude Include="Scene.hpp" />
     <ClInclude Include="Shader.hpp" />
     <ClInclude Include="ShaderLib.hpp" />

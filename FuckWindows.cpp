@@ -4,7 +4,7 @@
 
 #include "GameObject.h"
 #include "InputHandler.hpp"
-#include "RendererPipeline.hpp"
+#include "RendererManager.hpp"
 #include "ObjectRenderer.hpp"
 #include "ImguiRenderer.hpp"
 #include "PhysicEngine.hpp"
@@ -75,20 +75,17 @@ int main()
 	// init InputHandler
 	InputHandler::init(window);
 
-	// init RenderPipeline
-	RendererPipeline::init();
-
 	// register object renderer
-	auto objectRenderer = ObjectRenderer();
-	RendererPipeline::registerRenderer(&objectRenderer, RendererType::Object);
+	ObjectRenderer* objectRenderer = new ObjectRenderer();
+	RendererManager::getInstance().addRenderer(objectRenderer);
 
 	// register imgui renderer to render user interface
-	auto imguiRenderer = ImguiRenderer(window);
-	RendererPipeline::registerRenderer(&imguiRenderer, RendererType::UserInterface);
+	ImguiRenderer* imguiRenderer = new ImguiRenderer(window);
+	RendererManager::getInstance().addRenderer(imguiRenderer);
 
 	// register environment renderer
-	auto environmentRenderer = EnvironmentRenderer();
-	RendererPipeline::registerRenderer(&environmentRenderer, RendererType::Environment);
+	EnvironmentRenderer* environmentRenderer = new EnvironmentRenderer();
+	RendererManager::getInstance().addRenderer(environmentRenderer);
 
 	// add skybox
 	std::vector<const char*> faces =
@@ -101,13 +98,13 @@ int main()
 		".\\Assets\\Textures\\Skybox\\Skybox_Front.png"
 	};
 
-	Skybox skybox = Skybox("Skybox");
-	skybox.loadCubeMap(faces);
+	Skybox* skybox = new Skybox("Skybox");
+	skybox->loadCubeMap(faces);
 
-	environmentRenderer.addObject(&skybox);
+	environmentRenderer->addObject(skybox);
 
 	// add default scene to Pipeline
-	RendererPipeline::addScene(new Scene());
+	RendererManager::getInstance().addScene(new Scene());
 
 
 	// window lopp
@@ -123,7 +120,7 @@ int main()
 		PhysicEngine::update();
 
 		// render stuff
-		RendererPipeline::renderPipeline();
+		RendererManager::getInstance().renderAll();
 
 		// other stuff here
 		glfwSwapBuffers(window);

@@ -11,23 +11,26 @@ enum RendererType
 	MIN = Environment,
 	Object,
 	UserInterface,
-	MAX = UserInterface
+	MAX
 };
 
 
-class Renderer
+class RendererBase
 {
 public:
 
-	Renderer(RendererType type)
+	RendererBase(RendererType type)
 	{
-		this->type = type;
+		this->m_type = type;
 	}
 
 	virtual void render(Camera* activeCamera) = 0;
+	virtual void addObject(GameObject* object) {};
+
+	RendererType getType() const { return m_type; }
 
 private:
 
-	RendererType type;
+	RendererType m_type;
 
 };
