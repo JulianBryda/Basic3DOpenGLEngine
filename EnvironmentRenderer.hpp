@@ -92,6 +92,11 @@ public:
 		return m_objects;
 	}
 
+	int getObjectCount() override
+	{
+		return m_objects.size();
+	}
+
 private:
 
 	std::vector<GameObject*> m_objects;

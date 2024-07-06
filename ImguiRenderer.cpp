@@ -34,7 +34,7 @@ void ImguiRenderer::renderMenuBar()
 		{
 			if (ImGui::MenuItem("Cube"))
 			{
-				GameObject* obj = new GameObject(std::format("Cube{}", 0), ".\\Assets\\Objects\\Cube.obj", ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
+				GameObject* obj = new GameObject(std::format("Cube{}", RendererManager::getInstance().getTotalObjectCount()), ".\\Assets\\Objects\\Cube.obj", ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
 				obj->setIsPhysicsEnabled(true);
 
 				RendererManager::getInstance().addObject(obj, RendererType::Object);
@@ -42,14 +42,14 @@ void ImguiRenderer::renderMenuBar()
 			}
 			if (ImGui::MenuItem("Sphere"))
 			{
-				GameObject* obj = new GameObject(std::format("Sphere{}", 0), ".\\Assets\\Objects\\Sphere.obj", ShaderLib::getDebugShaderPtr(), ColliderType::Circular);
+				GameObject* obj = new GameObject(std::format("Sphere{}", RendererManager::getInstance().getTotalObjectCount()), ".\\Assets\\Objects\\Sphere.obj", ShaderLib::getDebugShaderPtr(), ColliderType::Circular);
 				obj->setIsPhysicsEnabled(true);
 
 				RendererManager::getInstance().addObject(obj, RendererType::Object);
 			}
 			if (ImGui::MenuItem("StressTest"))
 			{
-				GameObject* obj = new GameObject(std::format("StressTest{}", 0), ".\\Assets\\Objects\\StressTest.obj", ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
+				GameObject* obj = new GameObject(std::format("StressTest{}", RendererManager::getInstance().getTotalObjectCount()), ".\\Assets\\Objects\\StressTest.obj", ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
 				obj->setIsPhysicsEnabled(true);
 
 				RendererManager::getInstance().addObject(obj, RendererType::Object);
@@ -159,7 +159,7 @@ void ImguiRenderer::renderMenuBar()
 				if (GetOpenFileNameA(&ofn) == TRUE)
 				{
 					//TODO IF USING SHADERLIB IN GAMEOBJECT, OBJECT WILL DELETE SHADERLIB SINCE IT DELETES ALSO ITS SHADER POINTER
-					GameObject* obj = new GameObject(std::format("Object{}", 0), ofn.lpstrFile, ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
+					GameObject* obj = new GameObject(std::format("Object{}", RendererManager::getInstance().getTotalObjectCount()), ofn.lpstrFile, ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
 					obj->setIsPhysicsEnabled(true);
 
 					RendererManager::getInstance().addObject(obj, RendererType::Object);
@@ -581,7 +581,7 @@ void ImguiRenderer::renderAssetManager()
 			// Handle item selection
 			if (isSelected)
 			{
-				GameObject* obj = new GameObject(std::format("{}{}", items[i].name, 0), items[i].path, ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
+				GameObject* obj = new GameObject(std::format("{}{}", items[i].name, RendererManager::getInstance().getTotalObjectCount()), items[i].path, ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
 				obj->setIsPhysicsEnabled(true);
 
 				RendererManager::getInstance().addObject(obj, RendererType::Object);

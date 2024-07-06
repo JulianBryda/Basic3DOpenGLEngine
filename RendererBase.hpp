@@ -26,6 +26,10 @@ public:
 
 	virtual void render(Camera* activeCamera) = 0;
 	virtual void addObject(GameObject* object) {};
+	virtual int getObjectCount()
+	{
+		return 0;
+	}
 
 	RendererType getType() const { return m_type; }
 

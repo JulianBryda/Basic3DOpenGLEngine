@@ -88,6 +88,18 @@ public:
 		return base;
 	}
 
+	int getTotalObjectCount()
+	{
+		int count = 0;
+
+		for (auto renderer : m_renderers)
+		{
+			count += renderer->getObjectCount();
+		}
+
+		return count;
+	}
+
 	// setter
 	void setRenderMode(RenderMode renderMode)
 	{
