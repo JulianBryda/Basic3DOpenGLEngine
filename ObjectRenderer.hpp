@@ -26,7 +26,7 @@ public:
 			Shader* shader = nullptr;
 			if (RendererManager::getInstance().getRenderMode() == RenderMode::Debug)
 			{
-				shader = ShaderLib::getRenderShaderPtr();
+				shader = ShaderLib::getDebugShaderPtr();
 			}
 			else
 			{
@@ -47,7 +47,7 @@ public:
 			// set directional lights and directional light count
 			shader->setFloat("directionalLightCount", activeScene->getDirectionalLights().size());
 
-			for (size_t i = 0; i < activeScene->getDirectionalLights().size(); i++)
+			for (int i = 0; i < activeScene->getDirectionalLights().size(); i++)
 			{
 				shader->setDirectionalLight(activeScene->getDirectionalLights().at(i), i);
 			}
@@ -55,7 +55,7 @@ public:
 			// set point lights and point light count
 			shader->setFloat("pointLightCount", activeScene->getPointLights().size());
 
-			for (size_t i = 0; i < activeScene->getPointLights().size(); i++)
+			for (int i = 0; i < activeScene->getPointLights().size(); i++)
 			{
 				shader->setPointLight(activeScene->getPointLights().at(i), i);
 			}

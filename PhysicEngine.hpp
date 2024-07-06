@@ -25,7 +25,7 @@ public:
 
 			if (obj->getIsGravityEnabled())
 			{
-				velocity += glm::vec3(0.0f, -obj->getGravity(), 0.0f) * deltaTime;
+				velocity += glm::vec3(0.0f, -obj->getGravity(), 0.0f) * m_deltaTime;
 			}
 			else if (obj->getIsPullToObjectEnabled())
 			{
@@ -35,15 +35,15 @@ public:
 
 					glm::vec3 direction = obj->getPosition() - m_physicalizedObjects[j]->getPosition();
 					float distance = glm::length(direction);
-					float forceMagnitude = gravConst * obj->getMass() * m_physicalizedObjects[j]->getMass() / (distance * distance);
+					float forceMagnitude = GRAVCONST * obj->getMass() * m_physicalizedObjects[j]->getMass() / (distance * distance);
 					glm::vec3 force = glm::normalize(direction) * forceMagnitude;
 
 					velocity -= force / obj->getMass();
 				}
 			}
 
-			velocity -= obj->getLinearDrag() * velocity * deltaTime;
-			position += velocity * deltaTime;
+			velocity -= obj->getLinearDrag() * velocity * m_deltaTime;
+			position += velocity * m_deltaTime;
 
 			// collision detection
 			for (size_t j = 0; j < m_physicalizedObjects.size(); j++)
@@ -56,7 +56,7 @@ public:
 				{
 					// object is not close enough
 					// every object not in collision range of selected object will get hidden
-					if (focusedGameObject != nullptr && focusedGameObject != m_physicalizedObjects[j])
+					if (m_focusedGameObject != nullptr && m_focusedGameObject != m_physicalizedObjects[j])
 					{
 						m_physicalizedObjects[j]->setIsHidden(true);
 					}
@@ -71,7 +71,7 @@ public:
 				else
 				{
 					// object is close enough
-					if (focusedGameObject != nullptr && focusedGameObject != m_physicalizedObjects[j])
+					if (m_focusedGameObject != nullptr && m_focusedGameObject != m_physicalizedObjects[j])
 					{
 						m_physicalizedObjects[j]->setIsHidden(false);
 					}
@@ -145,23 +145,23 @@ public:
 		return nullptr;
 	}
 
-	static GameObject* getFocusedGameObject() { return focusedGameObject; }
-	static void setFocusedGameObject(GameObject* object) { focusedGameObject = object; }
+	static GameObject* getFocusedGameObject() { return m_focusedGameObject; }
+	static void setFocusedGameObject(GameObject* object) { m_focusedGameObject = object; }
 
 private:
 
 	static void updateDeltaTime()
 	{
 		float currentFrameTime = static_cast<float>(glfwGetTime());
-		deltaTime = currentFrameTime - lastFrameTime;
-		lastFrameTime = currentFrameTime;
+		m_deltaTime = currentFrameTime - m_lastFrameTime;
+		m_lastFrameTime = currentFrameTime;
 	}
 
 	static std::vector<GameObject*> m_physicalizedObjects;
 
-	static float deltaTime, lastFrameTime;
+	static float m_deltaTime, m_lastFrameTime;
 
-	static GameObject* focusedGameObject;
+	static GameObject* m_focusedGameObject;
 
-	static constexpr float gravConst = 6.67430;
+	static constexpr float GRAVCONST = 6.67430f;
 };

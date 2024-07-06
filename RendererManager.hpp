@@ -4,6 +4,12 @@
 #include "RendererBase.hpp"
 #include "Scene.hpp"
 
+
+
+#include "Imgui/imgui.h"
+#include "Imgui/imgui_impl_glfw.h"
+#include "Imgui/imgui_impl_opengl3.h"
+
 enum RenderMode
 {
 	Debug,
@@ -17,8 +23,9 @@ public:
 
 	RendererManager()
 	{
-		this->m_renderMode = RenderMode::Debug;
-		this->m_activeSceneIndex = 0;
+		m_renderMode = RenderMode::Debug;
+		m_activeScene = new Scene();
+		addScene(m_activeScene);
 	}
 
 	static RendererManager& getInstance()
@@ -57,8 +64,7 @@ public:
 
 	Scene* getActiveScene()
 	{
-		assert(m_scenes.size() != 0); // no scene!
-		return m_scenes[m_activeSceneIndex];
+		return m_activeScene;
 	}
 
 	RenderMode getRenderMode() const
@@ -88,6 +94,11 @@ public:
 		RendererManager::m_renderMode = renderMode;
 	}
 
+	void setActiveScene(Scene* scene)
+	{
+		m_activeScene = scene;
+	}
+
 	// modifier
 	void addRenderer(RendererBase* renderer)
 	{
@@ -102,7 +113,7 @@ public:
 
 	void addScene(Scene* scene)
 	{
-		this->m_scenes.push_back(scene);
+		m_scenes.push_back(scene);
 	}
 
 	void deleteScene(Scene* scene)
@@ -140,7 +151,7 @@ private:
 	std::vector<RendererBase*> m_renderers;
 
 	std::vector<Scene*> m_scenes;
-	int m_activeSceneIndex;
+	Scene* m_activeScene;
 
 	RenderMode m_renderMode;
 

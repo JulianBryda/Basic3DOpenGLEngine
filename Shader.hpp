@@ -29,7 +29,7 @@ public:
 
 	Shader(std::string_view vShaderPath, std::string_view fShaderPath, const char* libraryShader = "")
 	{
-		this->name = vShaderPath.substr(vShaderPath.find_last_of("\\") + 3);
+		this->m_name = vShaderPath.substr(vShaderPath.find_last_of("\\") + 3);
 
 		LibraryShader libShader{ libraryShader, GL_FRAGMENT_SHADER };
 		GLuint vertex, fragment;
@@ -45,19 +45,19 @@ public:
 		if (strcmp(libraryShader, "")) this->compile_shader(libShader);
 
 		// shader Program
-		this->Id = glCreateProgram();
-		glAttachShader(this->Id, vertex);
-		glAttachShader(this->Id, fragment);
+		this->m_id = glCreateProgram();
+		glAttachShader(this->m_id, vertex);
+		glAttachShader(this->m_id, fragment);
 
 		// attach library shaders
-		if (strcmp(libraryShader, "")) glAttachShader(this->Id, libShader.id);
+		if (strcmp(libraryShader, "")) glAttachShader(this->m_id, libShader.id);
 
-		glLinkProgram(this->Id);
+		glLinkProgram(this->m_id);
 		// print linking errors if any
-		glGetProgramiv(this->Id, GL_LINK_STATUS, &success);
+		glGetProgramiv(this->m_id, GL_LINK_STATUS, &success);
 		if (!success)
 		{
-			glGetProgramInfoLog(this->Id, 512, NULL, infoLog);
+			glGetProgramInfoLog(this->m_id, 512, NULL, infoLog);
 			std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 		}
 
@@ -67,42 +67,42 @@ public:
 		if (strcmp(libraryShader, "")) glDeleteShader(libShader.id);
 	}
 
-	~Shader() { glDeleteProgram(this->Id); }
+	~Shader() { glDeleteProgram(this->m_id); }
 
 	void use()
 	{
-		glUseProgram(this->Id);
+		glUseProgram(this->m_id);
 	}
 
 	// getter
-	GLuint getId() const { return this->Id; }
+	GLuint getId() const { return this->m_id; }
 
-	std::string getName() const { return this->name; }
+	std::string getName() const { return this->m_name; }
 
 	// utility uniform functions
 	inline void setBool(const char* name, bool value) const
 	{
-		glUniform1i(glGetUniformLocation(Id, name), (int)value);
+		glUniform1i(glGetUniformLocation(m_id, name), (int)value);
 	}
 	inline void setInt(const char* name, int value) const
 	{
-		glUniform1i(glGetUniformLocation(Id, name), value);
+		glUniform1i(glGetUniformLocation(m_id, name), value);
 	}
 	inline void setFloat(const char* name, float value) const
 	{
-		glUniform1f(glGetUniformLocation(Id, name), value);
+		glUniform1f(glGetUniformLocation(m_id, name), value);
 	}
 	inline void setFloat3(const char* name, glm::vec3 value) const
 	{
-		glUniform3f(glGetUniformLocation(Id, name), value.x, value.y, value.z);
+		glUniform3f(glGetUniformLocation(m_id, name), value.x, value.y, value.z);
 	}
 	inline void setFloat4(const char* name, glm::vec4 value) const
 	{
-		glUniform4f(glGetUniformLocation(Id, name), value.x, value.y, value.z, value.w);
+		glUniform4f(glGetUniformLocation(m_id, name), value.x, value.y, value.z, value.w);
 	}
 	inline void setMat4(const char* name, glm::mat4 value) const
 	{
-		glUniformMatrix4fv(glGetUniformLocation(Id, name), 1, GL_FALSE, glm::value_ptr(value));
+		glUniformMatrix4fv(glGetUniformLocation(m_id, name), 1, GL_FALSE, glm::value_ptr(value));
 	}
 	inline void setTexture(GLenum type, GLuint texture) const
 	{
@@ -238,7 +238,7 @@ private:
 	}
 #pragma endregion
 
-	GLuint Id;
+	GLuint m_id;
 
-	std::string name;
+	std::string m_name;
 };

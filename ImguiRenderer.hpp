@@ -12,6 +12,8 @@
 #include "EnvironmentRenderer.hpp"
 #include "Primitives.hpp"
 #include "PhysicEngine.hpp"
+#include "AssetManager.hpp"
+#include "IconsFontAwesome5.h"
 
 class ImguiRenderer : public RendererBase
 {
@@ -26,6 +28,19 @@ public:
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+		io.Fonts->AddFontDefault();
+		float baseFontSize = 13.0f;
+		float iconFontSize = baseFontSize * 2.0f / 3.0f;
+
+		// merge in icons from Font Awesome
+		static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_16_FA, 0 };
+		ImFontConfig icons_config;
+		icons_config.MergeMode = true;
+		icons_config.PixelSnapH = true;
+		icons_config.GlyphMinAdvanceX = iconFontSize;
+		io.Fonts->AddFontFromFileTTF(".\\Assets\\Fonts\\fa-solid-900.ttf", iconFontSize, &icons_config, icons_ranges);
+		// use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
 
 		setImguiStyle();
 
@@ -46,14 +61,14 @@ public:
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		// ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
+		ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
 
 		// render functions here
 		renderMenuBar();
 		if (m_showDebugInfo) renderDebugInfo();
 		if (m_showObjectManager) renderObjectManager();
-		if (showLightManager) renderLightManager();
-
+		if (m_showLightManager) renderLightManager();
+		if (m_showAssetManager) renderAssetManager();
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -74,10 +89,10 @@ public:
 			}
 			else
 			{
-				ImGui::Selectable(entry.path().filename().string().c_str(), !std::strcmp(selectedTexturePath, entry.path().string().c_str()));
+				ImGui::Selectable(entry.path().filename().string().c_str(), !std::strcmp(m_selectedTexturePath, entry.path().string().c_str()));
 				if (ImGui::IsItemClicked())
 				{
-					std::strcpy(selectedTexturePath, entry.path().string().c_str());
+					std::strcpy(m_selectedTexturePath, entry.path().string().c_str());
 				}
 			}
 		}
@@ -87,7 +102,7 @@ public:
 
 	static void setSelectedObject(GameObject* object)
 	{
-		selectedObject = object;
+		m_selectedObject = object;
 	}
 
 private:
@@ -96,19 +111,23 @@ private:
 
 	void renderMenuBar();
 	void renderDebugInfo();
+
 	void renderObjectManager();
 	void renderLightManager();
+	void renderAssetManager();
+
 	void renderLightMaterialView();
 
-	char selectedTexturePath[_MAX_PATH] = "";
+	char m_selectedTexturePath[_MAX_PATH] = "";
 
 	bool m_showDebugInfo = false,
 		m_showObjectManager = false,
-		highlightCloseCollidableObjects = false,
-		showLightManager = false;
+		m_highlightCloseCollidableObjects = false,
+		m_showLightManager = false,
+		m_showAssetManager = false;
 
-	Light* selectedLight;
+	Light* m_selectedLight;
 
 	// static
-	static GameObject* selectedObject;
+	static GameObject* m_selectedObject;
 };

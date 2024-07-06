@@ -15,7 +15,7 @@ public:
 
 	static void init(GLFWwindow* window)
 	{
-		InputHandler::window = window;
+		InputHandler::m_window = window;
 	}
 
 	static void handleInput()
@@ -25,26 +25,26 @@ public:
 		Camera* activeCamera = RendererManager::getInstance().getActiveScene()->getActiveCamera();
 		glm::vec3 moveOff = glm::vec3(0.0f);
 		double xpos, ypos;
-		glfwGetCursorPos(window, &xpos, &ypos);
+		glfwGetCursorPos(m_window, &xpos, &ypos);
 
 		float horizontalAngle = activeCamera->getHorizontalAngle();
 		float verticalAngle = activeCamera->getVerticalAngle();
 		glm::vec3 anchor = activeCamera->getAnchor();
 
-		if (mouse_middle)
+		if (m_mouseMiddle)
 		{
-			horizontalAngle += mouseSpeed * deltaTime * float(last_xpos - xpos);
-			verticalAngle += mouseSpeed * deltaTime * float(last_ypos - ypos);
+			horizontalAngle += m_mouseSpeed * m_deltaTime * float(m_lastXpos - xpos);
+			verticalAngle += m_mouseSpeed * m_deltaTime * float(x_lastYpos - ypos);
 
 			activeCamera->setHorizontalAngle(horizontalAngle);
 			activeCamera->setVerticalAngle(verticalAngle);
 		}
-		else if (shift_mouse_middle)
+		else if (m_shiftMouseMiddle)
 		{
 			float distance = glm::length(anchor - activeCamera->getPosition());
 
 			glm::vec3 dir = glm::vec3(cos(verticalAngle) * sin(horizontalAngle), 1.0f, cos(verticalAngle) * cos(horizontalAngle));
-			moveOff = dir * glm::vec3(last_xpos - xpos, last_ypos - ypos, last_xpos - xpos) * deltaTime * (distance * 0.25f);
+			moveOff = dir * glm::vec3(m_lastXpos - xpos, x_lastYpos - ypos, m_lastXpos - xpos) * m_deltaTime * (distance * 0.25f);
 			moveOff = glm::vec3(-moveOff.z, moveOff.y, moveOff.x);
 
 			// Update anchor position
@@ -55,8 +55,8 @@ public:
 		activeCamera->setViewMatrix(glm::lookAt(activeCamera->getPosition(), anchor, activeCamera->getUp()));
 		activeCamera->setAnchor(anchor);
 
-		last_xpos = xpos;
-		last_ypos = ypos;
+		m_lastXpos = xpos;
+		x_lastYpos = ypos;
 	}
 
 	static void HandleMouseInput(int key, int action, int mods)
@@ -67,9 +67,9 @@ public:
 			{
 			case GLFW_MOUSE_BUTTON_MIDDLE:
 				if (mods == GLFW_MOD_SHIFT)
-					shift_mouse_middle = true;
+					m_shiftMouseMiddle = true;
 				else
-					mouse_middle = true;
+					m_mouseMiddle = true;
 				break;
 			default:
 				break;
@@ -80,8 +80,8 @@ public:
 			switch (key)
 			{
 			case GLFW_MOUSE_BUTTON_MIDDLE:
-				shift_mouse_middle = false;
-				mouse_middle = false;
+				m_shiftMouseMiddle = false;
+				m_mouseMiddle = false;
 				break;
 			case GLFW_MOUSE_BUTTON_LEFT:
 				selectObject();
@@ -175,8 +175,8 @@ public:
 		int width, height;
 		double mouseX, mouseY;
 
-		glfwGetWindowSize(window, &width, &height);
-		glfwGetCursorPos(window, &mouseX, &mouseY);
+		glfwGetWindowSize(m_window, &width, &height);
+		glfwGetCursorPos(m_window, &mouseX, &mouseY);
 
 		double ndcX = (2.0 * mouseX) / width - 1.0;
 		double ndcY = 1.0 - (2.0 * mouseY) / height;
@@ -190,7 +190,7 @@ public:
 	static glm::vec3 calcWorldCoordinates(double mouseX, double mouseY)
 	{
 		int width, height;
-		glfwGetWindowSize(window, &width, &height);
+		glfwGetWindowSize(m_window, &width, &height);
 
 		float depth;
 		glReadPixels(static_cast<int>(mouseX), height - static_cast<int>(mouseY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
@@ -220,15 +220,15 @@ public:
 
 private:
 
-	static GLFWwindow* window;
-	static bool mouse_middle, shift_mouse_middle;
-	static double last_xpos, last_ypos;
-	static float movementSpeed, deltaTime, lastFrameTime, mouseSpeed, speed;
+	static GLFWwindow* m_window;
+	static bool m_mouseMiddle, m_shiftMouseMiddle;
+	static double m_lastXpos, x_lastYpos;
+	static float m_movementSpeed, m_deltaTime, m_lastFrameTime, m_mouseSpeed, m_speed;
 
 	static void updateDeltaTime()
 	{
 		float currentFrameTime = static_cast<float>(glfwGetTime());
-		deltaTime = currentFrameTime - lastFrameTime;
-		lastFrameTime = currentFrameTime;
+		m_deltaTime = currentFrameTime - m_lastFrameTime;
+		m_lastFrameTime = currentFrameTime;
 	}
 };

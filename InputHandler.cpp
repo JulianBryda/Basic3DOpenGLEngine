@@ -2,26 +2,26 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION 
 #include "stb_image_write.h"
 
-float InputHandler::movementSpeed = 2.0;
-float InputHandler::deltaTime;
-float InputHandler::lastFrameTime;
+float InputHandler::m_movementSpeed = 2.0;
+float InputHandler::m_deltaTime;
+float InputHandler::m_lastFrameTime;
 
-float InputHandler::speed = 20.0f;
-float InputHandler::mouseSpeed = 0.5f;
+float InputHandler::m_speed = 20.0f;
+float InputHandler::m_mouseSpeed = 0.5f;
 
-bool InputHandler::mouse_middle = false;
-bool InputHandler::shift_mouse_middle = false;
+bool InputHandler::m_mouseMiddle = false;
+bool InputHandler::m_shiftMouseMiddle = false;
 
-double InputHandler::last_xpos = 0.0;
-double InputHandler::last_ypos = 0.0;
+double InputHandler::m_lastXpos = 0.0;
+double InputHandler::x_lastYpos = 0.0;
 
-GLFWwindow* InputHandler::window;
+GLFWwindow* InputHandler::m_window;
 
 
 void InputHandler::saveScreenShot()
 {
 	int width, height;
-	glfwGetWindowSize(window, &width, &height);
+	glfwGetWindowSize(m_window, &width, &height);
 
 	char* pixels = new char[3 * width * height];
 	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);

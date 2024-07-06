@@ -160,7 +160,7 @@ void GameObject::loadCubeMap(std::vector<const char*> faces, GLuint* texture)
 
 	int width, height, nrChannels;
 	unsigned char* data;
-	for (size_t i = 0; i < faces.size(); i++)
+	for (int i = 0; i < faces.size(); i++)
 	{
 		data = stbi_load(faces[i], &width, &height, &nrChannels, 0);
 		if (data)

@@ -2,6 +2,6 @@
 
 std::vector<GameObject*> PhysicEngine::m_physicalizedObjects;
 
-float PhysicEngine::deltaTime, PhysicEngine::lastFrameTime;
+float PhysicEngine::m_deltaTime, PhysicEngine::m_lastFrameTime;
 
-GameObject* PhysicEngine::focusedGameObject;
+GameObject* PhysicEngine::m_focusedGameObject;

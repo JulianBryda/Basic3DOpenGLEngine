@@ -91,6 +91,9 @@
     <Filter Include="Source Files\Renderer\Shader\LibraryShader">
       <UniqueIdentifier>{9746164f-dc08-4c77-b734-662f60a29f38}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Assets">
+      <UniqueIdentifier>{1f108650-2b8f-47dd-b989-2d4bc93f053e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FuckWindows.cpp">
@@ -247,6 +250,12 @@
     </ClInclude>
     <ClInclude Include="Light.hpp">
       <Filter>Header Files\Scene\Lighting</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetManager.hpp">
+      <Filter>Header Files\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="IconsFontAwesome5.h">
+      <Filter>Header Files\Libraries</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -5,10 +5,31 @@
 #include <commdlg.h>
 #include <iostream>
 
+
 void ImguiRenderer::renderMenuBar()
 {
 	if (ImGui::BeginMainMenuBar())
 	{
+		if (ImGui::BeginMenu("File"))
+		{
+
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Edit"))
+		{
+
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("View"))
+		{
+			ImGui::Checkbox("Object Manager", &m_showObjectManager);
+
+			ImGui::Checkbox("Light Manager", &m_showLightManager);
+
+			ImGui::Checkbox("Asset Manager", &m_showAssetManager);
+
+			ImGui::EndMenu();
+		}
 		if (ImGui::BeginMenu("Objects"))
 		{
 			if (ImGui::MenuItem("Cube"))
@@ -58,7 +79,7 @@ void ImguiRenderer::renderMenuBar()
 			ImGui::Separator();
 			ImGui::Spacing();
 
-			ImGui::Checkbox("Light Manager", &showLightManager);
+			ImGui::Checkbox("Light Manager", &m_showLightManager);
 
 			ImGui::EndMenu();
 		}
@@ -97,12 +118,12 @@ void ImguiRenderer::renderMenuBar()
 
 			if (ImGui::BeginMenu("Render Mode"))
 			{
-				if (ImGui::MenuItem("Debug"))
+				if (ImGui::Checkbox("Debug", new bool(RendererManager::getInstance().getRenderMode() == RenderMode::Debug)))
 				{
 					RendererManager::getInstance().setRenderMode(RenderMode::Debug);
 				}
 
-				if (ImGui::MenuItem("Render"))
+				if (ImGui::Checkbox("Render", new bool(RendererManager::getInstance().getRenderMode() == RenderMode::Render)))
 				{
 					RendererManager::getInstance().setRenderMode(RenderMode::Render);
 				}
@@ -116,13 +137,10 @@ void ImguiRenderer::renderMenuBar()
 		{
 			if (ImGui::Button("Test File"))
 			{
-				OPENFILENAMEA ofn;       // common dialog box structure
+				OPENFILENAMEA ofn{};       // common dialog box structure
 				char szFile[260];       // buffer for file name
 				HWND hwnd = NULL;       // owner window
-				HANDLE hf;              // file handle
 
-				// Initialize OPENFILENAME
-				ZeroMemory(&ofn, sizeof(ofn));
 				ofn.lStructSize = sizeof(ofn);
 				ofn.hwndOwner = hwnd;
 				ofn.lpstrFile = szFile;
@@ -190,10 +208,10 @@ void ImguiRenderer::renderObjectManager()
 
 				for (auto& obj : renderer->getObjects())
 				{
-					ImGui::Selectable(obj->getName().c_str(), selectedObject == obj);
+					ImGui::Selectable(obj->getName().c_str(), m_selectedObject == obj);
 					if (ImGui::IsItemClicked())
 					{
-						selectedObject = obj;
+						m_selectedObject = obj;
 					}
 				}
 
@@ -206,10 +224,10 @@ void ImguiRenderer::renderObjectManager()
 
 				for (auto& obj : renderer->getObjects())
 				{
-					ImGui::Selectable(obj->getName().c_str(), selectedObject == obj);
+					ImGui::Selectable(obj->getName().c_str(), m_selectedObject == obj);
 					if (ImGui::IsItemClicked())
 					{
-						selectedObject = obj;
+						m_selectedObject = obj;
 					}
 				}
 
@@ -223,15 +241,15 @@ void ImguiRenderer::renderObjectManager()
 
 		ImGui::BeginChild("Detail View", ImVec2(0, 0), true);
 		{
-			if (selectedObject != nullptr)
+			if (m_selectedObject != nullptr)
 			{
-				float* pos[3] = { &selectedObject->getPositionPtr()->x, &selectedObject->getPositionPtr()->y, &selectedObject->getPositionPtr()->z };
-				float* scale[3] = { &selectedObject->getScalePtr()->x, &selectedObject->getScalePtr()->y, &selectedObject->getScalePtr()->z };
-				float* ambient[3] = { &selectedObject->getMaterialPtr()->getAmbientPtr()->x, &selectedObject->getMaterialPtr()->getAmbientPtr()->y, &selectedObject->getMaterialPtr()->getAmbientPtr()->z };
-				float* diffuse[3] = { &selectedObject->getMaterialPtr()->getDiffusePtr()->x, &selectedObject->getMaterialPtr()->getDiffusePtr()->y, &selectedObject->getMaterialPtr()->getDiffusePtr()->z };
-				float* specular[3] = { &selectedObject->getMaterialPtr()->getSpecularPtr()->x, &selectedObject->getMaterialPtr()->getSpecularPtr()->y, &selectedObject->getMaterialPtr()->getSpecularPtr()->z };
+				float* pos[3] = { &m_selectedObject->getPositionPtr()->x, &m_selectedObject->getPositionPtr()->y, &m_selectedObject->getPositionPtr()->z };
+				float* scale[3] = { &m_selectedObject->getScalePtr()->x, &m_selectedObject->getScalePtr()->y, &m_selectedObject->getScalePtr()->z };
+				float* ambient[3] = { &m_selectedObject->getMaterialPtr()->getAmbientPtr()->x, &m_selectedObject->getMaterialPtr()->getAmbientPtr()->y, &m_selectedObject->getMaterialPtr()->getAmbientPtr()->z };
+				float* diffuse[3] = { &m_selectedObject->getMaterialPtr()->getDiffusePtr()->x, &m_selectedObject->getMaterialPtr()->getDiffusePtr()->y, &m_selectedObject->getMaterialPtr()->getDiffusePtr()->z };
+				float* specular[3] = { &m_selectedObject->getMaterialPtr()->getSpecularPtr()->x, &m_selectedObject->getMaterialPtr()->getSpecularPtr()->y, &m_selectedObject->getMaterialPtr()->getSpecularPtr()->z };
 
-				ImGui::Text("Selected Object: %s", selectedObject->getName().c_str());
+				ImGui::Text("Selected Object: %s", m_selectedObject->getName().c_str());
 				ImGui::Separator();
 
 				if (ImGui::TreeNode("Object"))
@@ -246,7 +264,7 @@ void ImguiRenderer::renderObjectManager()
 					ImGui::SetCursorPosX(ImGui::GetCursorPosX());
 					ImGui::InputFloat3("##1", *scale);
 
-					ImGui::Checkbox("Draw Wireframe", selectedObject->getDrawWireframePtr());
+					ImGui::Checkbox("Draw Wireframe", m_selectedObject->getDrawWireframePtr());
 
 					ImGui::TreePop();
 				}
@@ -260,10 +278,10 @@ void ImguiRenderer::renderObjectManager()
 					ImGui::ColorEdit3("Specular", *specular, ImGuiColorEditFlags_NoInputs);
 					ImGui::SameLine();
 					ImGui::SetNextItemWidth(100.0f);
-					ImGui::InputFloat("Shininess", selectedObject->getMaterialPtr()->getShininessPtr());
+					ImGui::InputFloat("Shininess", m_selectedObject->getMaterialPtr()->getShininessPtr());
 
 
-					ImGui::Text(std::format("Loaded Shader: {}", selectedObject->getShaderPtr()->getName()).c_str());
+					ImGui::Text(std::format("Loaded Shader: {}", m_selectedObject->getShaderPtr()->getName()).c_str());
 
 					static char loadShaderBuffer[256] = "";
 
@@ -275,7 +293,7 @@ void ImguiRenderer::renderObjectManager()
 						// selectedObject->setShader(new Shader(loadShaderBuffer));
 					}
 
-					ImGui::Image((void*)(intptr_t)selectedObject->getTexture(), ImVec2(150, 150));
+					ImGui::Image((void*)(intptr_t)m_selectedObject->getTexture(), ImVec2(150, 150));
 					ImGui::SameLine();
 					ImGui::BeginChild("Container", ImVec2(0, 150));
 					{
@@ -287,7 +305,7 @@ void ImguiRenderer::renderObjectManager()
 
 						if (ImGui::Button("Load Texture"))
 						{
-							selectedObject->loadTexture(selectedTexturePath);
+							m_selectedObject->loadTexture(m_selectedTexturePath);
 						}
 					}
 					ImGui::EndChild();
@@ -295,16 +313,16 @@ void ImguiRenderer::renderObjectManager()
 					ImGui::TreePop();
 				}
 
-				if (selectedObject->getIsPhysicsEnabled())
+				if (m_selectedObject->getIsPhysicsEnabled())
 				{
-					float* vel[3] = { &selectedObject->getVelocityPtr()->x, &selectedObject->getVelocityPtr()->y, &selectedObject->getVelocityPtr()->z };
+					float* vel[3] = { &m_selectedObject->getVelocityPtr()->x, &m_selectedObject->getVelocityPtr()->y, &m_selectedObject->getVelocityPtr()->z };
 
 					if (ImGui::TreeNode("Physics"))
 					{
 						ImGui::Text("Mass");
 						ImGui::SameLine();
 						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
-						ImGui::InputFloat("##4523", selectedObject->getMassPtr());
+						ImGui::InputFloat("##4523", m_selectedObject->getMassPtr());
 
 						ImGui::Text("Velocity");
 						ImGui::SameLine();
@@ -314,16 +332,16 @@ void ImguiRenderer::renderObjectManager()
 						ImGui::Text("Linear Drag");
 						ImGui::SameLine();
 						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
-						ImGui::InputFloat("##3", selectedObject->getLinearDragPtr());
+						ImGui::InputFloat("##3", m_selectedObject->getLinearDragPtr());
 
-						if (ImGui::Checkbox("Gravity", selectedObject->getIsGravityEnabledPtr()))
+						if (ImGui::Checkbox("Gravity", m_selectedObject->getIsGravityEnabledPtr()))
 						{
-							if (selectedObject->getIsGravityEnabled()) selectedObject->setIsPullToObjectEnabled(false);
+							if (m_selectedObject->getIsGravityEnabled()) m_selectedObject->setIsPullToObjectEnabled(false);
 						}
 
-						if (ImGui::Checkbox("ObjectPull", selectedObject->getIsPullToObjectEnabledPtr()))
+						if (ImGui::Checkbox("ObjectPull", m_selectedObject->getIsPullToObjectEnabledPtr()))
 						{
-							if (selectedObject->getIsPullToObjectEnabled()) selectedObject->setIsGravityEnabled(false);
+							if (m_selectedObject->getIsPullToObjectEnabled()) m_selectedObject->setIsGravityEnabled(false);
 						}
 
 						ImGui::TreePop();
@@ -331,27 +349,27 @@ void ImguiRenderer::renderObjectManager()
 
 					if (ImGui::TreeNode("Collisions"))
 					{
-						if (ImGui::Checkbox("Collision Enabled", selectedObject->getIsCollisionEnabledPtr()))
+						if (ImGui::Checkbox("Collision Enabled", m_selectedObject->getIsCollisionEnabledPtr()))
 						{
-							selectedObject->checkBuffers();
+							m_selectedObject->checkBuffers();
 						}
 
-						if (selectedObject->getIsCollisionEnabled())
+						if (m_selectedObject->getIsCollisionEnabled())
 						{
-							ImGui::Checkbox("Draw Collision Box", selectedObject->getIsDrawColliderPtr());
+							ImGui::Checkbox("Draw Collision Box", m_selectedObject->getIsDrawColliderPtr());
 
-							if (ImGui::Checkbox("Hide objects to far away for collision", &highlightCloseCollidableObjects))
+							if (ImGui::Checkbox("Hide objects to far away for collision", &m_highlightCloseCollidableObjects))
 							{
 								if (PhysicEngine::getFocusedGameObject() == nullptr)
-									PhysicEngine::setFocusedGameObject(selectedObject);
+									PhysicEngine::setFocusedGameObject(m_selectedObject);
 								else
 									PhysicEngine::setFocusedGameObject(nullptr);
 							}
 
 							ImGui::BeginChild("Collider", ImVec2(0, 0), true);
 							{
-								float* anchor[3] = { &selectedObject->getColliderPtr()->getAnchorPositionPtr()->x, &selectedObject->getColliderPtr()->getAnchorPositionPtr()->y , &selectedObject->getColliderPtr()->getAnchorPositionPtr()->z };
-								float* colliderScale[3] = { &selectedObject->getColliderPtr()->getScalePtr()->x, &selectedObject->getColliderPtr()->getScalePtr()->y , &selectedObject->getColliderPtr()->getScalePtr()->z };
+								float* anchor[3] = { &m_selectedObject->getColliderPtr()->getAnchorPositionPtr()->x, &m_selectedObject->getColliderPtr()->getAnchorPositionPtr()->y , &m_selectedObject->getColliderPtr()->getAnchorPositionPtr()->z };
+								float* colliderScale[3] = { &m_selectedObject->getColliderPtr()->getScalePtr()->x, &m_selectedObject->getColliderPtr()->getScalePtr()->y , &m_selectedObject->getColliderPtr()->getScalePtr()->z };
 
 								ImGui::Text("Anchor");
 								ImGui::SameLine();
@@ -365,7 +383,7 @@ void ImguiRenderer::renderObjectManager()
 
 								ImGui::Spacing();
 
-								if (ImGui::Button("##6", ImVec2(40, 0))) selectedObject->snapColliderToObject();
+								if (ImGui::Button("##6", ImVec2(40, 0))) m_selectedObject->snapColliderToObject();
 								ImGui::SameLine();
 								ImGui::Text("Snap Collider To Object");
 
@@ -384,11 +402,11 @@ void ImguiRenderer::renderObjectManager()
 						{
 							auto renderer = static_cast<ObjectRenderer*>(value);
 
-							PhysicEngine::removeObject(selectedObject);
-							renderer->removeObject(selectedObject);
+							PhysicEngine::removeObject(m_selectedObject);
+							renderer->removeObject(m_selectedObject);
 
-							delete selectedObject;
-							selectedObject = nullptr;
+							delete m_selectedObject;
+							m_selectedObject = nullptr;
 						}
 					}
 
@@ -411,10 +429,10 @@ void ImguiRenderer::renderLightManager()
 			{
 				for (auto& light : RendererManager::getInstance().getActiveScene()->getPointLights())
 				{
-					ImGui::Selectable(light->getName().data(), selectedLight == light);
+					ImGui::Selectable(light->getName().data(), m_selectedLight == light);
 					if (ImGui::IsItemClicked())
 					{
-						selectedLight = light;
+						m_selectedLight = light;
 					}
 				}
 
@@ -424,10 +442,10 @@ void ImguiRenderer::renderLightManager()
 			{
 				for (auto& light : RendererManager::getInstance().getActiveScene()->getDirectionalLights())
 				{
-					ImGui::Selectable(light->getName().data(), selectedLight == light);
+					ImGui::Selectable(light->getName().data(), m_selectedLight == light);
 					if (ImGui::IsItemClicked())
 					{
-						selectedLight = light;
+						m_selectedLight = light;
 					}
 				}
 
@@ -438,16 +456,16 @@ void ImguiRenderer::renderLightManager()
 		ImGui::SameLine();
 		ImGui::BeginChild("Detail View", ImVec2(0, 0), true);
 		{
-			if (selectedLight != nullptr)
+			if (m_selectedLight != nullptr)
 			{
-				ImGui::Text("Selected Light: %s", selectedLight->getName());
+				ImGui::Text("Selected Light: %s", m_selectedLight->getName());
 				ImGui::Separator();
 
 				if (ImGui::TreeNode("Light"))
 				{
-					if (selectedLight->getLightType() == LightType::Point)
+					if (m_selectedLight->getLightType() == LightType::Point)
 					{
-						PointLight* light = static_cast<PointLight*>(selectedLight);
+						PointLight* light = static_cast<PointLight*>(m_selectedLight);
 						float* pos[3] = { &light->getPositionPtr()->x, &light->getPositionPtr()->y, &light->getPositionPtr()->z };
 
 						ImGui::Text("Position");
@@ -466,9 +484,9 @@ void ImguiRenderer::renderLightManager()
 						ImGui::SetNextItemWidth(80.0f);
 						ImGui::InputFloat("Quadratic", light->getQuadraticPtr());
 					}
-					else if (selectedLight->getLightType() == LightType::Spot)
+					else if (m_selectedLight->getLightType() == LightType::Spot)
 					{
-						SpotLight* light = static_cast<SpotLight*>(selectedLight);
+						SpotLight* light = static_cast<SpotLight*>(m_selectedLight);
 						float* pos[3] = { &light->getPositionPtr()->x, &light->getPositionPtr()->y, &light->getPositionPtr()->z };
 						float* dir[3] = { &light->getDirectionPtr()->x, &light->getDirectionPtr()->y, &light->getDirectionPtr()->z };
 
@@ -490,7 +508,7 @@ void ImguiRenderer::renderLightManager()
 					}
 					else
 					{
-						DirectionalLight* light = static_cast<DirectionalLight*>(selectedLight);
+						DirectionalLight* light = static_cast<DirectionalLight*>(m_selectedLight);
 						float* dir[3] = { &light->getDirectionPtr()->x, &light->getDirectionPtr()->y, &light->getDirectionPtr()->z };
 
 						ImGui::Text("Direction");
@@ -506,16 +524,16 @@ void ImguiRenderer::renderLightManager()
 
 				if (ImGui::Button("Delete"))
 				{
-					switch (selectedLight->getLightType())
+					switch (m_selectedLight->getLightType())
 					{
 					case LightType::Point:
-						RendererManager::getInstance().getActiveScene()->deletePointLight(static_cast<PointLight*>(selectedLight));
+						RendererManager::getInstance().getActiveScene()->deletePointLight(static_cast<PointLight*>(m_selectedLight));
 						break;
 					default:
 						break;
 					}
 
-					selectedLight = nullptr;
+					m_selectedLight = nullptr;
 				}
 			}
 		}
@@ -524,11 +542,65 @@ void ImguiRenderer::renderLightManager()
 	ImGui::End();
 }
 
+void ImguiRenderer::renderAssetManager()
+{
+	ImGui::Begin("Asset Manager", nullptr);
+	{
+		const int numColumns = 2;
+		const float itemSize = 80.0f;
+		const float iconSize = 40.0f;
+		const float textHeight = 20.0f; // Height of the text area
+
+		ImGui::Columns(numColumns, nullptr, false);
+
+		auto& items = AssetManager::getInstance().getFiles();
+
+		for (int i = 0; i < items.size(); i++)
+		{
+			ImGui::PushID(i); // Push a unique ID for each item
+
+			// Calculate positions for icon and text
+			ImVec2 itemPos = ImGui::GetCursorScreenPos();
+			float iconPosX = itemPos.x + (itemSize - iconSize) / 2;
+			float iconPosY = itemPos.y + (itemSize - iconSize - textHeight) / 2; // Center vertically
+
+			ImGui::SetCursorScreenPos(ImVec2(iconPosX, iconPosY));
+			ImGui::Image((void*)(intptr_t)items[i].image, ImVec2(iconSize, iconSize));
+
+			// Calculate text position (under the icon)
+			float textPosX = itemPos.x + (itemSize - ImGui::CalcTextSize(items[i].name.c_str()).x) / 2;
+			float textPosY = itemPos.y + (itemSize + iconSize + textHeight) / 2.1f; // Adjust vertically as needed
+
+			ImGui::SetCursorScreenPos(ImVec2(textPosX, textPosY));
+			ImGui::Text(items[i].name.c_str());
+
+			// Calculate selectable area position
+			float selectablePosY = itemPos.y;
+			ImGui::SetCursorScreenPos(ImVec2(itemPos.x, selectablePosY));
+
+			// Check if the item is selected
+			bool isSelected = ImGui::Selectable("", false, ImGuiSelectableFlags_SpanAllColumns, ImVec2(itemSize, itemSize));
+
+			// Handle item selection
+			if (isSelected) {
+				// Handle selection logic here
+			}
+
+			ImGui::NextColumn();
+
+			ImGui::PopID(); // Pop the unique ID
+		}
+
+		ImGui::Columns(1); // Reset columns back to one
+	}
+	ImGui::End();
+}
+
 void ImguiRenderer::renderLightMaterialView()
 {
-	float* ambient[3] = { &selectedLight->getAmbientPtr()->x, &selectedLight->getAmbientPtr()->y, &selectedLight->getAmbientPtr()->z };
-	float* diffuse[3] = { &selectedLight->getDiffusePtr()->x, &selectedLight->getDiffusePtr()->y, &selectedLight->getDiffusePtr()->z };
-	float* specular[3] = { &selectedLight->getSpecularPtr()->x, &selectedLight->getSpecularPtr()->y, &selectedLight->getSpecularPtr()->z };
+	float* ambient[3] = { &m_selectedLight->getAmbientPtr()->x, &m_selectedLight->getAmbientPtr()->y, &m_selectedLight->getAmbientPtr()->z };
+	float* diffuse[3] = { &m_selectedLight->getDiffusePtr()->x, &m_selectedLight->getDiffusePtr()->y, &m_selectedLight->getDiffusePtr()->z };
+	float* specular[3] = { &m_selectedLight->getSpecularPtr()->x, &m_selectedLight->getSpecularPtr()->y, &m_selectedLight->getSpecularPtr()->z };
 
 	ImGui::ColorEdit3("Ambient", *ambient, ImGuiColorEditFlags_NoInputs);
 	ImGui::SameLine();
@@ -601,4 +673,4 @@ void ImguiRenderer::setImguiStyle()
 }
 
 
-GameObject* ImguiRenderer::selectedObject;
+GameObject* ImguiRenderer::m_selectedObject;

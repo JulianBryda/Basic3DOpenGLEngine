@@ -11,11 +11,13 @@
 #include "ShaderLib.hpp"
 #include "EnvironmentRenderer.hpp"
 #include "Skybox.hpp"
+#include "AssetManager.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void drop_callback(GLFWwindow* window, int count, const char** paths);
 
 
 int main()
@@ -42,6 +44,7 @@ int main()
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetScrollCallback(window, scroll_callback);
+	glfwSetDropCallback(window, drop_callback);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -103,13 +106,10 @@ int main()
 
 	environmentRenderer->addObject(skybox);
 
-	// add default scene to Pipeline
-	RendererManager::getInstance().addScene(new Scene());
-
-
 	// window lopp
 	while (!glfwWindowShouldClose(window))
 	{
+		glfwPollEvents();
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -124,7 +124,6 @@ int main()
 
 		// other stuff here
 		glfwSwapBuffers(window);
-		glfwPollEvents();
 	}
 
 	glfwTerminate();
@@ -150,4 +149,9 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	InputHandler::HandleScrollInput(yoffset);
+}
+
+void drop_callback(GLFWwindow* window, int count, const char** paths)
+{
+	AssetManager::getInstance().handleFileDrop(paths, count);
 }
