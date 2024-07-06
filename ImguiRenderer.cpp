@@ -546,7 +546,7 @@ void ImguiRenderer::renderAssetManager()
 {
 	ImGui::Begin("Asset Manager", nullptr);
 	{
-		const int numColumns = 2;
+		const int numColumns = 8;
 		const float itemSize = 80.0f;
 		const float iconSize = 40.0f;
 		const float textHeight = 20.0f; // Height of the text area
@@ -582,8 +582,12 @@ void ImguiRenderer::renderAssetManager()
 			bool isSelected = ImGui::Selectable("", false, ImGuiSelectableFlags_SpanAllColumns, ImVec2(itemSize, itemSize));
 
 			// Handle item selection
-			if (isSelected) {
-				// Handle selection logic here
+			if (isSelected)
+			{
+				GameObject* obj = new GameObject(std::format("{}{}", items[i].name, 0), items[i].path, ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
+				obj->setIsPhysicsEnabled(true);
+
+				RendererManager::getInstance().addObject(obj, RendererType::Object);
 			}
 
 			ImGui::NextColumn();
