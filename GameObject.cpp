@@ -38,7 +38,7 @@ GameObject::GameObject(std::string name, std::string path, Shader* shader, Colli
 
 GameObject::~GameObject()
 {
-	delete this->m_pShader;
+	// delete this->m_pShader;
 	delete this->m_pMaterial;
 }
 

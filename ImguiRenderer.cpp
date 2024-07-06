@@ -546,10 +546,10 @@ void ImguiRenderer::renderAssetManager()
 {
 	ImGui::Begin("Asset Manager", nullptr);
 	{
-		const int numColumns = 8;
 		const float itemSize = 80.0f;
 		const float iconSize = 40.0f;
 		const float textHeight = 20.0f; // Height of the text area
+		const int numColumns = ceilf(ImGui::GetWindowWidth() * 0.8f / itemSize);
 
 		ImGui::Columns(numColumns, nullptr, false);
 
@@ -575,11 +575,8 @@ void ImguiRenderer::renderAssetManager()
 			ImGui::Text(items[i].name.c_str());
 
 			// Calculate selectable area position
-			float selectablePosY = itemPos.y;
-			ImGui::SetCursorScreenPos(ImVec2(itemPos.x, selectablePosY));
-
-			// Check if the item is selected
-			bool isSelected = ImGui::Selectable("", false, ImGuiSelectableFlags_SpanAllColumns, ImVec2(itemSize, itemSize));
+			ImGui::SetCursorScreenPos(ImVec2(itemPos.x, itemPos.y));
+			bool isSelected = ImGui::Selectable("", false, 0, ImVec2(itemSize, itemSize));
 
 			// Handle item selection
 			if (isSelected)

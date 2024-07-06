@@ -29,7 +29,12 @@ public:
 		for (int i = 0; i < count; i++)
 		{
 			std::string path = paths[i];
-			m_files.push_back({ path.substr(path.find_last_of('\\') + 1), path, m_icons.at(path.substr(path.find_last_of('.') + 1)) });
+
+			int nameIndex = path.find_last_of('\\') + 1;
+			int nameSuffix = path.find_last_of(".");
+			int nameLength = path.length() - nameIndex - (path.length() - nameSuffix);
+
+			m_files.push_back({ path.substr(nameIndex, nameLength), path, m_icons.at(path.substr(nameSuffix + 1)) });
 		}
 	}
 
