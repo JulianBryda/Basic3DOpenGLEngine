@@ -78,7 +78,7 @@ public:
 	{
 		for (const auto& entry : std::filesystem::directory_iterator(path))
 		{
-			if (std::filesystem::is_directory(entry.status()))
+			if (entry.is_directory())
 			{
 				if (ImGui::TreeNode(entry.path().filename().string().c_str()))
 				{
@@ -89,10 +89,61 @@ public:
 			}
 			else
 			{
-				ImGui::Selectable(entry.path().filename().string().c_str(), !std::strcmp(m_selectedTexturePath, entry.path().string().c_str()));
-				if (ImGui::IsItemClicked())
+				if (ImGui::Selectable(entry.path().filename().string().c_str(), !std::strcmp(m_selectedTexturePath, entry.path().string().c_str())))
 				{
 					std::strcpy(m_selectedTexturePath, entry.path().string().c_str());
+				}
+			}
+		}
+	}
+
+	void renderAssetFolderStructure(const char* path)
+	{
+		renderAssetFolderStructure(std::filesystem::directory_iterator(path));
+	}
+
+	void renderAssetFolderStructure(const std::filesystem::directory_entry entry)
+	{
+		renderAssetFolderStructure(std::filesystem::directory_iterator(entry));
+	}
+
+	void renderAssetFolderStructure(std::filesystem::directory_iterator iterator)
+	{
+		for (const auto& entry : iterator)
+		{
+			if (entry.is_directory())
+			{
+				bool subDirectories = false;
+
+				for (const auto& subEntry : std::filesystem::directory_iterator(entry))
+				{
+					if (subEntry.is_directory())
+					{
+						subDirectories = true;
+						break;
+					}
+				}
+
+				if (subDirectories)
+				{
+					if (ImGui::TreeNode(entry.path().filename().string().c_str()))
+					{
+						if (ImGui::IsItemClicked())
+						{
+							m_selectedAssetPath = entry.path().string();
+						}
+
+						renderAssetFolderStructure(entry);
+
+						ImGui::TreePop();
+					}
+				}
+				else
+				{
+					if (ImGui::Selectable(entry.path().filename().string().c_str(), false))
+					{
+						m_selectedAssetPath = entry.path().string();
+					}
 				}
 			}
 		}
@@ -118,7 +169,11 @@ private:
 
 	void renderLightMaterialView();
 
+	// custom components 
+	bool IconItem(int id, const char* text, GLuint imageId, const float itemSize);
+
 	char m_selectedTexturePath[_MAX_PATH] = "";
+	std::string m_selectedAssetPath = "";
 
 	bool m_showDebugInfo = false,
 		m_showObjectManager = false,

@@ -546,55 +546,87 @@ void ImguiRenderer::renderAssetManager()
 {
 	ImGui::Begin("Asset Manager", nullptr);
 	{
-		const float itemSize = 80.0f;
-		const float iconSize = 40.0f;
-		const float textHeight = 20.0f; // Height of the text area
-		const int numColumns = ceilf(ImGui::GetWindowWidth() * 0.8f / itemSize);
-
-		ImGui::Columns(numColumns, nullptr, false);
-
-		auto& items = AssetManager::getInstance().getFiles();
-
-		for (int i = 0; i < items.size(); i++)
+		ImGui::BeginChild("Folder View", ImVec2(200, 0), ImGuiChildFlags_Border);
 		{
-			ImGui::PushID(i); // Push a unique ID for each item
-
-			// Calculate positions for icon and text
-			ImVec2 itemPos = ImGui::GetCursorScreenPos();
-			float iconPosX = itemPos.x + (itemSize - iconSize) / 2;
-			float iconPosY = itemPos.y + (itemSize - iconSize - textHeight) / 2; // Center vertically
-
-			ImGui::SetCursorScreenPos(ImVec2(iconPosX, iconPosY));
-			ImGui::Image((void*)(intptr_t)items[i].image, ImVec2(iconSize, iconSize));
-
-			// Calculate text position (under the icon)
-			float textPosX = itemPos.x + (itemSize - ImGui::CalcTextSize(items[i].name.c_str()).x) / 2;
-			float textPosY = itemPos.y + (itemSize + iconSize + textHeight) / 2.1f; // Adjust vertically as needed
-
-			ImGui::SetCursorScreenPos(ImVec2(textPosX, textPosY));
-			ImGui::Text(items[i].name.c_str());
-
-			// Calculate selectable area position
-			ImGui::SetCursorScreenPos(ImVec2(itemPos.x, itemPos.y));
-			bool isSelected = ImGui::Selectable("", false, 0, ImVec2(itemSize, itemSize));
-
-			// Handle item selection
-			if (isSelected)
-			{
-				GameObject* obj = new GameObject(std::format("{}{}", items[i].name, RendererManager::getInstance().getTotalObjectCount()), items[i].path, ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
-				obj->setIsPhysicsEnabled(true);
-
-				RendererManager::getInstance().addObject(obj, RendererType::Object);
-			}
-
-			ImGui::NextColumn();
-
-			ImGui::PopID(); // Pop the unique ID
+			renderAssetFolderStructure(".\\Assets");
 		}
+		ImGui::EndChild();
 
-		ImGui::Columns(1); // Reset columns back to one
+		ImGui::SameLine();
+
+		if (m_selectedAssetPath != "")
+		{
+			ImGui::BeginChild("Data View");
+			{
+				const float itemSize = 120.0f;
+				const int numColumns = ceilf(ImGui::GetWindowWidth() * 0.8f / itemSize);
+
+				ImGui::Columns(numColumns, nullptr, false);
+
+				auto iterator = std::filesystem::directory_iterator(m_selectedAssetPath);
+
+				int i = 0;
+				for (auto& entry : iterator)
+				{
+					if (entry.is_directory())
+					{
+						if (IconItem(i, entry.path().filename().string().c_str(), AssetManager::getInstance().getIcon("folder"), itemSize))
+						{
+							m_selectedAssetPath = entry.path().string();
+						}
+					}
+					else
+					{
+						if (IconItem(i, entry.path().filename().string().c_str(), AssetManager::getInstance().getIcon(entry.path().extension().string()), itemSize))
+						{
+							//GameObject* obj = new GameObject(std::format("{}{}", items[i].name, RendererManager::getInstance().getTotalObjectCount()), items[i].path, ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
+							//obj->setIsPhysicsEnabled(true);
+
+							//RendererManager::getInstance().addObject(obj, RendererType::Object);
+						}
+					}
+
+					i++;
+				}
+
+				ImGui::Columns(1); // Reset columns back to one
+			}
+			ImGui::EndChild();
+		}
 	}
 	ImGui::End();
+}
+
+bool ImguiRenderer::IconItem(int id, const char* text, GLuint imageId, const float itemSize)
+{
+	ImGui::PushID(id); // Push a unique ID for each item
+
+	// Calculate positions for icon and text
+	ImVec2 itemPos = ImGui::GetCursorScreenPos();
+	float iconSize = itemSize / 2;
+	float textHeight = itemSize / 4;
+	float iconPosX = itemPos.x + (itemSize - iconSize) / 2;
+	float iconPosY = itemPos.y + (itemSize - iconSize - textHeight) / 2; // Center vertically
+
+	ImGui::SetCursorScreenPos(ImVec2(iconPosX, iconPosY));
+	ImGui::Image((void*)(intptr_t)imageId, ImVec2(iconSize, iconSize));
+
+	// Calculate text position (under the icon)
+	float textPosX = itemPos.x + (itemSize - ImGui::CalcTextSize(text).x) / 2;
+	float textPosY = itemPos.y + (itemSize + iconSize + textHeight) / 2.1f; // Adjust vertically as needed
+
+	ImGui::SetCursorScreenPos(ImVec2(textPosX, textPosY));
+	ImGui::Text(text);
+
+	// Calculate selectable area position
+	ImGui::SetCursorScreenPos(ImVec2(itemPos.x, itemPos.y));
+	bool isSelected = ImGui::Selectable("", false, 0, ImVec2(itemSize, itemSize));
+
+	ImGui::NextColumn();
+
+	ImGui::PopID(); // Pop the unique ID
+
+	return isSelected;
 }
 
 void ImguiRenderer::renderLightMaterialView()

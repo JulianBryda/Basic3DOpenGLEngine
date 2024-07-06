@@ -1,4 +1,6 @@
 #pragma once
+#include <filesystem>
+
 #include "stb_image.h"
 
 struct AssetStruct
@@ -15,7 +17,15 @@ public:
 
 	AssetManager()
 	{
+		// check if folder exists
+		if (!std::filesystem::exists(".\\Assets"))
+		{
+			std::filesystem::create_directory(".\\Assets");
+		}
+
+		m_icons.insert(std::pair("default", loadTexture(".\\Assets\\Icons\\default-icon.png")));
 		m_icons.insert(std::pair("obj", loadTexture(".\\Assets\\Icons\\obj-icon.png")));
+		m_icons.insert(std::pair("folder", loadTexture(".\\Assets\\Icons\\folder-icon.png")));
 	}
 
 	static AssetManager& getInstance()
@@ -42,6 +52,18 @@ public:
 	std::vector<AssetStruct>& getFiles()
 	{
 		return m_files;
+	}
+
+	GLuint getIcon(std::string name)
+	{
+		if (m_icons.find(name) != m_icons.end())
+		{
+			return m_icons.at(name);
+		}
+		else
+		{
+			return m_icons.at("default");
+		}
 	}
 
 private:
