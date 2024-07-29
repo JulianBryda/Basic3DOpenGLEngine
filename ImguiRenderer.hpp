@@ -166,6 +166,11 @@ public:
 		m_selectedObject = object;
 	}
 
+	static GameObject* getSelectedObject()
+	{
+		return m_selectedObject;
+	}
+
 private:
 
 	void setImguiStyle();

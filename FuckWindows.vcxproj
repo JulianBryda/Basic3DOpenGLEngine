@@ -169,7 +169,6 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClCompile Include="Imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="Imgui\imgui_tables.cpp" />
     <ClCompile Include="Imgui\imgui_widgets.cpp" />
-    <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="PhysicEngine.cpp" />
     <ClCompile Include="ShaderLib.cpp" />
   </ItemGroup>

@@ -76,7 +76,7 @@ int main()
 	ShaderLib::LoadShader();
 
 	// init InputHandler
-	InputHandler::init(window);
+	InputHandler::getInstance().setWindow(window);
 
 	// register object renderer
 	ObjectRenderer* objectRenderer = new ObjectRenderer();
@@ -114,7 +114,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		// handle input
-		InputHandler::handleInput();
+		InputHandler::getInstance().handleInput();
 
 		// do fancy physic stuff
 		PhysicEngine::update();
@@ -138,17 +138,17 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	InputHandler::HandleKeyInput(key, action);
+	InputHandler::getInstance().HandleKeyInput(key, action);
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
-	InputHandler::HandleMouseInput(button, action, mods);
+	InputHandler::getInstance().HandleMouseInput(button, action, mods);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	InputHandler::HandleScrollInput(yoffset);
+	InputHandler::getInstance().HandleScrollInput(yoffset);
 }
 
 void drop_callback(GLFWwindow* window, int count, const char** paths)

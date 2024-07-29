@@ -14,12 +14,23 @@ class InputHandler
 
 public:
 
-	static void init(GLFWwindow* window)
+
+	InputHandler()
 	{
-		InputHandler::m_window = window;
+		m_manipulationStruct = { ManipulationState::Nothing, glm::vec3(0.f), glm::vec3(1.f) };
+		m_movementSpeed = 2.f;
+		m_mouseSpeed = .5f;
+		m_speed = 20.f;
 	}
 
-	static void handleInput()
+	static InputHandler& getInstance()
+	{
+		static InputHandler instance;
+		return instance;
+	}
+
+
+	void handleInput()
 	{
 		updateDeltaTime();
 
@@ -58,9 +69,41 @@ public:
 
 		m_lastXpos = xpos;
 		m_lastYpos = ypos;
+
+
+		// handle scaling
+		if (m_manipulationStruct.state == Scaling)
+		{
+			GameObject* object = ImguiRenderer::getSelectedObject();
+			if (object == nullptr)
+			{
+				m_manipulationStruct.state = Nothing;
+				return;
+			}
+
+			glm::vec2 cursorPosition = glm::vec2(xpos, ypos);
+			glm::vec2 startPosition = glm::vec2(m_lastXManipulation, m_lastYManipulation);
+			glm::vec2 objectPosition = worldToScreen(object->getPosition(), activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix());
+
+			float distanceOffset = glm::length(objectPosition - startPosition);
+			float distance = glm::length(cursorPosition - objectPosition) - distanceOffset;
+
+			object->setScale(m_manipulationStruct.inititalScale + glm::vec3(distance / 20.f) * m_manipulationStruct.manipulationFactor);
+		}
+		else if (m_manipulationStruct.state == Moving)
+		{
+			GameObject* object = ImguiRenderer::getSelectedObject();
+			if (object == nullptr)
+			{
+				m_manipulationStruct.state = Nothing;
+				return;
+			}
+
+
+		}
 	}
 
-	static void HandleMouseInput(int key, int action, int mods)
+	void HandleMouseInput(int key, int action, int mods)
 	{
 		if (action == 1)
 		{
@@ -96,13 +139,13 @@ public:
 		}
 	}
 
-	static void HandleScrollInput(double offset)
+	void HandleScrollInput(double offset)
 	{
 		float off = static_cast<float>(offset) / 10.0f;
 		RendererManager::getInstance().getActiveScene()->getActiveCamera()->multiplyDistance(1.0f - off);
 	}
 
-	static void HandleKeyInput(int key, int action)
+	void HandleKeyInput(int key, int action)
 	{
 		if (action == 1)
 		{
@@ -111,7 +154,7 @@ public:
 			{
 			case GLFW_KEY_F2:
 				// screenshot
-				saveScreenShot();
+				//saveScreenShot();
 				break;
 			default:
 				break;
@@ -126,7 +169,7 @@ public:
 
 				break;
 			case GLFW_KEY_S:
-
+				scaleObject();
 				break;
 			case GLFW_KEY_D:
 
@@ -134,11 +177,29 @@ public:
 			case GLFW_KEY_A:
 
 				break;
+			case GLFW_KEY_X:
+				setManipulationFactor(glm::vec3(1.f, 0.f, 0.f));
+				break;
+			case GLFW_KEY_Y:
+				setManipulationFactor(glm::vec3(0.f, 1.f, 0.f));
+				break;
+			case GLFW_KEY_Z:
+				setManipulationFactor(glm::vec3(0.f, 0.f, 1.f));
+				break;
+			case GLFW_KEY_G:
+				moveObject();
+				break;
+			case GLFW_KEY_R:
+				rotateObject();
+				break;
 			case GLFW_KEY_SPACE:
 
 				break;
 			case GLFW_KEY_LEFT_SHIFT:
 
+				break;
+			case GLFW_KEY_ESCAPE:
+				undoManipulation();
 				break;
 			default:
 				break;
@@ -146,12 +207,74 @@ public:
 		}
 	}
 
-	static void moveObject()
+	void undoManipulation()
 	{
+		GameObject* object = ImguiRenderer::getSelectedObject();
+		if (object == nullptr) return;
 
+		switch (m_manipulationStruct.state)
+		{
+		case Moving:
+			object->setPosition(m_manipulationStruct.initialPosition);
+			break;
+		case Rotating:
+			object->setRotation(m_manipulationStruct.inititalRotation);
+			break;
+		case Scaling:
+			object->setScale(m_manipulationStruct.inititalScale);
+			break;
+		default:
+			break;
+		}
+
+		m_manipulationStruct.state = Nothing;
 	}
 
-	static void selectObject()
+	void scaleObject()
+	{
+		GameObject* object = ImguiRenderer::getSelectedObject();
+		if (object == nullptr) return;
+
+		m_manipulationStruct.state = m_manipulationStruct.state == Scaling ? Nothing : Scaling;
+		glfwGetCursorPos(m_window, &m_lastXManipulation, &m_lastYManipulation);
+
+		m_manipulationStruct.inititalScale = object->getScale();
+		m_manipulationStruct.manipulationFactor = glm::vec3(1.f);
+	}
+
+	void moveObject()
+	{
+		GameObject* object = ImguiRenderer::getSelectedObject();
+		if (object == nullptr) return;
+
+		m_manipulationStruct.state = m_manipulationStruct.state == Moving ? Nothing : Moving;
+		glfwGetCursorPos(m_window, &m_lastXManipulation, &m_lastYManipulation);
+
+		m_manipulationStruct.initialPosition = object->getPosition();
+		m_manipulationStruct.manipulationFactor = glm::vec3(1.f);
+	}
+
+	void rotateObject()
+	{
+		GameObject* object = ImguiRenderer::getSelectedObject();
+		if (object == nullptr) return;
+
+		m_manipulationStruct.state = m_manipulationStruct.state == Rotating ? Nothing : Rotating;
+		glfwGetCursorPos(m_window, &m_lastXManipulation, &m_lastYManipulation);
+
+		m_manipulationStruct.inititalRotation = object->getRotation();
+		m_manipulationStruct.manipulationFactor = glm::vec3(1.f);
+	}
+
+	void setManipulationFactor(glm::vec3 factor)
+	{
+		if (m_manipulationStruct.state != Nothing)
+		{
+			m_manipulationStruct.manipulationFactor = factor;
+		}
+	}
+
+	void selectObject()
 	{
 		double mouseX, mouseY;
 		glfwGetCursorPos(m_window, &mouseX, &mouseY);
@@ -159,7 +282,7 @@ public:
 		double distance = glm::length(glm::abs(glm::vec2(mouseX, mouseY) - glm::vec2(m_lastXClick, m_lastYClick)));
 		if (distance > 2) return;
 
-		auto worldCoords = calcWorldCoordinates(mouseX, mouseY);
+		auto worldCoords = screenToWorld(mouseX, mouseY);
 		RendererBase* value = RendererManager::getInstance().getRenderer(RendererType::Object);
 		if (value == nullptr) return;
 
@@ -195,7 +318,7 @@ public:
 	}
 
 #pragma region World Coords Calculations
-	static glm::vec3 calcWorldCoordinates(double mouseX, double mouseY)
+	glm::vec3 screenToWorld(double mouseX, double mouseY)
 	{
 		int width, height;
 		glfwGetWindowSize(m_window, &width, &height);
@@ -203,10 +326,10 @@ public:
 		float depth;
 		glReadPixels(static_cast<int>(mouseX), height - static_cast<int>(mouseY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
 
-		return calcWorldCoordinates(width, height, mouseX, mouseY, depth);
+		return screenToWorld(width, height, mouseX, mouseY, depth);
 	}
 
-	static glm::vec3 calcWorldCoordinates(int width, int height, double mouseX, double mouseY, float depth)
+	glm::vec3 screenToWorld(int width, int height, double mouseX, double mouseY, float depth)
 	{
 		Camera* activeCamera = RendererManager::getInstance().getActiveScene()->getActiveCamera();
 
@@ -224,19 +347,96 @@ public:
 	}
 #pragma endregion
 
-	static void saveScreenShot();
+	glm::vec2 worldToScreen(glm::vec3 worldPos, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
+	{
+		int width, height;
+		glfwGetWindowSize(m_window, &width, &height);
+
+		// 1. Convert world coordinates to view (camera) coordinates
+		glm::vec4 viewPos = viewMatrix * glm::vec4(worldPos, 1.0f);
+
+		// 2. Convert view coordinates to clip coordinates
+		glm::vec4 clipPos = projectionMatrix * viewPos;
+
+		// 3. Perform perspective divide to get normalized device coordinates (NDC)
+		glm::vec3 ndcPos = glm::vec3(clipPos.x, clipPos.y, clipPos.z) / clipPos.w;
+
+		// 4. Convert NDC to screen coordinates
+		// NDC coordinates range from -1 to 1. Map these to screen coordinates.
+		glm::vec2 screenPos;
+		screenPos.x = (ndcPos.x * 0.5f + 0.5f) * width;
+		screenPos.y = (1.0f - (ndcPos.y * 0.5f + 0.5f)) * height; // y is inverted in screen space
+
+		return screenPos;
+	}
+
+	//void saveScreenShot()
+	//{
+	//	int width, height;
+	//	glfwGetWindowSize(m_window, &width, &height);
+
+	//	char* pixels = new char[3 * width * height];
+	//	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+
+	//	stbi_flip_vertically_on_write(true);
+
+	//	std::time_t currentTime = std::time(nullptr);
+	//	std::tm* timeInfo = std::localtime(&currentTime);
+
+	//	char buffer[80];
+	//	std::strftime(buffer, sizeof(buffer), "%Y.%m.%d - %H.%M.%S", timeInfo);
+	//	std::string path = std::format("C:\\Users\\Julian\\Desktop\\FuckWindows {}.png", buffer);
+
+	//	auto test = stbi_write_png(path.c_str(), width, height, 3, pixels, width * 3);
+
+	//	std::cout << "Saved Screenshot!\n";
+
+	//	delete[] pixels;
+	//}
+
+	void setWindow(GLFWwindow* window)
+	{
+		m_window = window;
+	}
 
 private:
 
-	static GLFWwindow* m_window;
-	static bool m_mouseMiddle, m_shiftMouseMiddle;
-	static double m_lastXpos, m_lastYpos, m_lastXClick, m_lastYClick;
-	static float m_movementSpeed, m_deltaTime, m_lastFrameTime, m_mouseSpeed, m_speed;
+	enum ManipulationState
+	{
+		Nothing,
+		Scaling,
+		Moving,
+		Rotating
+	};
 
-	static void updateDeltaTime()
+	struct ManipulationStruct
+	{
+		ManipulationState state;
+
+		glm::vec3 inititalScale;
+		glm::vec3 initialPosition;
+		glm::vec3 inititalRotation;
+
+		glm::vec3 manipulationFactor;
+	};
+
+
+	GLFWwindow* m_window;
+	bool m_mouseMiddle, m_shiftMouseMiddle;
+	double m_lastXpos, m_lastYpos, m_lastXClick, m_lastYClick, m_lastXManipulation, m_lastYManipulation;
+	float m_movementSpeed, m_deltaTime, m_lastFrameTime, m_mouseSpeed, m_speed;
+
+	// object scaling
+	ManipulationStruct m_manipulationStruct;
+
+	void updateDeltaTime()
 	{
 		float currentFrameTime = static_cast<float>(glfwGetTime());
 		m_deltaTime = currentFrameTime - m_lastFrameTime;
 		m_lastFrameTime = currentFrameTime;
 	}
+
+
+	InputHandler(const InputHandler&) = delete;
+	InputHandler& operator=(const InputHandler&) = delete;
 };

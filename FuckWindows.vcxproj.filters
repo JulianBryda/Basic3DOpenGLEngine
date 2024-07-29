@@ -138,9 +138,6 @@
     <ClCompile Include="GameObjectPhysics.cpp">
       <Filter>Source Files\Objects\Physics</Filter>
     </ClCompile>
-    <ClCompile Include="InputHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderLib.cpp">
       <Filter>Source Files\Renderer\Shader</Filter>
     </ClCompile>
