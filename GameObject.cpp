@@ -11,6 +11,7 @@ GameObject::GameObject(std::string name, Mesh mesh, Shader* shader, ColliderType
 	this->m_scale = glm::vec3(5.0f);
 	this->m_hidden = false;
 	this->m_drawWireframe = false;
+	this->m_outline = false;
 
 	this->m_pMaterial = new Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 1.0f);
 	this->m_pShader = shader;
@@ -27,6 +28,7 @@ GameObject::GameObject(std::string name, std::string path, Shader* shader, Colli
 	this->m_scale = glm::vec3(5.0f);
 	this->m_hidden = false;
 	this->m_drawWireframe = false;
+	this->m_outline = false;
 
 	this->m_pMaterial = new Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 1.0f);
 	this->m_pShader = shader;
@@ -180,6 +182,7 @@ void GameObject::loadCubeMap(std::vector<const char*> faces, GLuint* texture)
 bool GameObject::getHidden() const { return this->m_hidden; }
 bool GameObject::getDrawWireframe() const { return this->m_drawWireframe; }
 bool* GameObject::getDrawWireframePtr() { return &this->m_drawWireframe; }
+bool GameObject::getIsOutline() const { return this->m_outline; }
 
 glm::vec3 GameObject::getPosition() const { return this->position; }
 glm::vec3* GameObject::getPositionPtr() { return &this->position; }
@@ -204,6 +207,7 @@ void GameObject::setRotation(glm::vec3 rotation) { this->m_rotation = rotation; 
 void GameObject::setScale(glm::vec3 scale) { this->m_scale = scale; }
 
 void GameObject::setIsHidden(bool isHidden) { this->m_hidden = isHidden; }
+void GameObject::setIsOutline(bool isOutline) { this->m_outline = isOutline; }
 
 void GameObject::setShader(Shader* shader)
 {

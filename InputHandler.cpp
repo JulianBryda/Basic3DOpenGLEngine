@@ -13,7 +13,10 @@ bool InputHandler::m_mouseMiddle = false;
 bool InputHandler::m_shiftMouseMiddle = false;
 
 double InputHandler::m_lastXpos = 0.0;
-double InputHandler::x_lastYpos = 0.0;
+double InputHandler::m_lastYpos = 0.0;
+
+double InputHandler::m_lastXClick = 0.0;
+double InputHandler::m_lastYClick = 0.0;
 
 GLFWwindow* InputHandler::m_window;
 

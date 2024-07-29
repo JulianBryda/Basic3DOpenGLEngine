@@ -6,6 +6,7 @@
 
 #include "glm/glm.hpp"
 #include "ImguiRenderer.hpp"
+#include "imgui_internal.h"
 
 
 class InputHandler
@@ -34,7 +35,7 @@ public:
 		if (m_mouseMiddle)
 		{
 			horizontalAngle += m_mouseSpeed * m_deltaTime * float(m_lastXpos - xpos);
-			verticalAngle += m_mouseSpeed * m_deltaTime * float(x_lastYpos - ypos);
+			verticalAngle += m_mouseSpeed * m_deltaTime * float(m_lastYpos - ypos);
 
 			activeCamera->setHorizontalAngle(horizontalAngle);
 			activeCamera->setVerticalAngle(verticalAngle);
@@ -44,7 +45,7 @@ public:
 			float distance = glm::length(anchor - activeCamera->getPosition());
 
 			glm::vec3 dir = glm::vec3(cos(verticalAngle) * sin(horizontalAngle), 1.0f, cos(verticalAngle) * cos(horizontalAngle));
-			moveOff = dir * glm::vec3(m_lastXpos - xpos, x_lastYpos - ypos, m_lastXpos - xpos) * m_deltaTime * (distance * 0.25f);
+			moveOff = dir * glm::vec3(m_lastXpos - xpos, m_lastYpos - ypos, m_lastXpos - xpos) * m_deltaTime * (distance * 0.25f);
 			moveOff = glm::vec3(-moveOff.z, moveOff.y, moveOff.x);
 
 			// Update anchor position
@@ -56,7 +57,7 @@ public:
 		activeCamera->setAnchor(anchor);
 
 		m_lastXpos = xpos;
-		x_lastYpos = ypos;
+		m_lastYpos = ypos;
 	}
 
 	static void HandleMouseInput(int key, int action, int mods)
@@ -70,6 +71,9 @@ public:
 					m_shiftMouseMiddle = true;
 				else
 					m_mouseMiddle = true;
+				break;
+			case GLFW_MOUSE_BUTTON_LEFT:
+				glfwGetCursorPos(m_window, &m_lastXClick, &m_lastYClick);
 				break;
 			default:
 				break;
@@ -149,12 +153,30 @@ public:
 
 	static void selectObject()
 	{
-		auto worldCoords = calcWorldCoordinates();
+		double mouseX, mouseY;
+		glfwGetCursorPos(m_window, &mouseX, &mouseY);
+
+		double distance = glm::length(glm::abs(glm::vec2(mouseX, mouseY) - glm::vec2(m_lastXClick, m_lastYClick)));
+		if (distance > 2) return;
+
+		auto worldCoords = calcWorldCoordinates(mouseX, mouseY);
 		RendererBase* value = RendererManager::getInstance().getRenderer(RendererType::Object);
 		if (value == nullptr) return;
 
 		auto renderer = static_cast<ObjectRenderer*>(value);
+		ImGuiContext& g = *GImGui;
 
+		// check if imgui is on top 
+		for (size_t i = 2; i < g.Windows.Size; i++)
+		{
+			auto& window = g.Windows[i];
+			if (window->Active && mouseX > window->Pos.x && mouseX < window->Pos.x + window->Size.x && mouseY > window->Pos.y && mouseY < window->Pos.y + window->Size.y)
+			{
+				return;
+			}
+		}
+
+		// check for object
 		for (auto& object : renderer->getObjects())
 		{
 			glm::vec3 distance = glm::abs(object->getPosition() - worldCoords);
@@ -163,30 +185,16 @@ public:
 			if (distance.x < objectScale.x && distance.y < objectScale.y && distance.z < objectScale.z)
 			{
 				ImguiRenderer::setSelectedObject(object);
-				break;
+				return;
 			}
 		}
+
+		// no object clicked, send nullptr
+		ImguiRenderer::setSelectedObject(nullptr);
 
 	}
 
 #pragma region World Coords Calculations
-	static glm::vec3 calcWorldCoordinates()
-	{
-		int width, height;
-		double mouseX, mouseY;
-
-		glfwGetWindowSize(m_window, &width, &height);
-		glfwGetCursorPos(m_window, &mouseX, &mouseY);
-
-		double ndcX = (2.0 * mouseX) / width - 1.0;
-		double ndcY = 1.0 - (2.0 * mouseY) / height;
-
-		float depth;
-		glReadPixels(static_cast<int>(mouseX), height - static_cast<int>(mouseY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
-
-		return calcWorldCoordinates(width, height, mouseX, mouseY, depth);
-	}
-
 	static glm::vec3 calcWorldCoordinates(double mouseX, double mouseY)
 	{
 		int width, height;
@@ -222,7 +230,7 @@ private:
 
 	static GLFWwindow* m_window;
 	static bool m_mouseMiddle, m_shiftMouseMiddle;
-	static double m_lastXpos, x_lastYpos;
+	static double m_lastXpos, m_lastYpos, m_lastXClick, m_lastYClick;
 	static float m_movementSpeed, m_deltaTime, m_lastFrameTime, m_mouseSpeed, m_speed;
 
 	static void updateDeltaTime()

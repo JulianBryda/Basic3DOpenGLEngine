@@ -39,6 +39,7 @@ public:
 	bool getHidden() const;
 	bool getDrawWireframe() const;
 	bool* getDrawWireframePtr();
+	bool getIsOutline() const;
 
 	glm::vec3 getPosition() const;
 	glm::vec3* getPositionPtr();
@@ -63,6 +64,7 @@ public:
 	void setScale(glm::vec3 scale);
 	void setIsHidden(bool isHidden);
 	void setShader(Shader* shader);
+	void setIsOutline(bool isOutline);
 
 	std::string getName() const;
 
@@ -87,6 +89,6 @@ private:
 
 	Mesh m_mesh;
 
-	bool m_hidden, m_drawWireframe;
+	bool m_hidden, m_drawWireframe, m_outline;
 
 };

@@ -153,6 +153,16 @@ public:
 
 	static void setSelectedObject(GameObject* object)
 	{
+		if (m_selectedObject != nullptr)
+		{
+			m_selectedObject->setIsOutline(false);
+		}
+
+		if (object != nullptr)
+		{
+			object->setIsOutline(true);
+		}
+
 		m_selectedObject = object;
 	}
 

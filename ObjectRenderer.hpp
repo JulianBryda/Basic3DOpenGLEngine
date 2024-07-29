@@ -62,18 +62,45 @@ public:
 
 			shader->setTexture(object->getTextureType(), object->getTexture());
 
+
+			// render object to stencil buffer for outline 
+
+			glEnable(GL_STENCIL_TEST);
+
+			glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+			glStencilFunc(GL_ALWAYS, 1, 0xFF);
+			glStencilMask(0xFF);
+
 			object->draw();
 
+			glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+			glStencilMask(0x00);
+			glDisable(GL_DEPTH_TEST);
 
-			// set shader for debug operations
 			shader = ShaderLib::getColorShaderPtr();
 			shader->use();
 
 			shader->setMat4("projection", activeCamera->getProjectionMatrix());
 			shader->setMat4("view", activeCamera->getViewMatrix());
 
-			// draw wireframe?
+			// draw outline?
+			if (object->getIsOutline())
+			{
+				float scalingFactor = glm::length(glm::abs(activeCamera->getPosition() - object->getPosition())) / 150.f;
+				glm::mat4 outlineModelMatrix = glm::scale(glm::translate(glm::mat4(1.f), object->getPosition()), object->getScale() + scalingFactor);
 
+				shader->setMat4("model", outlineModelMatrix);
+				shader->setFloat4("color", glm::vec4(1.f, 0.6f, 0.f, 1.f));
+
+				object->draw();
+			}
+
+			glStencilMask(0xFF);
+			glEnable(GL_DEPTH_TEST);
+			glDisable(GL_STENCIL_TEST);
+
+
+			// draw wireframe?
 			if (object->getDrawWireframe())
 			{
 				shader->setMat4("model", object->getModelMatrix());
