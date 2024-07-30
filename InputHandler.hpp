@@ -226,7 +226,10 @@ public:
 				scaleObject();
 				break;
 			case GLFW_KEY_D:
-
+				if (glfwGetKey(m_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+				{
+					duplicateObject();
+				}
 				break;
 			case GLFW_KEY_A:
 
@@ -285,6 +288,21 @@ public:
 		}
 
 		m_manipulationStruct.state = Nothing;
+	}
+
+	void duplicateObject()
+	{
+		GameObject* object = ImguiRenderer::getSelectedObject();
+		if (object == nullptr) return;
+
+		GameObject* obj = new GameObject(*object);
+		obj->setIsPhysicsEnabled(true);
+		obj->setName(obj->getName() + "_dup");
+
+		RendererManager::getInstance().addObject(obj, Object);
+		ImguiRenderer::setSelectedObject(obj);
+
+		moveObject();
 	}
 
 	void deleteObject()

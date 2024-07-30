@@ -403,6 +403,7 @@ void ImguiRenderer::renderObjectManager()
 					if (ImGui::Button("Delete"))
 					{
 						RendererManager::getInstance().deleteObject(*m_selectedObject, Object);
+						m_selectedObject = nullptr;
 					}
 
 				}

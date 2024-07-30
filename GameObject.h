@@ -65,6 +65,7 @@ public:
 	void setIsHidden(bool isHidden);
 	void setShader(Shader* shader);
 	void setIsOutline(bool isOutline);
+	void setName(std::string name);
 
 	std::string getName() const;
 
