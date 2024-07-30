@@ -16,6 +16,12 @@ public:
 
 	}
 
+	Mesh(const Mesh& other)
+	{
+		m_vertices = other.m_vertices;
+		m_indices = other.m_indices;
+	}
+
 	~Mesh()
 	{
 

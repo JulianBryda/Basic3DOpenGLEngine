@@ -7,6 +7,15 @@ class Material
 
 public:
 
+	Material()
+	{
+		this->m_ambient = glm::vec3(1.f);
+		this->m_diffuse = glm::vec3(1.f);
+		this->m_specular = glm::vec3(1.f);
+
+		this->m_shininess = 1.f;
+	}
+
 	Material(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess)
 	{
 		this->m_ambient = ambient;
@@ -14,6 +23,15 @@ public:
 		this->m_specular = specular;
 
 		this->m_shininess = shininess;
+	}
+
+	Material(const Material& other)
+	{
+		this->m_ambient = other.m_ambient;
+		this->m_diffuse = other.m_diffuse;
+		this->m_specular = other.m_specular;
+
+		this->m_shininess = other.m_shininess;
 	}
 
 	~Material()

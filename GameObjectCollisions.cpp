@@ -120,7 +120,6 @@ Collider* GameObjectCollisions::getColliderPtr() { return this->collider; }
 bool GameObjectCollisions::getIsCollisionEnabled() const { return this->isCollisionEnabled; }
 bool* GameObjectCollisions::getIsCollisionEnabledPtr() { return &this->isCollisionEnabled; }
 
-
 void GameObjectCollisions::createCollisionBoxBuffers()
 {
 	glGenVertexArrays(1, &vao);

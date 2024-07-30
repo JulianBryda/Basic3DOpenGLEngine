@@ -22,6 +22,8 @@ public:
 	GameObject(std::string name, std::string path, Shader* pShader, ColliderType colliderType);
 	GameObject(std::string name, Mesh mesh, Shader* pShader, ColliderType colliderType);
 
+	GameObject(const GameObject& other);
+
 	~GameObject();
 
 	virtual void genBuffers();
@@ -54,7 +56,7 @@ public:
 
 	Shader* getShaderPtr() const;
 
-	Material* getMaterialPtr() const;
+	Material* getMaterialPtr();
 
 	Mesh getMesh() const;
 	Mesh* getMeshPtr();
@@ -90,7 +92,7 @@ private:
 
 	Shader* m_pShader;
 
-	Material* m_pMaterial;
+	Material m_material;
 
 	Mesh m_mesh;
 

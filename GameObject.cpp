@@ -12,7 +12,7 @@ GameObject::GameObject(std::string name, Mesh mesh, Shader* shader, ColliderType
 	this->m_drawWireframe = false;
 	this->m_outline = false;
 
-	this->m_pMaterial = new Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 1.0f);
+	this->m_material = Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 1.0f);
 	this->m_pShader = shader;
 	this->m_mesh = mesh;
 
@@ -29,7 +29,7 @@ GameObject::GameObject(std::string name, std::string path, Shader* shader, Colli
 	this->m_drawWireframe = false;
 	this->m_outline = false;
 
-	this->m_pMaterial = new Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 1.0f);
+	this->m_material = Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 1.0f);
 	this->m_pShader = shader;
 
 	ObjectLoader::load_model_mesh_assimp(path.c_str(), &m_mesh);
@@ -37,10 +37,27 @@ GameObject::GameObject(std::string name, std::string path, Shader* shader, Colli
 	genBuffers();
 }
 
+GameObject::GameObject(const GameObject& other) : GameObjectCollisions(this, other.collider->getColliderType()), GameObjectPhysics(this)
+{
+	this->m_name = other.m_name + "_dup";
+	this->position = other.position;
+	this->m_rotation = other.m_rotation;
+	this->m_scale = other.m_scale;
+	this->m_hidden = other.m_hidden;
+	this->m_drawWireframe = other.m_drawWireframe;
+	this->m_outline = other.m_outline;
+
+	this->m_material = Material(other.m_material);
+	this->m_pShader = other.m_pShader;
+	this->m_mesh = Mesh(other.m_mesh);
+
+	genBuffers();
+
+}
+
 GameObject::~GameObject()
 {
 	// delete this->m_pShader;
-	delete this->m_pMaterial;
 }
 
 void GameObject::genBuffers()
@@ -208,7 +225,7 @@ GLenum GameObject::getTextureType() const { return this->m_textureType; }
 
 Shader* GameObject::getShaderPtr() const { return m_pShader; }
 
-Material* GameObject::getMaterialPtr() const { return m_pMaterial; }
+Material* GameObject::getMaterialPtr() { return &m_material; }
 
 Mesh GameObject::getMesh() const { return this->m_mesh; }
 Mesh* GameObject::getMeshPtr() { return &this->m_mesh; }

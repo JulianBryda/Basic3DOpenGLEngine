@@ -47,12 +47,12 @@ protected:
 
 	bool isDrawCollider, isCollisionEnabled;
 
+	Collider* collider;
 
 private:
 
 	GLuint vao, vbo, ebo;
 	GameObject* gameObject;
-	Collider* collider;
 	Mesh mesh;
 
 	void createCollisionBoxBuffers();

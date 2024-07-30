@@ -211,7 +211,13 @@ void ImguiRenderer::renderObjectManager()
 					ImGui::Selectable(obj->getName().c_str(), m_selectedObject == obj);
 					if (ImGui::IsItemClicked())
 					{
+						if (m_selectedObject != nullptr)
+						{
+							m_selectedObject->setIsOutline(false);
+						}
+
 						m_selectedObject = obj;
+						obj->setIsOutline(true);
 					}
 				}
 
@@ -243,11 +249,11 @@ void ImguiRenderer::renderObjectManager()
 		{
 			if (m_selectedObject != nullptr)
 			{
-				static float* pos[3] = { &m_selectedObject->getPositionPtr()->x, &m_selectedObject->getPositionPtr()->y, &m_selectedObject->getPositionPtr()->z };
-				static float* scale[3] = { &m_selectedObject->getScalePtr()->x, &m_selectedObject->getScalePtr()->y, &m_selectedObject->getScalePtr()->z };
-				static float* ambient[3] = { &m_selectedObject->getMaterialPtr()->getAmbientPtr()->x, &m_selectedObject->getMaterialPtr()->getAmbientPtr()->y, &m_selectedObject->getMaterialPtr()->getAmbientPtr()->z };
-				static float* diffuse[3] = { &m_selectedObject->getMaterialPtr()->getDiffusePtr()->x, &m_selectedObject->getMaterialPtr()->getDiffusePtr()->y, &m_selectedObject->getMaterialPtr()->getDiffusePtr()->z };
-				static float* specular[3] = { &m_selectedObject->getMaterialPtr()->getSpecularPtr()->x, &m_selectedObject->getMaterialPtr()->getSpecularPtr()->y, &m_selectedObject->getMaterialPtr()->getSpecularPtr()->z };
+				float* pos[3] = { &m_selectedObject->getPositionPtr()->x, &m_selectedObject->getPositionPtr()->y, &m_selectedObject->getPositionPtr()->z };
+				float* scale[3] = { &m_selectedObject->getScalePtr()->x, &m_selectedObject->getScalePtr()->y, &m_selectedObject->getScalePtr()->z };
+				float* ambient[3] = { &m_selectedObject->getMaterialPtr()->getAmbientPtr()->x, &m_selectedObject->getMaterialPtr()->getAmbientPtr()->y, &m_selectedObject->getMaterialPtr()->getAmbientPtr()->z };
+				float* diffuse[3] = { &m_selectedObject->getMaterialPtr()->getDiffusePtr()->x, &m_selectedObject->getMaterialPtr()->getDiffusePtr()->y, &m_selectedObject->getMaterialPtr()->getDiffusePtr()->z };
+				float* specular[3] = { &m_selectedObject->getMaterialPtr()->getSpecularPtr()->x, &m_selectedObject->getMaterialPtr()->getSpecularPtr()->y, &m_selectedObject->getMaterialPtr()->getSpecularPtr()->z };
 
 				ImGui::Text("Selected Object: %s", m_selectedObject->getName().c_str());
 				ImGui::Separator();
