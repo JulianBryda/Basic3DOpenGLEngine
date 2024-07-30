@@ -68,6 +68,9 @@ public:
 
 	std::string getName() const;
 
+	// imgui pointer functions
+	float** getRotationPtr();
+
 protected:
 
 	GLuint vao;

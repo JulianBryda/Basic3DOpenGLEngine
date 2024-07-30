@@ -63,19 +63,33 @@ public:
 			shader->setTexture(object->getTextureType(), object->getTexture());
 
 
-			// render object to stencil buffer for outline 
+			if (object->getIsOutline())
+			{
+				// render object to stencil buffer for outline 
+				glEnable(GL_STENCIL_TEST);
 
-			glEnable(GL_STENCIL_TEST);
+				// disable color and depth buffer
+				glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+				glDepthMask(GL_FALSE);
 
-			glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-			glStencilFunc(GL_ALWAYS, 1, 0xFF);
-			glStencilMask(0xFF);
+				// disable depth test
+				glDisable(GL_DEPTH_TEST);
+
+				glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+				glStencilFunc(GL_ALWAYS, 1, 0xFF);
+				glStencilMask(0xFF);
+
+				object->draw();
+
+				// enable color and depth buffer
+				glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+				glDepthMask(GL_TRUE);
+
+				// enable depth test
+				glEnable(GL_DEPTH_TEST);
+			}
 
 			object->draw();
-
-			glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-			glStencilMask(0x00);
-			glDisable(GL_DEPTH_TEST);
 
 			shader = ShaderLib::getColorShaderPtr();
 			shader->use();
@@ -86,6 +100,10 @@ public:
 			// draw outline?
 			if (object->getIsOutline())
 			{
+				glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+				glStencilMask(0x00);
+				glDisable(GL_DEPTH_TEST);
+
 				float scalingFactor = glm::length(glm::abs(activeCamera->getPosition() - object->getPosition())) / 150.f;
 				glm::mat4 outlineModelMatrix = glm::rotate(
 					glm::rotate(
@@ -102,11 +120,11 @@ public:
 				shader->setFloat4("color", glm::vec4(1.f, 0.6f, 0.f, 1.f));
 
 				object->draw();
-			}
 
-			glStencilMask(0xFF);
-			glEnable(GL_DEPTH_TEST);
-			glDisable(GL_STENCIL_TEST);
+				glStencilMask(0xFF);
+				glEnable(GL_DEPTH_TEST);
+				glDisable(GL_STENCIL_TEST);
+			}
 
 
 			// draw wireframe?

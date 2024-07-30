@@ -243,11 +243,11 @@ void ImguiRenderer::renderObjectManager()
 		{
 			if (m_selectedObject != nullptr)
 			{
-				float* pos[3] = { &m_selectedObject->getPositionPtr()->x, &m_selectedObject->getPositionPtr()->y, &m_selectedObject->getPositionPtr()->z };
-				float* scale[3] = { &m_selectedObject->getScalePtr()->x, &m_selectedObject->getScalePtr()->y, &m_selectedObject->getScalePtr()->z };
-				float* ambient[3] = { &m_selectedObject->getMaterialPtr()->getAmbientPtr()->x, &m_selectedObject->getMaterialPtr()->getAmbientPtr()->y, &m_selectedObject->getMaterialPtr()->getAmbientPtr()->z };
-				float* diffuse[3] = { &m_selectedObject->getMaterialPtr()->getDiffusePtr()->x, &m_selectedObject->getMaterialPtr()->getDiffusePtr()->y, &m_selectedObject->getMaterialPtr()->getDiffusePtr()->z };
-				float* specular[3] = { &m_selectedObject->getMaterialPtr()->getSpecularPtr()->x, &m_selectedObject->getMaterialPtr()->getSpecularPtr()->y, &m_selectedObject->getMaterialPtr()->getSpecularPtr()->z };
+				static float* pos[3] = { &m_selectedObject->getPositionPtr()->x, &m_selectedObject->getPositionPtr()->y, &m_selectedObject->getPositionPtr()->z };
+				static float* scale[3] = { &m_selectedObject->getScalePtr()->x, &m_selectedObject->getScalePtr()->y, &m_selectedObject->getScalePtr()->z };
+				static float* ambient[3] = { &m_selectedObject->getMaterialPtr()->getAmbientPtr()->x, &m_selectedObject->getMaterialPtr()->getAmbientPtr()->y, &m_selectedObject->getMaterialPtr()->getAmbientPtr()->z };
+				static float* diffuse[3] = { &m_selectedObject->getMaterialPtr()->getDiffusePtr()->x, &m_selectedObject->getMaterialPtr()->getDiffusePtr()->y, &m_selectedObject->getMaterialPtr()->getDiffusePtr()->z };
+				static float* specular[3] = { &m_selectedObject->getMaterialPtr()->getSpecularPtr()->x, &m_selectedObject->getMaterialPtr()->getSpecularPtr()->y, &m_selectedObject->getMaterialPtr()->getSpecularPtr()->z };
 
 				ImGui::Text("Selected Object: %s", m_selectedObject->getName().c_str());
 				ImGui::Separator();
@@ -259,10 +259,15 @@ void ImguiRenderer::renderObjectManager()
 					ImGui::SetCursorPosX(ImGui::GetCursorPosX());
 					ImGui::InputFloat3("##0", *pos);
 
+					ImGui::Text("Rotation");
+					ImGui::SameLine();
+					ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+					ImGui::InputFloat3("##1", *m_selectedObject->getRotationPtr());
+
 					ImGui::Text("Scale");
 					ImGui::SameLine();
 					ImGui::SetCursorPosX(ImGui::GetCursorPosX());
-					ImGui::InputFloat3("##1", *scale);
+					ImGui::InputFloat3("##2", *scale);
 
 					ImGui::Checkbox("Draw Wireframe", m_selectedObject->getDrawWireframePtr());
 

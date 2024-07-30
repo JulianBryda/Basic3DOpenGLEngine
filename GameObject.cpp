@@ -227,3 +227,12 @@ void GameObject::setShader(Shader* shader)
 }
 
 std::string GameObject::getName() const { return m_name; }
+
+
+// imgui ptr functions
+
+float** GameObject::getRotationPtr()
+{
+	static float* rotation[3] = { &this->m_rotation.x, &this->m_rotation.y  ,&this->m_rotation.z };
+	return rotation;
+}

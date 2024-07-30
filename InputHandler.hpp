@@ -127,6 +127,11 @@ public:
 			}
 			else if (m_manipulationStruct.state == Rotating)
 			{
+				glm::vec3 rotationAxis = activeCamera->getPosition() - object->getPosition();
+				rotationAxis.x = rotationAxis.x < 0 ? -1.f : 1.f;
+				rotationAxis.y = rotationAxis.y < 0 ? -1.f : 1.f;
+				rotationAxis.z = rotationAxis.z < 0 ? -1.f : 1.f;
+
 				glm::vec2 startDirection = startPosition - objectPosition;
 				glm::vec2 currentDirection = cursorPosition - objectPosition;
 
@@ -137,7 +142,7 @@ public:
 
 				float value = degrees < 0 ? 360.f - abs(degrees) : degrees;
 
-				object->setRotation(m_manipulationStruct.inititalRotation + value * m_manipulationStruct.manipulationFactor);
+				object->setRotation(m_manipulationStruct.inititalRotation + value * (m_manipulationStruct.manipulationFactor * rotationAxis));
 			}
 
 		}
