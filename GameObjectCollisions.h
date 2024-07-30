@@ -21,15 +21,15 @@ public:
 	void snapColliderToObject();
 
 	// collision detection
-	bool checkBoundingBoxCollision(GameObject* object);
+	bool checkBoundingBoxCollision(GameObject& object);
 	bool checkBoundingBoxCollision(glm::vec3 value);
 
-	bool checkBoundingBoxCollisionX(GameObject* object);
-	bool checkBoundingBoxCollisionY(GameObject* object);
-	bool checkBoundingBoxCollisionZ(GameObject* object);
+	bool checkBoundingBoxCollisionX(GameObject& object);
+	bool checkBoundingBoxCollisionY(GameObject& object);
+	bool checkBoundingBoxCollisionZ(GameObject& object);
 
-	bool checkCircularCollision(GameObject* object);
-	bool checkSATCollision(GameObject* object);
+	bool checkCircularCollision(GameObject& object);
+	bool checkSATCollision(GameObject& object);
 
 
 	// setter

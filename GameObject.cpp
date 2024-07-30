@@ -2,7 +2,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-
 GameObject::GameObject(std::string name, Mesh mesh, Shader* shader, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
 {
 	this->m_name = name;
@@ -190,7 +189,19 @@ glm::vec3 GameObject::getRotation() const { return m_rotation; }
 glm::vec3 GameObject::getScale() const { return m_scale; }
 glm::vec3* GameObject::getScalePtr() { return &m_scale; }
 
-glm::mat4 GameObject::getModelMatrix() const { return glm::scale(glm::translate(glm::mat4(1.0f), this->position), this->m_scale); }
+glm::mat4 GameObject::getModelMatrix() const
+{
+	return glm::rotate(
+		glm::rotate(
+			glm::rotate(
+				glm::scale(
+					glm::translate(
+						glm::mat4(1.0f), this->position),
+					this->m_scale),
+				glm::radians(m_rotation.x), glm::vec3(1.f, 0.f, 0.f)),
+			glm::radians(m_rotation.y), glm::vec3(0.f, 1.f, 0.f)),
+		glm::radians(m_rotation.z), glm::vec3(0.f, 0.f, 1.f));
+}
 
 GLuint GameObject::getTexture() const { return this->m_texture; }
 GLenum GameObject::getTextureType() const { return this->m_textureType; }

@@ -87,7 +87,16 @@ public:
 			if (object->getIsOutline())
 			{
 				float scalingFactor = glm::length(glm::abs(activeCamera->getPosition() - object->getPosition())) / 150.f;
-				glm::mat4 outlineModelMatrix = glm::scale(glm::translate(glm::mat4(1.f), object->getPosition()), object->getScale() + scalingFactor);
+				glm::mat4 outlineModelMatrix = glm::rotate(
+					glm::rotate(
+						glm::rotate(
+							glm::scale(
+								glm::translate(
+									glm::mat4(1.0f), object->getPosition()),
+								object->getScale() + scalingFactor),
+							glm::radians(object->getRotation().x), glm::vec3(1.f, 0.f, 0.f)),
+						glm::radians(object->getRotation().y), glm::vec3(0.f, 1.f, 0.f)),
+					glm::radians(object->getRotation().z), glm::vec3(0.f, 0.f, 1.f));
 
 				shader->setMat4("model", outlineModelMatrix);
 				shader->setFloat4("color", glm::vec4(1.f, 0.6f, 0.f, 1.f));
@@ -129,11 +138,11 @@ public:
 		m_objects.push_back(object);
 	}
 
-	void removeObject(GameObject* object)
+	void removeObject(GameObject& object) override
 	{
 		for (size_t i = 0; i < m_objects.size(); i++)
 		{
-			if (m_objects[i] == object)
+			if (m_objects[i] == &object)
 			{
 				m_objects.erase(m_objects.begin() + i);
 				break;

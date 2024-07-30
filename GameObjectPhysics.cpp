@@ -11,6 +11,7 @@ GameObjectPhysics::GameObjectPhysics(GameObject* gameObject)
 	this->linearDrag = 0.05f;
 	this->isInteractEnabled = false;
 	this->isGravityEnabled = false;
+	this->isPullToObjectEnabled = false;
 
 	this->gameObject = gameObject;
 }

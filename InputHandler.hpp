@@ -17,10 +17,23 @@ public:
 
 	InputHandler()
 	{
+		m_window = nullptr;
+
 		m_manipulationStruct = { ManipulationState::Nothing, glm::vec3(0.f), glm::vec3(1.f) };
 		m_movementSpeed = 2.f;
 		m_mouseSpeed = .5f;
 		m_speed = 20.f;
+
+		m_mouseMiddle = false;
+		m_shiftMouseMiddle = false;
+		m_deltaTime = 0.f;
+		m_lastFrameTime = 0.f;
+		m_lastXpos = 0;
+		m_lastYpos = 0;
+		m_lastXClick = 0;
+		m_lastYClick = 0;
+		m_lastXManipulation = 0;
+		m_lastYManipulation = 0;
 	}
 
 	static InputHandler& getInstance()
@@ -72,7 +85,7 @@ public:
 
 
 		// handle scaling
-		if (m_manipulationStruct.state == Scaling)
+		if (m_manipulationStruct.state != Nothing)
 		{
 			GameObject* object = ImguiRenderer::getSelectedObject();
 			if (object == nullptr)
@@ -85,20 +98,47 @@ public:
 			glm::vec2 startPosition = glm::vec2(m_lastXManipulation, m_lastYManipulation);
 			glm::vec2 objectPosition = worldToScreen(object->getPosition(), activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix());
 
-			float distanceOffset = glm::length(objectPosition - startPosition);
-			float distance = glm::length(cursorPosition - objectPosition) - distanceOffset;
-
-			object->setScale(m_manipulationStruct.inititalScale + glm::vec3(distance / 20.f) * m_manipulationStruct.manipulationFactor);
-		}
-		else if (m_manipulationStruct.state == Moving)
-		{
-			GameObject* object = ImguiRenderer::getSelectedObject();
-			if (object == nullptr)
+			if (m_manipulationStruct.state == Scaling)
 			{
-				m_manipulationStruct.state = Nothing;
-				return;
-			}
+				float distanceOffset = glm::length(objectPosition - startPosition);
+				float distance = glm::length(cursorPosition - objectPosition) - distanceOffset;
 
+				object->setScale(m_manipulationStruct.inititalScale + glm::vec3(distance / 20.f) * m_manipulationStruct.manipulationFactor);
+			}
+			else if (m_manipulationStruct.state == Moving)
+			{
+				int width, height;
+				glfwGetWindowSize(m_window, &width, &height);
+
+				float tempDepth;
+				static float depth;
+				glReadPixels(static_cast<int>(objectPosition.x), height - static_cast<int>(objectPosition.y), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &tempDepth);
+				if (tempDepth != 0)
+				{
+					depth = tempDepth;
+				}
+
+				glm::vec3 cursorWorldPosition = screenToWorld(width, height, cursorPosition.x, cursorPosition.y, depth);
+				glm::vec3 startWorldPosition = screenToWorld(width, height, startPosition.x, startPosition.y, depth);
+
+				glm::vec3 direction = cursorWorldPosition - startWorldPosition;
+
+				object->setPosition(m_manipulationStruct.initialPosition + direction * m_manipulationStruct.manipulationFactor);
+			}
+			else if (m_manipulationStruct.state == Rotating)
+			{
+				glm::vec2 startDirection = startPosition - objectPosition;
+				glm::vec2 currentDirection = cursorPosition - objectPosition;
+
+				float startRadians = atan2(startDirection.y, startDirection.x);
+				float currentRadians = atan2(currentDirection.y, currentDirection.x);
+
+				float degrees = glm::degrees(startRadians - currentRadians);
+
+				float value = degrees < 0 ? 360.f - abs(degrees) : degrees;
+
+				object->setRotation(m_manipulationStruct.inititalRotation + value * m_manipulationStruct.manipulationFactor);
+			}
 
 		}
 	}
@@ -107,6 +147,7 @@ public:
 	{
 		if (action == 1)
 		{
+			// pressed
 			switch (key)
 			{
 			case GLFW_MOUSE_BUTTON_MIDDLE:
@@ -124,6 +165,7 @@ public:
 		}
 		else if (action == 0)
 		{
+			// released
 			switch (key)
 			{
 			case GLFW_MOUSE_BUTTON_MIDDLE:
@@ -131,7 +173,14 @@ public:
 				m_mouseMiddle = false;
 				break;
 			case GLFW_MOUSE_BUTTON_LEFT:
-				selectObject();
+				if (m_manipulationStruct.state != Nothing)
+				{
+					m_manipulationStruct.state = Nothing;
+				}
+				else
+				{
+					selectObject();
+				}
 				break;
 			default:
 				break;
@@ -201,6 +250,9 @@ public:
 			case GLFW_KEY_ESCAPE:
 				undoManipulation();
 				break;
+			case GLFW_KEY_DELETE:
+				deleteObject();
+				break;
 			default:
 				break;
 			}
@@ -228,6 +280,15 @@ public:
 		}
 
 		m_manipulationStruct.state = Nothing;
+	}
+
+	void deleteObject()
+	{
+		GameObject* object = ImguiRenderer::getSelectedObject();
+		if (object == nullptr) return;
+
+		RendererManager::getInstance().deleteObject(*object, Object);
+		ImguiRenderer::setSelectedObject(nullptr);
 	}
 
 	void scaleObject()
@@ -282,7 +343,7 @@ public:
 		double distance = glm::length(glm::abs(glm::vec2(mouseX, mouseY) - glm::vec2(m_lastXClick, m_lastYClick)));
 		if (distance > 2) return;
 
-		auto worldCoords = screenToWorld(mouseX, mouseY);
+		glm::vec3 worldCoords = screenToWorld(mouseX, mouseY);
 		RendererBase* value = RendererManager::getInstance().getRenderer(RendererType::Object);
 		if (value == nullptr) return;
 

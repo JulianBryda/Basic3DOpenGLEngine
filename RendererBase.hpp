@@ -26,6 +26,7 @@ public:
 
 	virtual void render(Camera* activeCamera) = 0;
 	virtual void addObject(GameObject* object) {};
+	virtual void removeObject(GameObject& object) {};
 	virtual int getObjectCount()
 	{
 		return 0;

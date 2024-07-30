@@ -104,7 +104,7 @@ public:
 				}
 				case ColliderType::Circular:
 				{
-					if (obj->checkCircularCollision(m_physicalizedObjects[j]))
+					if (obj->checkCircularCollision(*m_physicalizedObjects[j]))
 					{
 						obj->setVelocity(glm::vec3(0.0f));
 					}
@@ -129,6 +129,8 @@ public:
 
 	static void removeObject(GameObject* obj)
 	{
+		if (obj == nullptr) return;
+
 		m_physicalizedObjects.erase(std::remove(m_physicalizedObjects.begin(), m_physicalizedObjects.end(), obj), m_physicalizedObjects.end());
 	}
 

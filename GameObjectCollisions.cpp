@@ -29,15 +29,15 @@ GameObjectCollisions::~GameObjectCollisions()
 
 
 // Bounding Box Collision detection
-bool GameObjectCollisions::checkBoundingBoxCollision(GameObject* object)
+bool GameObjectCollisions::checkBoundingBoxCollision(GameObject& object)
 {
 	//NOTE: maybe the z axis collision detection is broken
-	return gameObject->getColliderPtr()->getAnchorPositionPtr()->x + gameObject->getColliderPtr()->getScale().x / 2 > object->getColliderPtr()->getAnchorPositionPtr()->x - object->getColliderPtr()->getScale().x / 2 &&
-		gameObject->getColliderPtr()->getAnchorPositionPtr()->x - gameObject->getColliderPtr()->getScale().x / 2 < object->getColliderPtr()->getAnchorPositionPtr()->x + object->getColliderPtr()->getScale().x / 2 &&
-		gameObject->getColliderPtr()->getAnchorPositionPtr()->y + gameObject->getColliderPtr()->getScale().y / 2 > object->getColliderPtr()->getAnchorPositionPtr()->y - object->getColliderPtr()->getScale().y / 2 &&
-		gameObject->getColliderPtr()->getAnchorPositionPtr()->y - gameObject->getColliderPtr()->getScale().y / 2 < object->getColliderPtr()->getAnchorPositionPtr()->y + object->getColliderPtr()->getScale().y / 2 &&
-		gameObject->getColliderPtr()->getAnchorPositionPtr()->z + gameObject->getColliderPtr()->getScale().z / 2 > object->getColliderPtr()->getAnchorPositionPtr()->z - object->getColliderPtr()->getScale().z / 2 &&
-		gameObject->getColliderPtr()->getAnchorPositionPtr()->z - gameObject->getColliderPtr()->getScale().z / 2 < object->getColliderPtr()->getAnchorPositionPtr()->z + object->getColliderPtr()->getScale().z / 2;
+	return gameObject->getColliderPtr()->getAnchorPositionPtr()->x + gameObject->getColliderPtr()->getScale().x / 2 > object.getColliderPtr()->getAnchorPositionPtr()->x - object.getColliderPtr()->getScale().x / 2 &&
+		gameObject->getColliderPtr()->getAnchorPositionPtr()->x - gameObject->getColliderPtr()->getScale().x / 2 < object.getColliderPtr()->getAnchorPositionPtr()->x + object.getColliderPtr()->getScale().x / 2 &&
+		gameObject->getColliderPtr()->getAnchorPositionPtr()->y + gameObject->getColliderPtr()->getScale().y / 2 > object.getColliderPtr()->getAnchorPositionPtr()->y - object.getColliderPtr()->getScale().y / 2 &&
+		gameObject->getColliderPtr()->getAnchorPositionPtr()->y - gameObject->getColliderPtr()->getScale().y / 2 < object.getColliderPtr()->getAnchorPositionPtr()->y + object.getColliderPtr()->getScale().y / 2 &&
+		gameObject->getColliderPtr()->getAnchorPositionPtr()->z + gameObject->getColliderPtr()->getScale().z / 2 > object.getColliderPtr()->getAnchorPositionPtr()->z - object.getColliderPtr()->getScale().z / 2 &&
+		gameObject->getColliderPtr()->getAnchorPositionPtr()->z - gameObject->getColliderPtr()->getScale().z / 2 < object.getColliderPtr()->getAnchorPositionPtr()->z + object.getColliderPtr()->getScale().z / 2;
 }
 
 // Bounding Box Collision detection
@@ -52,35 +52,35 @@ bool GameObjectCollisions::checkBoundingBoxCollision(glm::vec3 value)
 		gameObject->getColliderPtr()->getAnchorPositionPtr()->z - gameObject->getColliderPtr()->getScale().z / 2 < value.z;
 }
 
-bool GameObjectCollisions::checkBoundingBoxCollisionX(GameObject* object)
+bool GameObjectCollisions::checkBoundingBoxCollisionX(GameObject& object)
 {
-	return gameObject->getColliderPtr()->getAnchorPositionPtr()->x + gameObject->getColliderPtr()->getScale().x / 2 > object->getColliderPtr()->getAnchorPositionPtr()->x - object->getColliderPtr()->getScale().x / 2 &&
-		gameObject->getColliderPtr()->getAnchorPositionPtr()->x - gameObject->getColliderPtr()->getScale().x / 2 < object->getColliderPtr()->getAnchorPositionPtr()->x + object->getColliderPtr()->getScale().x / 2;
+	return gameObject->getColliderPtr()->getAnchorPositionPtr()->x + gameObject->getColliderPtr()->getScale().x / 2 > object.getColliderPtr()->getAnchorPositionPtr()->x - object.getColliderPtr()->getScale().x / 2 &&
+		gameObject->getColliderPtr()->getAnchorPositionPtr()->x - gameObject->getColliderPtr()->getScale().x / 2 < object.getColliderPtr()->getAnchorPositionPtr()->x + object.getColliderPtr()->getScale().x / 2;
 }
 
-bool GameObjectCollisions::checkBoundingBoxCollisionY(GameObject* object)
+bool GameObjectCollisions::checkBoundingBoxCollisionY(GameObject& object)
 {
-	return gameObject->getColliderPtr()->getAnchorPositionPtr()->y + gameObject->getColliderPtr()->getScale().y / 2 > object->getColliderPtr()->getAnchorPositionPtr()->y - object->getColliderPtr()->getScale().y / 2 &&
-		gameObject->getColliderPtr()->getAnchorPositionPtr()->y - gameObject->getColliderPtr()->getScale().y / 2 < object->getColliderPtr()->getAnchorPositionPtr()->y + object->getColliderPtr()->getScale().y / 2;
+	return gameObject->getColliderPtr()->getAnchorPositionPtr()->y + gameObject->getColliderPtr()->getScale().y / 2 > object.getColliderPtr()->getAnchorPositionPtr()->y - object.getColliderPtr()->getScale().y / 2 &&
+		gameObject->getColliderPtr()->getAnchorPositionPtr()->y - gameObject->getColliderPtr()->getScale().y / 2 < object.getColliderPtr()->getAnchorPositionPtr()->y + object.getColliderPtr()->getScale().y / 2;
 }
 
-bool GameObjectCollisions::checkBoundingBoxCollisionZ(GameObject* object)
+bool GameObjectCollisions::checkBoundingBoxCollisionZ(GameObject& object)
 {
 	//NOTE: maybe the z axis collision detection is broken
-	return gameObject->getColliderPtr()->getAnchorPositionPtr()->z + gameObject->getColliderPtr()->getScale().z / 2 > object->getColliderPtr()->getAnchorPositionPtr()->z - object->getColliderPtr()->getScale().z / 2 &&
-		gameObject->getColliderPtr()->getAnchorPositionPtr()->z - gameObject->getColliderPtr()->getScale().z / 2 < object->getColliderPtr()->getAnchorPositionPtr()->z + object->getColliderPtr()->getScale().z / 2;
+	return gameObject->getColliderPtr()->getAnchorPositionPtr()->z + gameObject->getColliderPtr()->getScale().z / 2 > object.getColliderPtr()->getAnchorPositionPtr()->z - object.getColliderPtr()->getScale().z / 2 &&
+		gameObject->getColliderPtr()->getAnchorPositionPtr()->z - gameObject->getColliderPtr()->getScale().z / 2 < object.getColliderPtr()->getAnchorPositionPtr()->z + object.getColliderPtr()->getScale().z / 2;
 }
 
 
-bool GameObjectCollisions::checkCircularCollision(GameObject* object)
+bool GameObjectCollisions::checkCircularCollision(GameObject& object)
 {
-	float distance = glm::length(*this->getColliderPtr()->getAnchorPositionPtr() - *object->getColliderPtr()->getAnchorPositionPtr());
+	float distance = glm::length(*this->getColliderPtr()->getAnchorPositionPtr() - *object.getColliderPtr()->getAnchorPositionPtr());
 	distance = abs(distance);
 
-	return distance < this->getColliderPtr()->getScale().x + object->getColliderPtr()->getScale().x;
+	return distance < this->getColliderPtr()->getScale().x + object.getColliderPtr()->getScale().x;
 }
 
-bool GameObjectCollisions::checkSATCollision(GameObject* object)
+bool GameObjectCollisions::checkSATCollision(GameObject& object)
 {
 	return false;
 }

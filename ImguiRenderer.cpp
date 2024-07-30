@@ -397,17 +397,7 @@ void ImguiRenderer::renderObjectManager()
 
 					if (ImGui::Button("Delete"))
 					{
-						auto value = RendererManager::getInstance().getRenderer(RendererType::Object);
-						if (value != nullptr)
-						{
-							auto renderer = static_cast<ObjectRenderer*>(value);
-
-							PhysicEngine::removeObject(m_selectedObject);
-							renderer->removeObject(m_selectedObject);
-
-							delete m_selectedObject;
-							m_selectedObject = nullptr;
-						}
+						RendererManager::getInstance().deleteObject(*m_selectedObject, Object);
 					}
 
 				}

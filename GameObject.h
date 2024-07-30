@@ -81,7 +81,8 @@ private:
 	GLuint m_vbo, m_ebo, m_texture;
 	GLenum m_textureType;
 
-	glm::vec3 m_rotation, m_scale;
+	glm::vec3 m_scale;
+	glm::vec3 m_rotation;
 
 	Shader* m_pShader;
 

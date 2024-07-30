@@ -3,6 +3,7 @@
 
 #include "RendererBase.hpp"
 #include "Scene.hpp"
+#include "PhysicEngine.hpp"
 
 
 
@@ -156,6 +157,17 @@ public:
 			throw std::exception("Type is not supported!");
 			break;
 		}
+	}
+
+	void deleteObject(GameObject& object, RendererType type)
+	{
+		auto value = getRenderer(type);
+		if (value == nullptr) return;
+
+		PhysicEngine::removeObject(&object);
+		value->removeObject(object);
+
+		delete &object;
 	}
 
 private:
