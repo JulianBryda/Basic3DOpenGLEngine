@@ -251,6 +251,6 @@ void GameObject::setName(std::string name) { m_name = name; }
 
 float** GameObject::getRotationPtr()
 {
-	static float* rotation[3] = { &this->m_rotation.x, &this->m_rotation.y  ,&this->m_rotation.z };
+	static float* rotation[3] = { &this->m_rotation.x, &this->m_rotation.y, &this->m_rotation.z };
 	return rotation;
 }

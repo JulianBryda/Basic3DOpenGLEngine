@@ -231,6 +231,12 @@ public:
 					duplicateObject();
 				}
 				break;
+			case GLFW_KEY_C:
+				if (glfwGetKey(m_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+				{
+					recenterCamera();
+				}
+				break;
 			case GLFW_KEY_A:
 
 				break;
@@ -288,6 +294,17 @@ public:
 		}
 
 		m_manipulationStruct.state = Nothing;
+	}
+
+	void recenterCamera()
+	{
+		GameObject* object = ImguiRenderer::getSelectedObject();
+		if (object == nullptr) return;
+
+		Camera* camera = RendererManager::getInstance().getActiveScene()->getActiveCamera();
+		camera->setAnchor(object->getPosition());
+		camera->setDistance(glm::length(object->getScale()) * 2);
+
 	}
 
 	void duplicateObject()
@@ -385,10 +402,8 @@ public:
 		// check for object
 		for (auto& object : renderer->getObjects())
 		{
-			glm::vec3 distance = glm::abs(object->getPosition() - worldCoords);
-			glm::vec3 objectScale = object->getScale();
-
-			if (distance.x < objectScale.x && distance.y < objectScale.y && distance.z < objectScale.z)
+			glm::vec3 correctedWorldCoods = worldCoords * 0.9f;
+			if (checkHitAABB(object, correctedWorldCoods))
 			{
 				ImguiRenderer::setSelectedObject(object);
 				return;
@@ -398,6 +413,16 @@ public:
 		// no object clicked, send nullptr
 		ImguiRenderer::setSelectedObject(nullptr);
 
+	}
+
+	bool checkHitAABB(GameObject* gameObject, glm::vec3 value)
+	{
+		return gameObject->getPosition().x + gameObject->getScale().x / 2 > value.x &&
+			gameObject->getPosition().x - gameObject->getScale().x / 2 < value.x &&
+			gameObject->getPosition().y + gameObject->getScale().y / 2 > value.y &&
+			gameObject->getPosition().y - gameObject->getScale().y / 2 < value.y &&
+			gameObject->getPosition().z + gameObject->getScale().z / 2 > value.z &&
+			gameObject->getPosition().z - gameObject->getScale().z / 2 < value.z;
 	}
 
 #pragma region World Coords Calculations

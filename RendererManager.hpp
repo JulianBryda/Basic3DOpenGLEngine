@@ -148,8 +148,6 @@ public:
 		switch (type)
 		{
 		case Object:
-			getRenderer(type)->addObject(object);
-			break;
 		case Environment:
 			getRenderer(type)->addObject(object);
 			break;
@@ -167,7 +165,7 @@ public:
 		PhysicEngine::removeObject(&object);
 		value->removeObject(object);
 
-		delete &object;
+		delete& object;
 	}
 
 private:
