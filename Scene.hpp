@@ -15,7 +15,7 @@ public:
 
 	Scene()
 	{
-		this->m_directionalLights.push_back(new DirectionalLight("Sun", glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)));
+		this->m_lights.push_back(new DirectionalLight("Sun", glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)));
 
 		Camera* camera = new Camera("Camera", false);
 		camera->setPosition(glm::vec3(0.0f, 0.0f, 5.0f));
@@ -31,9 +31,9 @@ public:
 
 
 	// getter
-	inline std::vector<PointLight*>& getPointLights()
+	inline std::vector<Light*>& getLights()
 	{
-		return this->m_pointLights;
+		return this->m_lights;
 	}
 
 	inline Camera* getActiveCamera()
@@ -46,9 +46,9 @@ public:
 		return this->m_cameras;
 	}
 
-	inline std::vector<DirectionalLight*>& getDirectionalLights()
+	inline std::vector<GameObject*>& getObjects()
 	{
-		return this->m_directionalLights;
+		return this->m_objects;
 	}
 
 
@@ -76,18 +76,37 @@ public:
 		delete camera;
 	}
 
-	inline void addPointLight(PointLight* light)
+	void addObject(GameObject* object)
 	{
-		this->m_pointLights.push_back(light);
+		this->m_objects.push_back(object);
 	}
 
-	void deletePointLight(PointLight* light)
+	void deleteObject(GameObject* object)
 	{
-		for (size_t i = 0; i < m_pointLights.size(); i++)
+		for (size_t i = 0; i < m_objects.size(); i++)
 		{
-			if (m_pointLights[i] == light)
+			if (m_objects[i] == object)
 			{
-				m_pointLights.erase(m_pointLights.begin() + i);
+				m_objects.erase(m_objects.begin() + i);
+				break;
+			}
+		}
+
+		delete object;
+	}
+
+	inline void addLight(Light* light)
+	{
+		this->m_lights.push_back(light);
+	}
+
+	void deleteLight(Light* light)
+	{
+		for (size_t i = 0; i < m_lights.size(); i++)
+		{
+			if (m_lights[i] == light)
+			{
+				m_lights.erase(m_lights.begin() + i);
 				break;
 			}
 		}
@@ -97,8 +116,7 @@ public:
 
 private:
 
-	std::vector<DirectionalLight*> m_directionalLights;
-	std::vector<PointLight*> m_pointLights;
+	std::vector<Light*> m_lights;
 
 	std::vector<Camera*> m_cameras;
 	Camera* m_pActiveCamera;

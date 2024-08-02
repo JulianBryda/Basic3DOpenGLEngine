@@ -177,7 +177,6 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="Camera.hpp" />
     <ClInclude Include="Collider.hpp" />
     <ClInclude Include="DirectionalLight.hpp" />
-    <ClInclude Include="EnvironmentRenderer.hpp" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameObjectCollisions.h" />
     <ClInclude Include="GameObjectPhysics.h" />
@@ -194,6 +193,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="Imgui\imstb_truetype.h" />
     <ClInclude Include="InputHandler.hpp" />
     <ClInclude Include="Light.hpp" />
+    <ClInclude Include="LightRenderer.hpp" />
     <ClInclude Include="PointLight.hpp" />
     <ClInclude Include="Material.hpp" />
     <ClInclude Include="Mesh.hpp" />
@@ -216,12 +216,14 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <None Include="ObjectLoader.hpp" />
     <None Include="Shader\f_color.glsl" />
     <None Include="Shader\f_debug.glsl" />
+    <None Include="Shader\f_depth.glsl" />
     <None Include="Shader\f_render.glsl" />
     <None Include="Shader\f_skybox.glsl" />
     <None Include="Shader\f_texture.glsl" />
     <None Include="Shader\LibraryShader\structs.glsl" />
     <None Include="Shader\v_color.glsl" />
     <None Include="Shader\v_debug.glsl" />
+    <None Include="Shader\v_depth.glsl" />
     <None Include="Shader\v_render.glsl" />
     <None Include="Shader\v_skybox.glsl" />
     <None Include="Shader\v_texture.glsl" />

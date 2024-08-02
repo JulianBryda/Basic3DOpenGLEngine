@@ -34,25 +34,25 @@ void ImguiRenderer::renderMenuBar()
 		{
 			if (ImGui::MenuItem("Cube"))
 			{
-				GameObject* obj = new GameObject(std::format("Cube{}", RendererManager::getInstance().getTotalObjectCount()), ".\\Assets\\Objects\\Cube.obj", ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
+				GameObject* obj = new GameObject(std::format("Cube{}", RendererManager::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Cube.obj", ShaderLib::getRenderShaderPtr(), ColliderType::BoundingBox);
 				obj->setIsPhysicsEnabled(true);
 
-				RendererManager::getInstance().addObject(obj, RendererType::Object);
+				RendererManager::getInstance().addObject(obj);
 
 			}
 			if (ImGui::MenuItem("Sphere"))
 			{
-				GameObject* obj = new GameObject(std::format("Sphere{}", RendererManager::getInstance().getTotalObjectCount()), ".\\Assets\\Objects\\Sphere.obj", ShaderLib::getDebugShaderPtr(), ColliderType::Circular);
+				GameObject* obj = new GameObject(std::format("Sphere{}", RendererManager::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Sphere.obj", ShaderLib::getRenderShaderPtr(), ColliderType::Circular);
 				obj->setIsPhysicsEnabled(true);
 
-				RendererManager::getInstance().addObject(obj, RendererType::Object);
+				RendererManager::getInstance().addObject(obj);
 			}
 			if (ImGui::MenuItem("StressTest"))
 			{
-				GameObject* obj = new GameObject(std::format("StressTest{}", RendererManager::getInstance().getTotalObjectCount()), ".\\Assets\\Objects\\StressTest.obj", ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
+				GameObject* obj = new GameObject(std::format("StressTest{}", RendererManager::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\StressTest.obj", ShaderLib::getRenderShaderPtr(), ColliderType::BoundingBox);
 				obj->setIsPhysicsEnabled(true);
 
-				RendererManager::getInstance().addObject(obj, RendererType::Object);
+				RendererManager::getInstance().addObject(obj);
 			}
 
 			ImGui::Spacing();
@@ -159,10 +159,10 @@ void ImguiRenderer::renderMenuBar()
 				if (GetOpenFileNameA(&ofn) == TRUE)
 				{
 					//TODO IF USING SHADERLIB IN GAMEOBJECT, OBJECT WILL DELETE SHADERLIB SINCE IT DELETES ALSO ITS SHADER POINTER
-					GameObject* obj = new GameObject(std::format("Object{}", RendererManager::getInstance().getTotalObjectCount()), ofn.lpstrFile, ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
+					GameObject* obj = new GameObject(std::format("Object{}", RendererManager::getInstance().getActiveScene()->getObjects().size()), ofn.lpstrFile, ShaderLib::getRenderShaderPtr(), ColliderType::BoundingBox);
 					obj->setIsPhysicsEnabled(true);
 
-					RendererManager::getInstance().addObject(obj, RendererType::Object);
+					RendererManager::getInstance().addObject(obj);
 				}
 			}
 
@@ -204,9 +204,7 @@ void ImguiRenderer::renderObjectManager()
 		{
 			if (ImGui::TreeNode("Objects"))
 			{
-				auto renderer = static_cast<ObjectRenderer*>(RendererManager::getInstance().getRenderer(RendererType::Object));
-
-				for (auto& obj : renderer->getObjects())
+				for (auto& obj : RendererManager::getInstance().getActiveScene()->getObjects())
 				{
 					ImGui::Selectable(obj->getName().c_str(), m_selectedObject == obj);
 					if (ImGui::IsItemClicked())
@@ -218,22 +216,6 @@ void ImguiRenderer::renderObjectManager()
 
 						m_selectedObject = obj;
 						obj->setIsOutline(true);
-					}
-				}
-
-
-				ImGui::TreePop();
-			}
-			if (ImGui::TreeNode("Environment"))
-			{
-				auto renderer = static_cast<EnvironmentRenderer*>(RendererManager::getInstance().getRenderer(RendererType::Environment));
-
-				for (auto& obj : renderer->getObjects())
-				{
-					ImGui::Selectable(obj->getName().c_str(), m_selectedObject == obj);
-					if (ImGui::IsItemClicked())
-					{
-						m_selectedObject = obj;
 					}
 				}
 
@@ -408,7 +390,7 @@ void ImguiRenderer::renderObjectManager()
 
 					if (ImGui::Button("Delete"))
 					{
-						RendererManager::getInstance().deleteObject(*m_selectedObject, Object);
+						RendererManager::getInstance().deleteObject(*m_selectedObject);
 						m_selectedObject = nullptr;
 					}
 
@@ -504,9 +486,7 @@ void ImguiRenderer::renderLightManager()
 
 						renderLightMaterialView();
 
-						ImGui::InputFloat("CutOff", light->getCutOffPtr());
-						ImGui::SameLine();
-						ImGui::InputFloat("OuterCutOff", light->getOuterCutOffPtr());
+						ImGui::InputFloat("Light Angle", light->getLightAnglePtr());
 					}
 					else
 					{

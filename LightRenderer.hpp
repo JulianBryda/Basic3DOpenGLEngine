@@ -1,0 +1,47 @@
+#pragma once
+#include <iostream>
+#include <vector>
+
+#include "RendererBase.hpp"
+#include "Shader.hpp"
+#include "GameObject.h"
+#include "Shader.hpp"
+#include "ShaderLib.hpp"
+
+class LightRenderer : public RendererBase
+{
+
+public:
+
+	LightRenderer() : RendererBase(RendererType::Lighting)
+	{
+
+	}
+
+	void render(Scene* activeScene) override
+	{
+		for (auto& light : activeScene->getLights())
+		{
+			Shader* shader = ShaderLib::getDepthShaderPtr();
+			shader->use();
+
+			shader->setMat4("projection", light->getProjectionMatrix());
+			shader->setMat4("view", light->getViewMatrix());
+
+			glViewport(0, 0, light->SHADOW_WIDTH, light->SHADOW_HEIGHT);
+			glBindFramebuffer(GL_FRAMEBUFFER, light->getDepthMapFBO());
+			glClear(GL_DEPTH_BUFFER_BIT);
+
+			for (auto& object : activeScene->getObjects())
+			{
+				shader->setMat4("model", object->getModelMatrix());
+
+				object->draw();
+			}
+
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
+
+	}
+
+};

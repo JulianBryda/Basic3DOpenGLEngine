@@ -9,9 +9,9 @@
 #include "ImguiRenderer.hpp"
 #include "PhysicEngine.hpp"
 #include "ShaderLib.hpp"
-#include "EnvironmentRenderer.hpp"
 #include "Skybox.hpp"
 #include "AssetManager.hpp"
+#include "LightRenderer.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -86,9 +86,9 @@ int main()
 	ImguiRenderer* imguiRenderer = new ImguiRenderer(window);
 	RendererManager::getInstance().addRenderer(imguiRenderer);
 
-	// register environment renderer
-	EnvironmentRenderer* environmentRenderer = new EnvironmentRenderer();
-	RendererManager::getInstance().addRenderer(environmentRenderer);
+	// register light renderer
+	LightRenderer* lightRenderer = new LightRenderer();
+	RendererManager::getInstance().addRenderer(lightRenderer);
 
 	// add skybox
 	std::vector<const char*> faces =
@@ -104,7 +104,7 @@ int main()
 	Skybox* skybox = new Skybox("Skybox");
 	skybox->loadCubeMap(faces);
 
-	environmentRenderer->addObject(skybox);
+	RendererManager::getInstance().addObject(skybox);
 
 	// window lopp
 	while (!glfwWindowShouldClose(window))

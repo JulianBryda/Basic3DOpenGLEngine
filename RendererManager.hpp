@@ -48,7 +48,7 @@ public:
 			{
 				if (renderer->getType() == type)
 				{
-					renderer->render(getActiveScene()->getActiveCamera());
+					renderer->render(getActiveScene());
 					type = static_cast<RendererType>(static_cast<int>(type) + 1);
 					break;
 				}
@@ -87,18 +87,6 @@ public:
 		}
 
 		return base;
-	}
-
-	int getTotalObjectCount()
-	{
-		int count = 0;
-
-		for (auto renderer : m_renderers)
-		{
-			count += renderer->getObjectCount();
-		}
-
-		return count;
 	}
 
 	// setter
@@ -143,29 +131,15 @@ public:
 		delete scene;
 	}
 
-	void addObject(GameObject* object, RendererType type)
+	void addObject(GameObject* object)
 	{
-		switch (type)
-		{
-		case Object:
-		case Environment:
-			getRenderer(type)->addObject(object);
-			break;
-		default:
-			throw std::exception("Type is not supported!");
-			break;
-		}
+		m_activeScene->addObject(object);
 	}
 
-	void deleteObject(GameObject& object, RendererType type)
+	void deleteObject(GameObject& object)
 	{
-		auto value = getRenderer(type);
-		if (value == nullptr) return;
-
+		m_activeScene->deleteObject(&object);
 		PhysicEngine::removeObject(&object);
-		value->removeObject(object);
-
-		delete& object;
 	}
 
 private:

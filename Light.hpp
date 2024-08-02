@@ -23,6 +23,9 @@ public:
 		this->position = glm::vec3(0.0f);
 
 		this->m_lightType = lightType;
+
+		this->m_depthMap = 0;
+		this->m_depthMapFBO = 0;
 	}
 
 	~Light()
@@ -45,16 +48,51 @@ public:
 
 	inline LightType getLightType() const { return this->m_lightType; }
 
+	inline GLuint getDepthMapFBO() const { return m_depthMapFBO; }
+
+	glm::mat4 getViewMatrix() const
+	{
+		return glm::lookAt(this->position, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+	}
+
+	virtual glm::mat4 getProjectionMatrix() = 0;
+
 	// setter
 	inline void setAmbient(glm::vec3 ambient) { this->m_ambient = ambient; }
 	inline void setDiffuse(glm::vec3 diffuse) { this->m_diffuse = diffuse; }
 	inline void setSpecular(glm::vec3 specular) { this->m_specular = specular; }
+
+
+
+	const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 
 protected:
 
 	glm::vec3 position;
 
 private:
+
+	void genBuffers()
+	{
+		glGenFramebuffers(1, &m_depthMapFBO);
+
+		glGenTextures(1, &m_depthMap);
+		glBindTexture(GL_TEXTURE_2D, m_depthMap);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+		// Attach the depth texture to the framebuffer
+		glBindFramebuffer(GL_FRAMEBUFFER, m_depthMapFBO);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depthMap, 0);
+		glDrawBuffer(GL_NONE);
+		glReadBuffer(GL_NONE);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
 
 	std::string_view m_name;
 
@@ -64,4 +102,5 @@ private:
 
 	LightType m_lightType;
 
+	GLuint m_depthMapFBO, m_depthMap;
 };

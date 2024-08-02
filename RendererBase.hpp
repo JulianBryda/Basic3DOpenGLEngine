@@ -7,8 +7,8 @@
 
 enum RendererType
 {
-	Environment,
-	MIN = Environment,
+	Lighting,
+	MIN = Lighting,
 	Object,
 	UserInterface,
 	MAX
@@ -24,13 +24,7 @@ public:
 		this->m_type = type;
 	}
 
-	virtual void render(Camera* activeCamera) = 0;
-	virtual void addObject(GameObject* object) {};
-	virtual void removeObject(GameObject& object) {};
-	virtual int getObjectCount()
-	{
-		return 0;
-	}
+	virtual void render(Scene* activeScene) = 0;
 
 	RendererType getType() const { return m_type; }
 

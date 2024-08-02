@@ -17,9 +17,9 @@ public:
 
 	}
 
-	void render(Camera* activeCamera) override
+	void render(Scene* activeScene) override
 	{
-		for (auto& object : m_objects)
+		for (auto& object : activeScene->getObjects())
 		{
 			if (object->getHidden()) continue;
 
@@ -34,15 +34,12 @@ public:
 			}
 			shader->use();
 
-			shader->setMat4("projection", activeCamera->getProjectionMatrix());
-			shader->setMat4("view", activeCamera->getViewMatrix());
+			shader->setMat4("projection", activeScene->getActiveCamera()->getProjectionMatrix());
+			shader->setMat4("view", activeScene->getActiveCamera()->getViewMatrix());
 			shader->setMat4("model", object->getModelMatrix());
 
-			shader->setFloat3("viewPos", activeCamera->getPosition());
+			shader->setFloat3("viewPos", activeScene->getActiveCamera()->getPosition());
 			shader->setMaterial(object->getMaterialPtr());
-
-
-			Scene* activeScene = RendererManager::getInstance().getActiveScene();
 
 			// set directional lights and directional light count
 			shader->setFloat("directionalLightCount", activeScene->getDirectionalLights().size());
@@ -94,8 +91,8 @@ public:
 			shader = ShaderLib::getColorShaderPtr();
 			shader->use();
 
-			shader->setMat4("projection", activeCamera->getProjectionMatrix());
-			shader->setMat4("view", activeCamera->getViewMatrix());
+			shader->setMat4("projection", activeScene->getActiveCamera()->getProjectionMatrix());
+			shader->setMat4("view", activeScene->getActiveCamera()->getViewMatrix());
 
 			// draw outline?
 			if (object->getIsOutline())
@@ -104,7 +101,7 @@ public:
 				glStencilMask(0x00);
 				glDisable(GL_DEPTH_TEST);
 
-				float scalingFactor = glm::length(glm::abs(activeCamera->getPosition() - object->getPosition())) / 150.f;
+				float scalingFactor = glm::length(glm::abs(activeScene->getActiveCamera()->getPosition() - object->getPosition())) / 150.f;
 				glm::mat4 outlineModelMatrix = glm::rotate(
 					glm::rotate(
 						glm::rotate(
@@ -150,36 +147,5 @@ public:
 		}
 
 	}
-
-	void addObject(GameObject* object) override
-	{
-		m_objects.push_back(object);
-	}
-
-	void removeObject(GameObject& object) override
-	{
-		for (size_t i = 0; i < m_objects.size(); i++)
-		{
-			if (m_objects[i] == &object)
-			{
-				m_objects.erase(m_objects.begin() + i);
-				break;
-			}
-		}
-	}
-
-	std::vector<GameObject*>& getObjects()
-	{
-		return m_objects;
-	}
-
-	int getObjectCount() override
-	{
-		return m_objects.size();
-	}
-
-private:
-
-	std::vector<GameObject*> m_objects;
 
 };

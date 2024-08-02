@@ -9,7 +9,6 @@
 #include "RendererBase.hpp"
 #include "RendererManager.hpp"
 #include "ObjectRenderer.hpp"
-#include "EnvironmentRenderer.hpp"
 #include "Primitives.hpp"
 #include "PhysicEngine.hpp"
 #include "AssetManager.hpp"
@@ -56,7 +55,7 @@ public:
 		ImGui::DestroyContext();
 	}
 
-	void render(Camera* activeCamera) override
+	void render(Scene* activeScene) override
 	{
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();

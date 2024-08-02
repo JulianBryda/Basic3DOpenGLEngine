@@ -35,6 +35,11 @@ public:
 	inline float getQuadratic() const { return this->m_quadratic; }
 	inline float* getQuadraticPtr() { return &this->m_quadratic; }
 
+	glm::mat4 getProjectionMatrix() override
+	{
+		return glm::perspective(glm::radians(90.0f), 1.0f, 1.f, 25.f);
+	}
+
 	// setter
 	inline void setPosition(glm::vec3 position) { this->position = position; }
 

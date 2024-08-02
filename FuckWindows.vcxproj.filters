@@ -230,9 +230,6 @@
     <ClInclude Include="stb_image_write.h">
       <Filter>Header Files\Libraries\stb</Filter>
     </ClInclude>
-    <ClInclude Include="EnvironmentRenderer.hpp">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="PointLight.hpp">
       <Filter>Header Files\Scene\Lighting</Filter>
     </ClInclude>
@@ -253,6 +250,9 @@
     </ClInclude>
     <ClInclude Include="IconsFontAwesome5.h">
       <Filter>Header Files\Libraries</Filter>
+    </ClInclude>
+    <ClInclude Include="LightRenderer.hpp">
+      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -292,6 +292,12 @@
     </None>
     <None Include="Shader\LibraryShader\structs.glsl">
       <Filter>Source Files\Renderer\Shader\LibraryShader</Filter>
+    </None>
+    <None Include="Shader\v_depth.glsl">
+      <Filter>Source Files\Renderer\Shader\Vertex</Filter>
+    </None>
+    <None Include="Shader\f_depth.glsl">
+      <Filter>Source Files\Renderer\Shader\Fragment</Filter>
     </None>
   </ItemGroup>
 </Project>
