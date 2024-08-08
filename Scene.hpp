@@ -51,6 +51,10 @@ public:
 		return this->m_objects;
 	}
 
+	inline std::vector<GameObject*>& getEnvObjects()
+	{
+		return this->m_envObjects;
+	}
 
 	// setter
 	inline void setActiveCamera(Camera* camera) { this->m_pActiveCamera = camera; }
@@ -79,6 +83,11 @@ public:
 	void addObject(GameObject* object)
 	{
 		this->m_objects.push_back(object);
+	}
+
+	void addEnvObject(GameObject* object)
+	{
+		this->m_envObjects.push_back(object);
 	}
 
 	void deleteObject(GameObject* object)
@@ -122,5 +131,6 @@ private:
 	Camera* m_pActiveCamera;
 
 	std::vector<GameObject*> m_objects;
+	std::vector<GameObject*> m_envObjects;
 
 };

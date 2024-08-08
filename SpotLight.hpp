@@ -23,9 +23,6 @@ public:
 
 
 	// getter
-	inline glm::vec3 getPosition() const { return this->position; }
-	inline glm::vec3* getPositionPtr() { return &this->position; }
-
 	inline glm::vec3 getDirection() const { return this->m_direction; }
 	inline glm::vec3* getDirectionPtr() { return &this->m_direction; }
 

@@ -315,7 +315,7 @@ public:
 		GameObject* obj = new GameObject(*object);
 		obj->setIsPhysicsEnabled(true);
 
-		RendererManager::getInstance().addObject(obj, Object);
+		RendererManager::getInstance().addObject(obj);
 		ImguiRenderer::setSelectedObject(obj);
 
 		moveObject();
@@ -326,7 +326,7 @@ public:
 		GameObject* object = ImguiRenderer::getSelectedObject();
 		if (object == nullptr) return;
 
-		RendererManager::getInstance().deleteObject(*object, Object);
+		RendererManager::getInstance().deleteObject(*object);
 		ImguiRenderer::setSelectedObject(nullptr);
 	}
 
@@ -383,10 +383,6 @@ public:
 		if (distance > 2) return;
 
 		glm::vec3 worldCoords = screenToWorld(mouseX, mouseY);
-		RendererBase* value = RendererManager::getInstance().getRenderer(RendererType::Object);
-		if (value == nullptr) return;
-
-		auto renderer = static_cast<ObjectRenderer*>(value);
 		ImGuiContext& g = *GImGui;
 
 		// check if imgui is on top 
@@ -400,7 +396,7 @@ public:
 		}
 
 		// check for object
-		for (auto& object : renderer->getObjects())
+		for (auto& object : RendererManager::getInstance().getActiveScene()->getObjects())
 		{
 			glm::vec3 correctedWorldCoods = worldCoords * 0.9f;
 			if (checkHitAABB(object, correctedWorldCoods))

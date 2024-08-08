@@ -177,6 +177,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="Camera.hpp" />
     <ClInclude Include="Collider.hpp" />
     <ClInclude Include="DirectionalLight.hpp" />
+    <ClInclude Include="EnvironmentRenderer.hpp" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameObjectCollisions.h" />
     <ClInclude Include="GameObjectPhysics.h" />

@@ -69,10 +69,10 @@ void ImguiRenderer::renderMenuBar()
 			{
 				Scene* activeScene = RendererManager::getInstance().getActiveScene();
 				std::string* name = new std::string();
-				name->assign(std::format("PointLight{}", activeScene->getPointLights().size()));
+				name->assign(std::format("PointLight{}", activeScene->getLights().size()));
 
 				auto light = new PointLight(name->c_str(), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(1.0f));
-				activeScene->addPointLight(light);
+				activeScene->addLight(light);
 			}
 
 			ImGui::Spacing();
@@ -409,31 +409,13 @@ void ImguiRenderer::renderLightManager()
 	{
 		ImGui::BeginChild("Lights", ImVec2(200, 0), true);
 		{
-			if (ImGui::TreeNode("PointLights"))
+			for (auto& light : RendererManager::getInstance().getActiveScene()->getLights())
 			{
-				for (auto& light : RendererManager::getInstance().getActiveScene()->getPointLights())
+				ImGui::Selectable(light->getName().data(), m_selectedLight == light);
+				if (ImGui::IsItemClicked())
 				{
-					ImGui::Selectable(light->getName().data(), m_selectedLight == light);
-					if (ImGui::IsItemClicked())
-					{
-						m_selectedLight = light;
-					}
+					m_selectedLight = light;
 				}
-
-				ImGui::TreePop();
-			}
-			if (ImGui::TreeNode("DirectionalLights"))
-			{
-				for (auto& light : RendererManager::getInstance().getActiveScene()->getDirectionalLights())
-				{
-					ImGui::Selectable(light->getName().data(), m_selectedLight == light);
-					if (ImGui::IsItemClicked())
-					{
-						m_selectedLight = light;
-					}
-				}
-
-				ImGui::TreePop();
 			}
 		}
 		ImGui::EndChild();
@@ -509,7 +491,7 @@ void ImguiRenderer::renderLightManager()
 					switch (m_selectedLight->getLightType())
 					{
 					case LightType::Point:
-						RendererManager::getInstance().getActiveScene()->deletePointLight(static_cast<PointLight*>(m_selectedLight));
+						RendererManager::getInstance().getActiveScene()->deleteLight(m_selectedLight);
 						break;
 					default:
 						break;

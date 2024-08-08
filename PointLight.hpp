@@ -23,9 +23,6 @@ public:
 
 
 	// getter
-	inline glm::vec3 getPosition() const { return this->position; }
-	inline glm::vec3* getPositionPtr() { return &this->position; }
-
 	inline float getConstant() const { return this->m_constant; }
 	inline float* getConstantPtr() { return &this->m_constant; }
 

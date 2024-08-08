@@ -12,6 +12,7 @@
 #include "Skybox.hpp"
 #include "AssetManager.hpp"
 #include "LightRenderer.hpp"
+#include "EnvironmentRenderer.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -90,6 +91,10 @@ int main()
 	LightRenderer* lightRenderer = new LightRenderer();
 	RendererManager::getInstance().addRenderer(lightRenderer);
 
+	// register env renderer
+	EnvironmentRenderer* envRenderer = new EnvironmentRenderer();
+	RendererManager::getInstance().addRenderer(envRenderer);
+
 	// add skybox
 	std::vector<const char*> faces =
 	{
@@ -104,7 +109,7 @@ int main()
 	Skybox* skybox = new Skybox("Skybox");
 	skybox->loadCubeMap(faces);
 
-	RendererManager::getInstance().addObject(skybox);
+	RendererManager::getInstance().getActiveScene()->addEnvObject(skybox);
 
 	// window lopp
 	while (!glfwWindowShouldClose(window))

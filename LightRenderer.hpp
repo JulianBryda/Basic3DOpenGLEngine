@@ -20,6 +20,9 @@ public:
 
 	void render(Scene* activeScene) override
 	{
+		GLint viewport[4];
+		glGetIntegerv(GL_VIEWPORT, viewport);
+
 		for (auto& light : activeScene->getLights())
 		{
 			Shader* shader = ShaderLib::getDepthShaderPtr();
@@ -42,6 +45,12 @@ public:
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 	}
+
+private:
+
+	int x = 0;
 
 };

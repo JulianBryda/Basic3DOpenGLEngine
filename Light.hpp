@@ -26,6 +26,8 @@ public:
 
 		this->m_depthMap = 0;
 		this->m_depthMapFBO = 0;
+
+		genBuffers();
 	}
 
 	~Light()
@@ -35,6 +37,9 @@ public:
 
 
 	// getter
+	inline glm::vec3 getPosition() const { return this->position; }
+	inline glm::vec3* getPositionPtr() { return &this->position; }
+
 	inline std::string_view getName() const { return this->m_name; }
 
 	inline glm::vec3 getAmbient() const { return this->m_ambient; }
@@ -49,6 +54,7 @@ public:
 	inline LightType getLightType() const { return this->m_lightType; }
 
 	inline GLuint getDepthMapFBO() const { return m_depthMapFBO; }
+	inline GLuint getDepthMap()const { return m_depthMap; }
 
 	glm::mat4 getViewMatrix() const
 	{

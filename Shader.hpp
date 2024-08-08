@@ -104,10 +104,12 @@ public:
 	{
 		glUniformMatrix4fv(glGetUniformLocation(m_id, name), 1, GL_FALSE, glm::value_ptr(value));
 	}
+
 	inline void setTexture(GLenum type, GLuint texture) const
 	{
 		glBindTexture(type, texture);
 	}
+
 	inline void setMaterial(Material* material) const
 	{
 		this->setFloat3("material.ambient", material->getAmbient());
@@ -116,45 +118,16 @@ public:
 
 		this->setFloat("material.shininess", material->getShininess());
 	}
-	inline void setPointLight(PointLight* light) const
+
+	inline void setLight(Light* light, int index, int textureIndex) const
 	{
-		this->setFloat3("pointLight.position", light->getPosition());
+		this->setFloat3(std::format("lights[{}].position", index).c_str(), light->getPosition());
 
-		this->setFloat3("pointLight.ambient", light->getAmbient());
-		this->setFloat3("pointLight.diffuse", light->getDiffuse());
-		this->setFloat3("pointLight.specular", light->getSpecular());
+		this->setFloat3(std::format("lights[{}].color", index).c_str(), light->getDiffuse());
 
-		this->setFloat("pointLight.constant", light->getConstant());
-		this->setFloat("pointLight.linear", light->getLinear());
-		this->setFloat("pointLight.quadratic", light->getQuadratic());
-	}
-	inline void setPointLight(PointLight* light, int index) const
-	{
-		this->setFloat3(std::format("pointLights[{}].position", index).c_str(), light->getPosition());
-
-		this->setFloat3(std::format("pointLights[{}].ambient", index).c_str(), light->getAmbient());
-		this->setFloat3(std::format("pointLights[{}].diffuse", index).c_str(), light->getDiffuse());
-		this->setFloat3(std::format("pointLights[{}].specular", index).c_str(), light->getSpecular());
-
-		this->setFloat(std::format("pointLights[{}].constant", index).c_str(), light->getConstant());
-		this->setFloat(std::format("pointLights[{}].linear", index).c_str(), light->getLinear());
-		this->setFloat(std::format("pointLights[{}].quadratic", index).c_str(), light->getQuadratic());
-	}
-	inline void setDirectionalLight(DirectionalLight* light) const
-	{
-		this->setFloat3("directionalLight.direction", light->getDirection());
-
-		this->setFloat3("directionalLight.ambient", light->getAmbient());
-		this->setFloat3("directionalLight.diffuse", light->getDiffuse());
-		this->setFloat3("directionalLight.specular", light->getSpecular());
-	}
-	inline void setDirectionalLight(DirectionalLight* light, int index) const
-	{
-		this->setFloat3(std::format("directionalLights[{}].direction", index).c_str(), light->getDirection());
-
-		this->setFloat3(std::format("directionalLights[{}].ambient", index).c_str(), light->getAmbient());
-		this->setFloat3(std::format("directionalLights[{}].diffuse", index).c_str(), light->getDiffuse());
-		this->setFloat3(std::format("directionalLights[{}].specular", index).c_str(), light->getSpecular());
+		this->setTexture(GL_TEXTURE_2D, light->getDepthMap());
+		this->setInt(std::format("lights[{}].shadowMap", index).c_str(), textureIndex);
+		this->setMat4(std::format("lights[{}].lightSpaceMatrix", index).c_str(), light->getProjectionMatrix() * light->getViewMatrix());
 	}
 
 private:

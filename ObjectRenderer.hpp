@@ -41,23 +41,13 @@ public:
 			shader->setFloat3("viewPos", activeScene->getActiveCamera()->getPosition());
 			shader->setMaterial(object->getMaterialPtr());
 
-			// set directional lights and directional light count
-			shader->setFloat("directionalLightCount", activeScene->getDirectionalLights().size());
-
-			for (int i = 0; i < activeScene->getDirectionalLights().size(); i++)
-			{
-				shader->setDirectionalLight(activeScene->getDirectionalLights().at(i), i);
-			}
-
-			// set point lights and point light count
-			shader->setFloat("pointLightCount", activeScene->getPointLights().size());
-
-			for (int i = 0; i < activeScene->getPointLights().size(); i++)
-			{
-				shader->setPointLight(activeScene->getPointLights().at(i), i);
-			}
-
 			shader->setTexture(object->getTextureType(), object->getTexture());
+
+			for (int i = 0; i < activeScene->getLights().size(); i++)
+			{
+				glActiveTexture(GL_TEXTURE1 + i);
+				shader->setLight(activeScene->getLights()[i], i, 1 + i);
+			}
 
 
 			if (object->getIsOutline())
@@ -147,5 +137,9 @@ public:
 		}
 
 	}
+
+private:
+
+	int x = 0;
 
 };

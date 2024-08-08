@@ -4,11 +4,13 @@
 #include <iostream>
 
 #include "Camera.hpp"
+#include "Scene.hpp"
 
 enum RendererType
 {
+	Environment,
+	MIN = Environment,
 	Lighting,
-	MIN = Lighting,
 	Object,
 	UserInterface,
 	MAX

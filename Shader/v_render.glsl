@@ -13,8 +13,9 @@ out vec2 fragUv;
 
 void main()
 {
-	gl_Position = projection * view * model * position;
 	fragPos = (model * position).xyz;
-	fragNorm = normal;
+	fragNorm = mat3(transpose(inverse(model))) * normal;
 	fragUv = uv;
+
+	gl_Position = projection * view * model * position;
 }

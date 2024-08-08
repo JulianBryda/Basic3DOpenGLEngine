@@ -246,7 +246,6 @@ void GameObject::setShader(Shader* shader)
 std::string GameObject::getName() const { return m_name; }
 void GameObject::setName(std::string name) { m_name = name; }
 
-
 // imgui ptr functions
 
 float** GameObject::getRotationPtr()
