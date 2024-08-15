@@ -31,7 +31,7 @@ public:
 
 	glm::mat4 getProjectionMatrix() override
 	{
-		return glm::perspective(glm::radians(m_lightAngle), 1.f, 1.f, 25.f);
+		return glm::perspective(glm::radians(m_lightAngle), 1.f, 1.f, 100.f);
 
 	}
 

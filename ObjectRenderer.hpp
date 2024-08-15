@@ -43,10 +43,10 @@ public:
 
 			shader->setTexture(object->getTextureType(), object->getTexture());
 
+			shader->setLightCount(activeScene->getLights().size());
 			for (int i = 0; i < activeScene->getLights().size(); i++)
 			{
-				glActiveTexture(GL_TEXTURE1 + i);
-				shader->setLight(activeScene->getLights()[i], i, 1 + i);
+				shader->setLight(activeScene->getLights()[i], i, GL_TEXTURE0 + i);
 			}
 
 

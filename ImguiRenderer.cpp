@@ -424,7 +424,7 @@ void ImguiRenderer::renderLightManager()
 		{
 			if (m_selectedLight != nullptr)
 			{
-				ImGui::Text("Selected Light: %s", m_selectedLight->getName());
+				ImGui::Text(std::format("Selected Light: {}", m_selectedLight->getName()).c_str());
 				ImGui::Separator();
 
 				if (ImGui::TreeNode("Light"))
@@ -449,6 +449,20 @@ void ImguiRenderer::renderLightManager()
 						ImGui::SameLine();
 						ImGui::SetNextItemWidth(80.0f);
 						ImGui::InputFloat("Quadratic", light->getQuadraticPtr());
+
+						if (ImGui::Button("Render Scene from Light"))
+						{
+							//! This creates a memory leak but womp womp
+
+							Camera* camera = new Camera("", false);
+							camera->setAnchor(glm::vec3(0.f));
+							camera->setPosition(m_selectedLight->getPosition());
+							camera->setProjectionMatrix(m_selectedLight->getProjectionMatrix());
+							camera->setViewMatrix(m_selectedLight->getViewMatrix());
+							camera->setImmutable(true);
+
+							RendererManager::getInstance().getActiveScene()->setActiveCamera(camera);
+						}
 					}
 					else if (m_selectedLight->getLightType() == LightType::Spot)
 					{
@@ -481,6 +495,20 @@ void ImguiRenderer::renderLightManager()
 						ImGui::InputFloat3("##0", *dir);
 
 						renderLightMaterialView();
+
+						if (ImGui::Button("Render Scene from Light"))
+						{
+							//! This creates a memory leak but womp womp
+
+							Camera* camera = new Camera("", false);
+							camera->setAnchor(glm::vec3(0.f));
+							camera->setPosition(m_selectedLight->getPosition());
+							camera->setProjectionMatrix(m_selectedLight->getProjectionMatrix());
+							camera->setViewMatrix(m_selectedLight->getViewMatrix());
+							camera->setImmutable(true);
+
+							RendererManager::getInstance().getActiveScene()->setActiveCamera(camera);
+						}
 					}
 
 					ImGui::TreePop();
@@ -488,14 +516,7 @@ void ImguiRenderer::renderLightManager()
 
 				if (ImGui::Button("Delete"))
 				{
-					switch (m_selectedLight->getLightType())
-					{
-					case LightType::Point:
-						RendererManager::getInstance().getActiveScene()->deleteLight(m_selectedLight);
-						break;
-					default:
-						break;
-					}
+					RendererManager::getInstance().getActiveScene()->deleteLight(m_selectedLight);
 
 					m_selectedLight = nullptr;
 				}

@@ -14,6 +14,9 @@
 #include "AssetManager.hpp"
 #include "IconsFontAwesome5.h"
 
+#include "PointLight.hpp"
+#include "SpotLight.hpp"	
+
 class ImguiRenderer : public RendererBase
 {
 

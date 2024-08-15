@@ -2,9 +2,7 @@
 #include <iostream>
 #include <vector>
 
-#include "PointLight.hpp"
 #include "DirectionalLight.hpp"
-#include "SpotLight.hpp"
 #include "Camera.hpp"
 
 
@@ -15,7 +13,7 @@ public:
 
 	Scene()
 	{
-		this->m_lights.push_back(new DirectionalLight("Sun", glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)));
+		this->m_lights.push_back(new DirectionalLight("Sun", glm::vec3(0.1f), glm::vec3(1.0f), glm::vec3(1.0f)));
 
 		Camera* camera = new Camera("Camera", false);
 		camera->setPosition(glm::vec3(0.0f, 0.0f, 5.0f));
@@ -121,6 +119,40 @@ public:
 		}
 
 		delete light;
+	}
+
+	glm::vec3 getWorldBBMin()
+	{
+		glm::vec3 min = glm::vec3(0.f);
+
+		for (auto& object : m_objects)
+		{
+			glm::vec3 pos = object->getPosition();
+			glm::vec3 scale = object->getScale();
+
+			if (pos.x - scale.x < min.x) min.x = pos.x - scale.x;
+			if (pos.y - scale.y < min.y) min.y = pos.y - scale.y;
+			if (pos.z - scale.z < min.z) min.z = pos.z - scale.z;
+		}
+
+		return min;
+	}
+
+	glm::vec3 getWorldBBMax()
+	{
+		glm::vec3 max = glm::vec3(0.f);
+
+		for (auto& object : m_objects)
+		{
+			glm::vec3 pos = object->getPosition();
+			glm::vec3 scale = object->getScale();
+
+			if (pos.x + scale.x > max.x) max.x = pos.x + scale.x;
+			if (pos.y + scale.y > max.y) max.y = pos.y + scale.y;
+			if (pos.z + scale.z > max.z) max.z = pos.z + scale.z;
+		}
+
+		return max;
 	}
 
 private:

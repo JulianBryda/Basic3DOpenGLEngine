@@ -32,7 +32,8 @@ public:
 
 	~Light()
 	{
-
+		glDeleteTextures(1, &m_depthMap),
+			glDeleteFramebuffers(1, &m_depthMapFBO);
 	}
 
 
@@ -58,10 +59,14 @@ public:
 
 	glm::mat4 getViewMatrix() const
 	{
-		return glm::lookAt(this->position, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+		return glm::lookAt(this->position, glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
 	}
 
 	virtual glm::mat4 getProjectionMatrix() = 0;
+	virtual glm::mat4 getProjectionMatrix(glm::vec3 min, glm::vec3 max)
+	{
+		throw std::runtime_error("This method can only be used with Directional Lights!");
+	};
 
 	// setter
 	inline void setAmbient(glm::vec3 ambient) { this->m_ambient = ambient; }
@@ -97,6 +102,11 @@ private:
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depthMap, 0);
 		glDrawBuffer(GL_NONE);
 		glReadBuffer(GL_NONE);
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		{
+			std::cout << "Failed to create Framebuffer for " << m_name << "!" << std::endl;
+		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 

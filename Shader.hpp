@@ -9,8 +9,7 @@
 #include <iostream>
 
 #include "Material.hpp"
-#include "PointLight.hpp"
-#include "DirectionalLight.hpp"
+#include "Light.hpp"
 
 
 class LibraryShader
@@ -125,9 +124,15 @@ public:
 
 		this->setFloat3(std::format("lights[{}].color", index).c_str(), light->getDiffuse());
 
+		glActiveTexture(textureIndex);
 		this->setTexture(GL_TEXTURE_2D, light->getDepthMap());
 		this->setInt(std::format("lights[{}].shadowMap", index).c_str(), textureIndex);
 		this->setMat4(std::format("lights[{}].lightSpaceMatrix", index).c_str(), light->getProjectionMatrix() * light->getViewMatrix());
+	}
+
+	inline void setLightCount(int count) const
+	{
+		this->setInt("lightCount", count);
 	}
 
 private:

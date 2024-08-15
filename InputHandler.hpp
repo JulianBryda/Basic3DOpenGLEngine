@@ -4,10 +4,11 @@
 #include <GLFW/glfw3.h>
 #include <ctime>
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 #include "glm/glm.hpp"
 #include "ImguiRenderer.hpp"
 #include "imgui_internal.h"
-
 
 class InputHandler
 {
@@ -48,6 +49,8 @@ public:
 		updateDeltaTime();
 
 		Camera* activeCamera = RendererManager::getInstance().getActiveScene()->getActiveCamera();
+		if (activeCamera->isImmutable()) return;
+
 		glm::vec3 moveOff = glm::vec3(0.0f);
 		double xpos, ypos;
 		glfwGetCursorPos(m_window, &xpos, &ypos);
@@ -84,7 +87,7 @@ public:
 		m_lastYpos = ypos;
 
 
-		// handle scaling
+		// handle manipulation
 		if (m_manipulationStruct.state != Nothing)
 		{
 			GameObject* object = ImguiRenderer::getSelectedObject();
@@ -267,6 +270,9 @@ public:
 			case GLFW_KEY_DELETE:
 				deleteObject();
 				break;
+			case GLFW_KEY_F2:
+				saveDepthMaps();
+				break;
 			default:
 				break;
 			}
@@ -411,6 +417,16 @@ public:
 
 	}
 
+	void saveDepthMaps()
+	{
+		auto& lights = RendererManager::getInstance().getActiveScene()->getLights();
+
+		for (int i = 0; i < lights.size(); i++)
+		{
+			saveShadowMapAsImage(lights[i]->getDepthMapFBO(), lights[i]->SHADOW_WIDTH, lights[i]->SHADOW_HEIGHT, std::format(".\\Assets\\Debug\\ShadowMap_{}.png", i).c_str());
+		}
+	}
+
 	bool checkHitAABB(GameObject* gameObject, glm::vec3 value)
 	{
 		return gameObject->getPosition().x + gameObject->getScale().x / 2 > value.x &&
@@ -497,6 +513,38 @@ public:
 
 	//	delete[] pixels;
 	//}
+
+	void saveShadowMapAsImage(GLuint id, int width, int height, const char* filePath)
+	{
+		float* depthData = new float[width * height]; // Assuming RGBA format
+
+		// Retrieve the data
+		glBindFramebuffer(GL_FRAMEBUFFER, id);
+		glReadPixels(0, 0, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, depthData);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		unsigned char* imageData = new unsigned char[width * height];
+		for (int i = 0; i < width * height; ++i) {
+			// Map depth value from [0, 1] to [0, 255]
+			imageData[i] = static_cast<unsigned char>(depthData[i] * 255.0f);
+		}
+
+		stbi_flip_vertically_on_write(1);
+
+		// Save the texture data as an image file
+		if (stbi_write_png(filePath, width, height, 1, imageData, width))
+		{
+			std::cout << "Saved texture to " << filePath << std::endl;
+		}
+		else
+		{
+			std::cerr << "Failed to save texture to " << filePath << std::endl;
+		}
+
+		// Clean up
+		delete[] depthData;
+		delete[] imageData;
+	}
 
 	void setWindow(GLFWwindow* window)
 	{

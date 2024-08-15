@@ -16,6 +16,8 @@ public:
 		this->m_Distance = 15.0f;
 		this->m_up = glm::vec3(0.0f, 1.0f, 0.0f);
 
+		this->immutable = false;
+
 		this->m_near = 0.1f;
 		this->m_far = 1000.0f;
 
@@ -45,15 +47,20 @@ public:
 	inline float getNear() const { return this->m_near; }
 	inline float getFar() const { return this->m_far; }
 
+	inline bool isImmutable() const { return this->immutable; }
+
 	// setter
 	inline void setAnchor(glm::vec3 anchor) { this->m_anchor = anchor; }
 	inline void setPosition(glm::vec3 position) { this->position = position; }
+	inline void setProjectionMatrix(glm::mat4 matrix) { this->m_projection = matrix; }
 	inline void setViewMatrix(glm::mat4 matrix) { this->m_view = matrix; }
 
 	inline void setHorizontalAngle(float angle) { this->m_horizontalAngle = angle; }
 	inline void setVerticalAngle(float angle) { this->m_verticalAngle = angle; }
 	inline void setDistance(const float distance) { m_Distance = distance; }
 	inline void multiplyDistance(const float multiplier) { m_Distance = m_Distance * multiplier; }
+
+	inline void setImmutable(bool value) { this->immutable = value; }
 
 private:
 
@@ -62,4 +69,6 @@ private:
 
 	float m_horizontalAngle, m_verticalAngle, m_Distance;
 	float m_near, m_far;
+
+	bool immutable;
 };

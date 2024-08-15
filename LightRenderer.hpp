@@ -28,12 +28,20 @@ public:
 			Shader* shader = ShaderLib::getDepthShaderPtr();
 			shader->use();
 
-			shader->setMat4("projection", light->getProjectionMatrix());
+			if (light->getLightType() == Directional)
+			{
+				shader->setMat4("projection", light->getProjectionMatrix(activeScene->getWorldBBMin(), activeScene->getWorldBBMax()));
+			}
+			else
+			{
+				shader->setMat4("projection", light->getProjectionMatrix());
+			}
 			shader->setMat4("view", light->getViewMatrix());
 
 			glViewport(0, 0, light->SHADOW_WIDTH, light->SHADOW_HEIGHT);
 			glBindFramebuffer(GL_FRAMEBUFFER, light->getDepthMapFBO());
 			glClear(GL_DEPTH_BUFFER_BIT);
+			glCullFace(GL_FRONT); // prevent shadow acne
 
 			for (auto& object : activeScene->getObjects())
 			{
@@ -43,6 +51,7 @@ public:
 			}
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glCullFace(GL_BACK);
 		}
 
 		glClear(GL_DEPTH_BUFFER_BIT);
