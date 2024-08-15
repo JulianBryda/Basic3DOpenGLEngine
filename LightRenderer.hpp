@@ -22,6 +22,7 @@ public:
 	{
 		GLint viewport[4];
 		glGetIntegerv(GL_VIEWPORT, viewport);
+		glCullFace(GL_FRONT); // prevent shadow acne
 
 		for (auto& light : activeScene->getLights())
 		{
@@ -30,7 +31,10 @@ public:
 
 			if (light->getLightType() == Directional)
 			{
-				shader->setMat4("projection", light->getProjectionMatrix(activeScene->getWorldBBMin(), activeScene->getWorldBBMax()));
+				auto min = activeScene->getWorldBBMin();
+				auto max = activeScene->getWorldBBMax();
+
+				shader->setMat4("projection", light->getProjectionMatrix(min, max));
 			}
 			else
 			{
@@ -41,7 +45,6 @@ public:
 			glViewport(0, 0, light->SHADOW_WIDTH, light->SHADOW_HEIGHT);
 			glBindFramebuffer(GL_FRAMEBUFFER, light->getDepthMapFBO());
 			glClear(GL_DEPTH_BUFFER_BIT);
-			glCullFace(GL_FRONT); // prevent shadow acne
 
 			for (auto& object : activeScene->getObjects())
 			{
@@ -51,9 +54,9 @@ public:
 			}
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glCullFace(GL_BACK);
 		}
 
+		glCullFace(GL_BACK);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 	}

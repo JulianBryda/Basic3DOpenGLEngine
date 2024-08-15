@@ -128,7 +128,7 @@ public:
 		for (auto& object : m_objects)
 		{
 			glm::vec3 pos = object->getPosition();
-			glm::vec3 scale = object->getScale();
+			glm::vec3 scale = object->getScale() / 2.f;
 
 			if (pos.x - scale.x < min.x) min.x = pos.x - scale.x;
 			if (pos.y - scale.y < min.y) min.y = pos.y - scale.y;
@@ -145,7 +145,7 @@ public:
 		for (auto& object : m_objects)
 		{
 			glm::vec3 pos = object->getPosition();
-			glm::vec3 scale = object->getScale();
+			glm::vec3 scale = object->getScale() / 2.f;
 
 			if (pos.x + scale.x > max.x) max.x = pos.x + scale.x;
 			if (pos.y + scale.y > max.y) max.y = pos.y + scale.y;

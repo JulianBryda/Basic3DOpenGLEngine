@@ -66,17 +66,22 @@ float ShadowCalculation(int lightIndex, vec4 fragPosLightSpace)
 {
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
+
+    float shadow = projCoords.z < texture(lights[lightIndex].shadowMap, projCoords.xyz) ? 1.0 : 0.0;
+    vec2 texelSize = 1.0 / textureSize(lights[lightIndex].shadowMap, 0);
     
-    float shadow = texture(lights[lightIndex].shadowMap, projCoords.xyz);
-
-//    int sampleCount = 4;
-//    for (int i = 0; i < sampleCount; i++)
-//    {
-//        int index = int(sampleCount * random(floor(worldPos.xyy * 1000.0), i)) % sampleCount;
-//        shadow -= (1.0 / sampleCount) * (1.0 - texture(lights[lightIndex].shadowMap, vec3(projCoords.xy + poissonDisk[index] / 700.0, projCoords.z / fragPosLightSpace.w)));
-//    }
-
-    return shadow;
+    // PCF loop
+    const int iterations = 3;
+    for(int x = -iterations; x <= iterations; ++x)
+    {
+        for(int y = -iterations; y <= iterations; ++y)
+        {
+            vec3 offsetCoords = projCoords + vec3(x, y, 0.0) * vec3(texelSize, 0.0);
+            shadow += texture(lights[lightIndex].shadowMap, offsetCoords);
+        }
+    }
+    
+    return shadow / pow(iterations * 2 + 1, 2);
 }
 
 void main()
@@ -106,7 +111,7 @@ void main()
                     // shadow * specular;
     }
 
-    FragColor = vec4(lighting, 1.0);
+    FragColor = vec4(lighting / lightCount, 1.0);
 }
 
 
