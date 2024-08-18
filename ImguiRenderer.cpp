@@ -71,7 +71,17 @@ void ImguiRenderer::renderMenuBar()
 				std::string* name = new std::string();
 				name->assign(std::format("PointLight{}", activeScene->getLights().size()));
 
-				auto light = new PointLight(name->c_str(), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(1.0f));
+				auto light = new PointLight(name->c_str(), glm::vec3(1.f));
+				activeScene->addLight(light);
+			}
+
+			if (ImGui::MenuItem("SpotLight"))
+			{
+				Scene* activeScene = RendererManager::getInstance().getActiveScene();
+				std::string* name = new std::string();
+				name->assign(std::format("SpotLight{}", activeScene->getLights().size()));
+
+				auto light = new SpotLight(name->c_str(), glm::vec3(0.f, -1.f, 0.f), glm::vec3(1.f));
 				activeScene->addLight(light);
 			}
 
@@ -480,9 +490,29 @@ void ImguiRenderer::renderLightManager()
 						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
 						ImGui::InputFloat3("##1", *dir);
 
+						ImGui::SetNextItemWidth(80.0f);
+						ImGui::InputFloat("Inner Cone", light->getInnerConePtr());
+						ImGui::SameLine();
+						ImGui::SetNextItemWidth(80.0f);
+						ImGui::InputFloat("Outer Cone", light->getOuterConePtr());
+
 						renderLightMaterialView();
 
-						ImGui::InputFloat("Light Angle", light->getLightAnglePtr());
+						if (ImGui::Button("Render Scene from Light"))
+						{
+							//! This creates a memory leak but womp womp
+
+							auto light = static_cast<SpotLight*>(m_selectedLight);
+
+							Camera* camera = new Camera("", false);
+							camera->setAnchor(light->getPosition() + light->getDirection());
+							camera->setPosition(light->getPosition());
+							camera->setProjectionMatrix(light->getProjectionMatrix());
+							camera->setViewMatrix(light->getViewMatrix());
+							camera->setImmutable(true);
+
+							RendererManager::getInstance().getActiveScene()->setActiveCamera(camera);
+						}
 					}
 					else
 					{
@@ -495,6 +525,15 @@ void ImguiRenderer::renderLightManager()
 						ImGui::InputFloat3("##0", *dir);
 
 						renderLightMaterialView();
+
+						ImGui::Text("Shadow Quality");
+						ImGui::SameLine();
+						ImGui::InputFloat("##355", light->getShadowQualityPtr());
+						ImGui::SameLine();
+						if (ImGui::Button("Apply"))
+						{
+							light->updateShadows();
+						}
 
 						if (ImGui::Button("Render Scene from Light"))
 						{
@@ -555,7 +594,7 @@ void ImguiRenderer::renderAssetManager()
 				{
 					if (entry.is_directory())
 					{
-						if (IconItem(i, entry.path().filename().string().c_str(), AssetManager::getInstance().getIcon("folder"), itemSize))
+						if (IconItem(i, entry.path().filename().string().c_str(), AssetManager::getInstance().getIcon(".folder"), itemSize))
 						{
 							m_selectedAssetPath = entry.path().string();
 						}
@@ -564,10 +603,13 @@ void ImguiRenderer::renderAssetManager()
 					{
 						if (IconItem(i, entry.path().filename().string().c_str(), AssetManager::getInstance().getIcon(entry.path().extension().string()), itemSize))
 						{
-							//GameObject* obj = new GameObject(std::format("{}{}", items[i].name, RendererManager::getInstance().getTotalObjectCount()), items[i].path, ShaderLib::getDebugShaderPtr(), ColliderType::BoundingBox);
-							//obj->setIsPhysicsEnabled(true);
+							if (entry.path().extension().string() == ".obj")
+							{
+								GameObject* obj = new GameObject(std::format("{}{}", entry.path().filename().string(), RendererManager::getInstance().getActiveScene()->getObjects().size()), entry.path().string(), ShaderLib::getRenderShaderPtr(), ColliderType::BoundingBox);
+								obj->setIsPhysicsEnabled(true);
 
-							//RendererManager::getInstance().addObject(obj, RendererType::Object);
+								RendererManager::getInstance().addObject(obj);
+							}
 						}
 					}
 
@@ -616,15 +658,9 @@ bool ImguiRenderer::IconItem(int id, const char* text, GLuint imageId, const flo
 
 void ImguiRenderer::renderLightMaterialView()
 {
-	float* ambient[3] = { &m_selectedLight->getAmbientPtr()->x, &m_selectedLight->getAmbientPtr()->y, &m_selectedLight->getAmbientPtr()->z };
-	float* diffuse[3] = { &m_selectedLight->getDiffusePtr()->x, &m_selectedLight->getDiffusePtr()->y, &m_selectedLight->getDiffusePtr()->z };
-	float* specular[3] = { &m_selectedLight->getSpecularPtr()->x, &m_selectedLight->getSpecularPtr()->y, &m_selectedLight->getSpecularPtr()->z };
+	float* color[3] = { &m_selectedLight->getColorPtr()->x, &m_selectedLight->getColorPtr()->y, &m_selectedLight->getColorPtr()->z };
 
-	ImGui::ColorEdit3("Ambient", *ambient, ImGuiColorEditFlags_NoInputs);
-	ImGui::SameLine();
-	ImGui::ColorEdit3("Diffuse", *diffuse, ImGuiColorEditFlags_NoInputs);
-	ImGui::SameLine();
-	ImGui::ColorEdit3("Specular", *specular, ImGuiColorEditFlags_NoInputs);
+	ImGui::ColorEdit3("Color", *color, ImGuiColorEditFlags_NoInputs);
 }
 
 

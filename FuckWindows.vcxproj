@@ -180,6 +180,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="EnvironmentRenderer.hpp" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameObjectCollisions.h" />
+    <ClInclude Include="GameObjectConstructor.hpp" />
     <ClInclude Include="GameObjectPhysics.h" />
     <ClInclude Include="IconsFontAwesome5.h" />
     <ClInclude Include="ImguiRenderer.hpp" />

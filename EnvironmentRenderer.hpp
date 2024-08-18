@@ -31,7 +31,7 @@ public:
 			shader->setMat4("view", activeScene->getActiveCamera()->getViewMatrix());
 			shader->setMat4("model", object->getModelMatrix());
 
-			shader->setTexture(object->getTextureType(), object->getTexture());
+			shader->setTexture(object->getTextureType(), object->getTexture(), GL_TEXTURE0);
 
 			object->draw();
 		}

@@ -13,7 +13,7 @@ public:
 
 	Scene()
 	{
-		this->m_lights.push_back(new DirectionalLight("Sun", glm::vec3(0.1f), glm::vec3(1.0f), glm::vec3(1.0f)));
+		this->m_lights.push_back(new DirectionalLight("Sun", glm::vec3(1.0f)));
 
 		Camera* camera = new Camera("Camera", false);
 		camera->setPosition(glm::vec3(0.0f, 0.0f, 5.0f));
@@ -121,38 +121,29 @@ public:
 		delete light;
 	}
 
-	glm::vec3 getWorldBBMin()
+	glm::vec3 getWorldBBMinMax(glm::vec3& max)
 	{
-		glm::vec3 min = glm::vec3(0.f);
+		glm::vec3 min(std::numeric_limits<float>::max());
+		max = glm::vec3(std::numeric_limits<float>::lowest());
 
-		for (auto& object : m_objects)
+		for (const auto& object : m_objects)
 		{
-			glm::vec3 pos = object->getPosition();
-			glm::vec3 scale = object->getScale() / 2.f;
+			const glm::vec3& position = object->getPosition();
+			const glm::vec3 halfScale = object->getScale() * 0.5f; // Calculate once
 
-			if (pos.x - scale.x < min.x) min.x = pos.x - scale.x;
-			if (pos.y - scale.y < min.y) min.y = pos.y - scale.y;
-			if (pos.z - scale.z < min.z) min.z = pos.z - scale.z;
+			const glm::vec3 posMin = position - halfScale;
+			const glm::vec3 posMax = position + halfScale;
+
+			min.x = std::min(min.x, posMin.x);
+			min.y = std::min(min.y, posMin.y);
+			min.z = std::min(min.z, posMin.z);
+
+			max.x = std::max(max.x, posMax.x);
+			max.y = std::max(max.y, posMax.y);
+			max.z = std::max(max.z, posMax.z);
 		}
 
 		return min;
-	}
-
-	glm::vec3 getWorldBBMax()
-	{
-		glm::vec3 max = glm::vec3(0.f);
-
-		for (auto& object : m_objects)
-		{
-			glm::vec3 pos = object->getPosition();
-			glm::vec3 scale = object->getScale() / 2.f;
-
-			if (pos.x + scale.x > max.x) max.x = pos.x + scale.x;
-			if (pos.y + scale.y > max.y) max.y = pos.y + scale.y;
-			if (pos.z + scale.z > max.z) max.z = pos.z + scale.z;
-		}
-
-		return max;
 	}
 
 private:

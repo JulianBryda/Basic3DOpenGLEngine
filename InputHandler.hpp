@@ -423,7 +423,7 @@ public:
 
 		for (int i = 0; i < lights.size(); i++)
 		{
-			saveShadowMapAsImage(lights[i]->getDepthMapFBO(), lights[i]->SHADOW_WIDTH, lights[i]->SHADOW_HEIGHT, std::format(".\\Assets\\Debug\\ShadowMap_{}.png", i).c_str());
+			saveShadowMapAsImage(lights[i]->getDepthMapFBO(), lights[i]->getShadowWidth(), lights[i]->getShadowHeight(), std::format(".\\Assets\\Debug\\{}.png", lights[i]->getName()).c_str());
 		}
 	}
 
@@ -524,21 +524,20 @@ public:
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		unsigned char* imageData = new unsigned char[width * height];
-		for (int i = 0; i < width * height; ++i) {
+		for (int i = 0; i < width * height; ++i)
+		{
 			// Map depth value from [0, 1] to [0, 255]
-			imageData[i] = static_cast<unsigned char>(depthData[i] * 255.0f);
+			imageData[i] = static_cast<unsigned char>(depthData[i] * 255.f);
 		}
-
-		stbi_flip_vertically_on_write(1);
 
 		// Save the texture data as an image file
 		if (stbi_write_png(filePath, width, height, 1, imageData, width))
 		{
-			std::cout << "Saved texture to " << filePath << std::endl;
+			std::cout << "Saved shadowMap to " << filePath << std::endl;
 		}
 		else
 		{
-			std::cerr << "Failed to save texture to " << filePath << std::endl;
+			std::cerr << "Failed to save shadowMap to " << filePath << std::endl;
 		}
 
 		// Clean up

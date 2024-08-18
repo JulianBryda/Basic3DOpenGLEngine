@@ -12,7 +12,7 @@ GameObject::GameObject(std::string name, Mesh mesh, Shader* shader, ColliderType
 	this->m_drawWireframe = false;
 	this->m_outline = false;
 
-	this->m_material = Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 1.0f);
+	this->m_material = Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 64.0f);
 	this->m_pShader = shader;
 	this->m_mesh = mesh;
 
@@ -29,10 +29,10 @@ GameObject::GameObject(std::string name, std::string path, Shader* shader, Colli
 	this->m_drawWireframe = false;
 	this->m_outline = false;
 
-	this->m_material = Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 1.0f);
+	this->m_material = Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 64.0f);
 	this->m_pShader = shader;
 
-	ObjectLoader::load_model_mesh_assimp(path.c_str(), &m_mesh);
+	ObjectLoader::load_model_mesh_assimp(path.c_str(), m_mesh);
 
 	genBuffers();
 }

@@ -9,7 +9,7 @@ class PointLight : public Light
 public:
 
 
-	PointLight(const char* name, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular) : Light(name, ambient, diffuse, specular, LightType::Point)
+	PointLight(const char* name, glm::vec3 color) : Light(name, color, LightType::Point)
 	{
 		this->m_constant = 1.0f;
 		this->m_linear = 0.09f;
@@ -31,6 +31,11 @@ public:
 
 	inline float getQuadratic() const { return this->m_quadratic; }
 	inline float* getQuadraticPtr() { return &this->m_quadratic; }
+
+	glm::mat4 getViewMatrix() override
+	{
+		return glm::lookAt(this->position, glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f));
+	}
 
 	glm::mat4 getProjectionMatrix() override
 	{

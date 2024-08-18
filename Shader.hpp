@@ -10,6 +10,8 @@
 
 #include "Material.hpp"
 #include "Light.hpp"
+#include "SpotLight.hpp"
+#include "DirectionalLight.hpp"
 
 
 class LibraryShader
@@ -104,8 +106,9 @@ public:
 		glUniformMatrix4fv(glGetUniformLocation(m_id, name), 1, GL_FALSE, glm::value_ptr(value));
 	}
 
-	inline void setTexture(GLenum type, GLuint texture) const
+	inline void setTexture(GLenum type, GLuint texture, GLuint textureIndex) const
 	{
+		glActiveTexture(textureIndex);
 		glBindTexture(type, texture);
 	}
 
@@ -118,16 +121,39 @@ public:
 		this->setFloat("material.shininess", material->getShininess());
 	}
 
-	inline void setLight(Light* light, int index, int textureIndex) const
+	inline void setLight(Light* light, int index, GLuint textureIndex) const
 	{
+		switch (light->getLightType())
+		{
+		case Spot:
+		{
+			SpotLight* spotLight = static_cast<SpotLight*>(light);
+
+			this->setFloat3(std::format("lights[{}].direction", index).c_str(), spotLight->getDirection());
+			this->setFloat(std::format("lights[{}].innerCone", index).c_str(), spotLight->getInnerCone());
+			this->setFloat(std::format("lights[{}].outerCone", index).c_str(), spotLight->getOuterCone());
+			break;
+		}
+		case Directional:
+		{
+			DirectionalLight* directionalLigt = static_cast<DirectionalLight*>(light);
+
+			this->setFloat3(std::format("lights[{}].direction", index).c_str(), directionalLigt->getDirection());
+
+			break;
+		}
+		default:
+			break;
+		}
+
 		this->setFloat3(std::format("lights[{}].position", index).c_str(), light->getPosition());
+		this->setFloat3(std::format("lights[{}].color", index).c_str(), light->getColor());
 
-		this->setFloat3(std::format("lights[{}].color", index).c_str(), light->getDiffuse());
-
-		glActiveTexture(textureIndex);
-		this->setTexture(GL_TEXTURE_2D, light->getDepthMap());
-		this->setInt(std::format("lights[{}].shadowMap", index).c_str(), textureIndex);
+		this->setTexture(GL_TEXTURE_2D, light->getDepthMap(), textureIndex);
+		this->setInt(std::format("lights[{}].shadowMap", index).c_str(), index);
 		this->setMat4(std::format("lights[{}].lightSpaceMatrix", index).c_str(), light->getProjectionMatrix() * light->getViewMatrix());
+
+		this->setInt(std::format("lights[{}].lightType", index).c_str(), light->getLightType());
 	}
 
 	inline void setLightCount(int count) const

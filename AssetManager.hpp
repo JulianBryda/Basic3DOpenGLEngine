@@ -23,9 +23,9 @@ public:
 			std::filesystem::create_directory(".\\Assets");
 		}
 
-		m_icons.insert(std::pair("default", loadTexture(".\\Assets\\Icons\\default-icon.png")));
-		m_icons.insert(std::pair("obj", loadTexture(".\\Assets\\Icons\\obj-icon.png")));
-		m_icons.insert(std::pair("folder", loadTexture(".\\Assets\\Icons\\folder-icon.png")));
+		m_icons.insert(std::pair(".default", loadTexture(".\\Assets\\Icons\\default-icon.png")));
+		m_icons.insert(std::pair(".obj", loadTexture(".\\Assets\\Icons\\obj-icon.png")));
+		m_icons.insert(std::pair(".folder", loadTexture(".\\Assets\\Icons\\folder-icon.png")));
 	}
 
 	static AssetManager& getInstance()
@@ -62,7 +62,7 @@ public:
 		}
 		else
 		{
-			return m_icons.at("default");
+			return m_icons.at(".default");
 		}
 	}
 

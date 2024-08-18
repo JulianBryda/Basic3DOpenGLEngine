@@ -41,7 +41,7 @@ public:
 			shader->setFloat3("viewPos", activeScene->getActiveCamera()->getPosition());
 			shader->setMaterial(object->getMaterialPtr());
 
-			shader->setTexture(object->getTextureType(), object->getTexture());
+			// shader->setTexture(object->getTextureType(), object->getTexture());
 
 			shader->setLightCount(activeScene->getLights().size());
 			for (int i = 0; i < activeScene->getLights().size(); i++)
