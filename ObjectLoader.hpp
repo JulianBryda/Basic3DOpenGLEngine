@@ -12,6 +12,15 @@
 
 namespace ObjectLoader
 {
+	struct ObjectData
+	{
+		char name[255];
+		Mesh mesh;
+		glm::vec3 bbMin;
+		glm::vec3 bbMax;
+
+	};
+
 	static void computeBoundingBox(const aiScene* scene, aiVector3D* min, aiVector3D* max) {
 		min->x = min->y = min->z = std::numeric_limits<float>::max();
 		max->x = max->y = max->z = std::numeric_limits<float>::lowest();
@@ -59,7 +68,7 @@ namespace ObjectLoader
 		scaleModel(const_cast<aiScene*>(scene), scalingFactor);
 	}
 
-	static Mesh* load_model_mesh_assimp(const char* path, int& meshCount)
+	static ObjectData* load_model_mesh_assimp(const char* path, int& meshCount)
 	{
 		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
@@ -72,12 +81,16 @@ namespace ObjectLoader
 		float targetSize = 1.f;
 		normalizeModelSize(scene, targetSize);
 
-		std::vector<Mesh>* meshes = new std::vector<Mesh>();
+		std::vector<ObjectData>* objects = new std::vector<ObjectData>();
 
 		for (uint32_t i = 0; i < scene->mNumMeshes; i++)
 		{
 			const aiMesh* aiMesh = scene->mMeshes[i];
-			Mesh mesh = Mesh();
+
+			ObjectData data = ObjectData();
+			strcpy(data.name, aiMesh->mName.data);
+			data.bbMin = glm::vec3(aiMesh->mAABB.mMin.x, aiMesh->mAABB.mMin.y, aiMesh->mAABB.mMin.z);
+			data.bbMax = glm::vec3(aiMesh->mAABB.mMax.x, aiMesh->mAABB.mMax.y, aiMesh->mAABB.mMax.z);
 
 			for (uint32_t j = 0; j < aiMesh->mNumVertices; j++)
 			{
@@ -85,7 +98,7 @@ namespace ObjectLoader
 				glm::vec3 normal(aiMesh->mNormals[j].x, aiMesh->mNormals[j].y, aiMesh->mNormals[j].z);
 				glm::vec2 uv(aiMesh->mTextureCoords[0][j].x, aiMesh->mTextureCoords[0][j].y);
 
-				mesh.addVertex(Vertex(vertex, normal, uv));
+				data.mesh.addVertex(Vertex(vertex, normal, uv));
 			}
 
 			for (uint32_t j = 0; j < aiMesh->mNumFaces; j++)
@@ -93,16 +106,19 @@ namespace ObjectLoader
 				const aiFace& face = aiMesh->mFaces[j];
 				for (uint32_t k = 0; k < face.mNumIndices; k++)
 				{
-					mesh.addIndex(face.mIndices[k]);
+					data.mesh.addIndex(face.mIndices[k]);
 				}
 			}
 
-			meshes->push_back(mesh);
+			objects->push_back(data);
 		}
 
-		meshCount = meshes->size();
-		auto data = meshes->data();
-		delete meshes;
+		meshCount = objects->size();
+
+		ObjectData* data = new ObjectData[objects->size()];
+		std::copy(objects->begin(), objects->end(), data);
+
+		delete objects;
 
 		return data;
 	}

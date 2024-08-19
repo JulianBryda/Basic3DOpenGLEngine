@@ -1,5 +1,6 @@
 #include "ImguiRenderer.hpp"
 #include "ObjectLoader.hpp"
+#include "GameObjectConstructor.hpp"
 
 #include <windows.h>
 #include <commdlg.h>
@@ -605,10 +606,12 @@ void ImguiRenderer::renderAssetManager()
 						{
 							if (entry.path().extension().string() == ".obj")
 							{
-								GameObject* obj = new GameObject(std::format("{}{}", entry.path().filename().string(), RendererManager::getInstance().getActiveScene()->getObjects().size()), entry.path().string(), ShaderLib::getRenderShaderPtr(), ColliderType::BoundingBox);
-								obj->setIsPhysicsEnabled(true);
-
-								RendererManager::getInstance().addObject(obj);
+								std::vector<GameObject*> objects = GameObjectConstructor::createGameObjects(entry.path().string().c_str());
+								for (GameObject* obj : objects)
+								{
+									obj->setIsPhysicsEnabled(true);
+									RendererManager::getInstance().addObject(obj);
+								}
 							}
 						}
 					}
