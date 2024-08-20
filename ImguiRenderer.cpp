@@ -213,25 +213,19 @@ void ImguiRenderer::renderObjectManager()
 	{
 		ImGui::BeginChild("Objects", ImVec2(200, 0), true);
 		{
-			if (ImGui::TreeNode("Objects"))
+			for (auto& obj : RendererManager::getInstance().getActiveScene()->getObjects())
 			{
-				for (auto& obj : RendererManager::getInstance().getActiveScene()->getObjects())
+				ImGui::Selectable(obj->getName().c_str(), m_selectedObject == obj);
+				if (ImGui::IsItemClicked())
 				{
-					ImGui::Selectable(obj->getName().c_str(), m_selectedObject == obj);
-					if (ImGui::IsItemClicked())
+					if (m_selectedObject != nullptr)
 					{
-						if (m_selectedObject != nullptr)
-						{
-							m_selectedObject->setIsOutline(false);
-						}
-
-						m_selectedObject = obj;
-						obj->setIsOutline(true);
+						m_selectedObject->setIsOutline(false);
 					}
+
+					m_selectedObject = obj;
+					obj->setIsOutline(true);
 				}
-
-
-				ImGui::TreePop();
 			}
 		}
 		ImGui::EndChild();
@@ -275,27 +269,16 @@ void ImguiRenderer::renderObjectManager()
 
 				if (ImGui::TreeNode("Material"))
 				{
+					ImGui::Text("Shader: %s", m_selectedObject->getShaderPtr()->getName().c_str());
+
 					ImGui::ColorEdit3("Ambient", *ambient, ImGuiColorEditFlags_NoInputs);
 					ImGui::SameLine();
 					ImGui::ColorEdit3("Diffuse", *diffuse, ImGuiColorEditFlags_NoInputs);
 					ImGui::SameLine();
 					ImGui::ColorEdit3("Specular", *specular, ImGuiColorEditFlags_NoInputs);
-					ImGui::SameLine();
-					ImGui::SetNextItemWidth(100.0f);
+
+					ImGui::SetNextItemWidth(80.f);
 					ImGui::InputFloat("Shininess", m_selectedObject->getMaterialPtr()->getShininessPtr());
-
-
-					ImGui::Text(std::format("Loaded Shader: {}", m_selectedObject->getShaderPtr()->getName()).c_str());
-
-					static char loadShaderBuffer[256] = "";
-
-					ImGui::InputText("##2354", loadShaderBuffer, IM_ARRAYSIZE(loadShaderBuffer));
-					ImGui::SameLine();
-					if (ImGui::Button("Load Shader"))
-					{
-						std::cout << "DISABLED!\n";
-						// selectedObject->setShader(new Shader(loadShaderBuffer));
-					}
 
 					ImGui::Image((void*)(intptr_t)m_selectedObject->getTexture(), ImVec2(150, 150));
 					ImGui::SameLine();

@@ -17,6 +17,7 @@ GameObject::GameObject(std::string name, Mesh mesh, Shader* shader, ColliderType
 	this->m_mesh = mesh;
 
 	genBuffers();
+	loadTexture(".\\Assets\\Textures\\default.png");
 }
 
 GameObject::GameObject(std::string name, std::string path, Shader* shader, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
@@ -35,6 +36,7 @@ GameObject::GameObject(std::string name, std::string path, Shader* shader, Colli
 	ObjectLoader::load_model_mesh_assimp(path.c_str(), m_mesh);
 
 	genBuffers();
+	loadTexture(".\\Assets\\Textures\\default.png");
 }
 
 GameObject::GameObject(const GameObject& other) : GameObjectCollisions(this, other.collider->getColliderType()), GameObjectPhysics(this)
@@ -57,7 +59,10 @@ GameObject::GameObject(const GameObject& other) : GameObjectCollisions(this, oth
 
 GameObject::~GameObject()
 {
-	// delete this->m_pShader;
+	glDeleteVertexArrays(1, &vao);
+	glDeleteBuffers(1, &m_vbo);
+	glDeleteBuffers(1, &m_ebo);
+	glDeleteTextures(1, &m_texture);
 }
 
 void GameObject::genBuffers()
@@ -130,14 +135,14 @@ void GameObject::drawWireframe()
 
 void GameObject::loadTexture(const char* path)
 {
-	loadTexture(path, &this->m_texture);
+	loadTexture(path, this->m_texture);
 	this->m_textureType = GL_TEXTURE_2D;
 }
 
-void GameObject::loadTexture(const char* path, GLuint* texture)
+void GameObject::loadTexture(const char* path, GLuint& texture)
 {
-	if (*texture == 0) glGenTextures(1, texture);
-	glBindTexture(GL_TEXTURE_2D, *texture);
+	if (texture == 0) glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -148,7 +153,9 @@ void GameObject::loadTexture(const char* path, GLuint* texture)
 	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
 	if (data)
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		const GLint channel = nrChannels == 3 ? GL_RGB : GL_RGBA;
+
+		glTexImage2D(GL_TEXTURE_2D, 0, channel, width, height, 0, channel, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
@@ -157,6 +164,7 @@ void GameObject::loadTexture(const char* path, GLuint* texture)
 	}
 
 	stbi_image_free(data);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void GameObject::loadCubeMap(std::vector<const char*> faces)
@@ -192,6 +200,8 @@ void GameObject::loadCubeMap(std::vector<const char*> faces, GLuint* texture)
 			stbi_image_free(data);
 		}
 	}
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
 

@@ -150,7 +150,7 @@ public:
 		this->setFloat3(std::format("lights[{}].color", index).c_str(), light->getColor());
 
 		this->setTexture(GL_TEXTURE_2D, light->getDepthMap(), textureIndex);
-		this->setInt(std::format("lights[{}].shadowMap", index).c_str(), index);
+		this->setInt(std::format("lights[{}].shadowMap", index).c_str(), textureIndex - GL_TEXTURE0);
 		this->setMat4(std::format("lights[{}].lightSpaceMatrix", index).c_str(), light->getProjectionMatrix() * light->getViewMatrix());
 
 		this->setInt(std::format("lights[{}].lightType", index).c_str(), light->getLightType());

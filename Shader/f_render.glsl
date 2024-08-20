@@ -29,6 +29,7 @@ const int LIGHT_SPOT = 2;
 out vec4 FragColor;
 
 uniform Material material;
+uniform sampler2D diffuseTexture;
 
 uniform int lightCount;
 uniform Light lights[10];
@@ -67,18 +68,19 @@ float ShadowCalculation(int lightIndex, vec4 fragPosLightSpace, float biasLimitM
     return shadow;
 }
 
-vec3 Spot(vec3 lightPosition, vec3 lightDirection, vec3 lightColor, float innerCone, float outerCone)
+vec4 Spot(vec3 lightPosition, vec3 lightDirection, vec3 lightColor, float innerCone, float outerCone)
 {
     // diffuse
     vec3 lightDir = normalize(lightPosition - fragPos);
     float diff = max(dot(lightDir, fragNorm), 0.0);
-    vec3 diffuse = diff * (lightColor * material.diffuse);
-    
+    vec4 diffuse = vec4(lightColor * material.diffuse, 1.0);
+    diffuse = (diffuse * texture(diffuseTexture, fragUv)) * diff;
+
     // specular
     vec3 viewDir = normalize(viewPos - fragPos);
     vec3 reflectDir = reflect(-lightDir, fragNorm);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    vec3 specular = spec * (lightColor * material.specular);
+    vec4 specular = vec4(spec * (lightColor * material.specular), 1.0);
 
     float angle = dot(lightDirection, -lightDir);
     float inten = clamp((angle - outerCone) / (innerCone - outerCone), 0.0, 1.0);
@@ -86,18 +88,19 @@ vec3 Spot(vec3 lightPosition, vec3 lightDirection, vec3 lightColor, float innerC
     return (diffuse * inten) + (specular * inten);
 }
 
-vec3 Directional(vec3 lightDirection, vec3 lightColor)
+vec4 Directional(vec3 lightDirection, vec3 lightColor)
 {
     // diffuse
     vec3 lightDir = normalize(lightDirection);
     float diff = max(dot(lightDir, fragNorm), 0.0);
-    vec3 diffuse = diff * (lightColor * material.diffuse);
+    vec4 diffuse = vec4(lightColor * material.diffuse, 1.0);
+    diffuse = (diffuse * texture(diffuseTexture, fragUv)) * diff;
     
     // specular
     vec3 viewDir = normalize(viewPos - fragPos);
     vec3 reflectDir = reflect(-lightDir, fragNorm);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    vec3 specular = spec * (lightColor * material.specular);
+    vec4 specular = vec4(spec * (lightColor * material.specular), 1.0);
 
     return diffuse + specular;
 }
@@ -106,7 +109,7 @@ vec3 Directional(vec3 lightDirection, vec3 lightColor)
 
 void main()
 {
-    vec3 lighting = material.ambient;
+    vec4 lighting = vec4(material.ambient * material.diffuse, 1.0);
 
     for(int i = 0; i < lightCount; i++)
     {
@@ -126,7 +129,7 @@ void main()
         }
     }
 
-    FragColor = vec4(lighting, 1.0);
+    FragColor = lighting;
 }
 
 

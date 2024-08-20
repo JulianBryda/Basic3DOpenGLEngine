@@ -41,12 +41,12 @@ public:
 			shader->setFloat3("viewPos", activeScene->getActiveCamera()->getPosition());
 			shader->setMaterial(object->getMaterialPtr());
 
-			// shader->setTexture(object->getTextureType(), object->getTexture());
+			shader->setTexture(object->getTextureType(), object->getTexture(), GL_TEXTURE0);
 
 			shader->setLightCount(activeScene->getLights().size());
 			for (int i = 0; i < activeScene->getLights().size(); i++)
 			{
-				shader->setLight(activeScene->getLights()[i], i, GL_TEXTURE0 + i);
+				shader->setLight(activeScene->getLights()[i], i, GL_TEXTURE1 + i);
 			}
 
 
@@ -77,6 +77,9 @@ public:
 			}
 
 			object->draw();
+
+			// cleanup texture to prevent wrong usage on other objects
+			shader->setTexture(object->getTextureType(), 0, GL_TEXTURE0);
 
 			shader = ShaderLib::getColorShaderPtr();
 			shader->use();

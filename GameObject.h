@@ -33,7 +33,7 @@ public:
 	virtual void drawWireframe();
 
 	void loadTexture(const char* path);
-	static void loadTexture(const char* path, GLuint* texture);
+	static void loadTexture(const char* path, GLuint& texture);
 
 	void loadCubeMap(std::vector<const char*> faces);
 	static void loadCubeMap(std::vector<const char*> faces, GLuint* texture);

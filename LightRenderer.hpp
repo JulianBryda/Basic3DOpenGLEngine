@@ -22,6 +22,7 @@ public:
 	{
 		GLint viewport[4];
 		glGetIntegerv(GL_VIEWPORT, viewport);
+		glStencilMask(GL_FALSE);
 
 		for (auto& light : activeScene->getLights())
 		{
@@ -55,6 +56,7 @@ public:
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
+		glStencilMask(GL_TRUE);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 	}
