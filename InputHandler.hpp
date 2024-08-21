@@ -392,7 +392,7 @@ public:
 		ImGuiContext& g = *GImGui;
 
 		// check if imgui is on top 
-		for (size_t i = 2; i < g.Windows.Size; i++)
+		for (int i = 2; i < g.Windows.Size; i++)
 		{
 			auto& window = g.Windows[i];
 			if (window->Active && mouseX > window->Pos.x && mouseX < window->Pos.x + window->Size.x && mouseY > window->Pos.y && mouseY < window->Pos.y + window->Size.y)

@@ -42,8 +42,8 @@ public:
 
 	void updateShadows()
 	{
-		m_shadowWidth = 1024 * m_shadowQuality;
-		m_shadowHeight = 1024 * m_shadowQuality;
+		m_shadowWidth = static_cast<int>(1024.f * m_shadowQuality);
+		m_shadowHeight = static_cast<int>(1024.f * m_shadowQuality);
 
 		if (m_depthMap)
 		{

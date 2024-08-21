@@ -88,7 +88,7 @@ bool GameObjectCollisions::checkSATCollision(GameObject& object)
 void GameObjectCollisions::drawCollider()
 {
 	glBindVertexArray(vao);
-	glDrawElements(GL_TRIANGLES, mesh.getIndicesPtr()->size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh.getIndicesPtr()->size()), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 

@@ -156,9 +156,9 @@ public:
 		this->setInt(std::format("lights[{}].lightType", index).c_str(), light->getLightType());
 	}
 
-	inline void setLightCount(int count) const
+	inline void setLightCount(size_t count) const
 	{
-		this->setInt("lightCount", count);
+		this->setInt("lightCount", static_cast<int>(count));
 	}
 
 private:

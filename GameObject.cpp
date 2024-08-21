@@ -120,7 +120,7 @@ void GameObject::updateBuffers()
 void GameObject::draw()
 {
 	glBindVertexArray(vao);
-	glDrawElements(GL_TRIANGLES, this->m_mesh.getIndicesPtr()->size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(this->m_mesh.getIndicesPtr()->size()), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 

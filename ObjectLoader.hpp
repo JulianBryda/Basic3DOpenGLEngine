@@ -14,14 +14,15 @@ namespace ObjectLoader
 {
 	struct ObjectData
 	{
-		char name[255];
+		char name[255]{};
 		Mesh mesh;
-		glm::vec3 bbMin;
-		glm::vec3 bbMax;
+		glm::vec3 bbMin{};
+		glm::vec3 bbMax{};
 
 	};
 
-	static void computeBoundingBox(const aiScene* scene, aiVector3D* min, aiVector3D* max) {
+	static void computeBoundingBox(const aiScene* scene, aiVector3D* min, aiVector3D* max)
+	{
 		min->x = min->y = min->z = std::numeric_limits<float>::max();
 		max->x = max->y = max->z = std::numeric_limits<float>::lowest();
 
@@ -41,7 +42,8 @@ namespace ObjectLoader
 		}
 	}
 
-	static float calculateScalingFactor(const aiVector3D& min, const aiVector3D& max, float targetSize) {
+	static float calculateScalingFactor(const aiVector3D& min, const aiVector3D& max, float targetSize)
+	{
 		aiVector3D size = max - min;
 		float maxDimension = std::max(size.x, std::max(size.y, size.z));
 
@@ -113,7 +115,7 @@ namespace ObjectLoader
 			objects->push_back(data);
 		}
 
-		meshCount = objects->size();
+		meshCount = static_cast<int>(objects->size());
 
 		ObjectData* data = new ObjectData[objects->size()];
 		std::copy(objects->begin(), objects->end(), data);

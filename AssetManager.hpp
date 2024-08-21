@@ -40,9 +40,9 @@ public:
 		{
 			std::string path = paths[i];
 
-			int nameIndex = path.find_last_of('\\') + 1;
-			int nameSuffix = path.find_last_of(".");
-			int nameLength = path.length() - nameIndex - (path.length() - nameSuffix);
+			int nameIndex = static_cast<int>(path.find_last_of('\\')) + 1;
+			int nameSuffix = static_cast<int>(path.find_last_of("."));
+			int nameLength = static_cast<int>(path.length()) - nameIndex - (static_cast<int>(path.length()) - nameSuffix);
 
 			m_files.push_back({ path.substr(nameIndex, nameLength), path, m_icons.at(path.substr(nameSuffix + 1)) });
 		}
