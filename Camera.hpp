@@ -1,7 +1,6 @@
 #pragma once
 #include "GameObject.h"
 
-
 class Camera : public GameObject
 {
 
@@ -22,9 +21,13 @@ public:
 		this->m_far = 1000.0f;
 
 		if (isOrtho)
+		{
 			this->m_projection = glm::ortho(-1280.0f * 0.05f, 1280.0f * 0.05f, -720.0f * 0.05f, 720.0f * 0.05f, this->m_near, this->m_far);
+		}
 		else
-			this->m_projection = glm::perspective(glm::radians(80.0f), 16.0f / 9.0f, this->m_near, this->m_far);
+		{
+			this->m_projection = glm::perspective(glm::radians(80.0f), calcAspectRatio(), this->m_near, this->m_far);
+		}
 	}
 
 	// getter
@@ -61,6 +64,15 @@ public:
 	inline void multiplyDistance(const float multiplier) { m_Distance = m_Distance * multiplier; }
 
 	inline void setImmutable(bool value) { this->immutable = value; }
+
+	// functions
+	float calcAspectRatio() const
+	{
+		GLint viewport[4];
+		glGetIntegerv(GL_VIEWPORT, viewport);
+
+		return static_cast<float>(viewport[2]) / static_cast<float>(viewport[3]);
+	}
 
 private:
 

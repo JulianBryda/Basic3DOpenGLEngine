@@ -12,6 +12,15 @@
 
 class InputHandler
 {
+private:
+
+	enum ManipulationState
+	{
+		Nothing,
+		Scaling,
+		Moving,
+		Rotating
+	};
 
 public:
 
@@ -20,7 +29,7 @@ public:
 	{
 		m_window = nullptr;
 
-		m_manipulationStruct = { ManipulationState::Nothing, glm::vec3(0.f), glm::vec3(1.f) };
+		m_manipulationStruct = { ManipulationState::Nothing };
 		m_movementSpeed = 2.f;
 		m_mouseSpeed = .5f;
 		m_speed = 20.f;
@@ -90,62 +99,65 @@ public:
 		// handle manipulation
 		if (m_manipulationStruct.state != Nothing)
 		{
-			GameObject* object = ImguiRenderer::getSelectedObject();
-			if (object == nullptr)
+			auto& objects = ImguiRenderer::getSelectedObjects();
+
+			for (int i = 0; i < objects.size(); i++)
 			{
-				m_manipulationStruct.state = Nothing;
-				return;
-			}
+				auto object = objects[i];
+				if (object == nullptr) continue;
 
-			glm::vec2 cursorPosition = glm::vec2(xpos, ypos);
-			glm::vec2 startPosition = glm::vec2(m_lastXManipulation, m_lastYManipulation);
-			glm::vec2 objectPosition = worldToScreen(object->getPosition(), activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix());
+				glm::vec2 cursorPosition = glm::vec2(xpos, ypos);
+				glm::vec2 startPosition = glm::vec2(m_lastXManipulation, m_lastYManipulation);
+				glm::vec2 mainObjectPosition = worldToScreen(ImguiRenderer::getSelectedObject()->getPosition(), activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix());
 
-			if (m_manipulationStruct.state == Scaling)
-			{
-				float distanceOffset = glm::length(objectPosition - startPosition);
-				float distance = glm::length(cursorPosition - objectPosition) - distanceOffset;
-
-				object->setScale(m_manipulationStruct.inititalScale + glm::vec3(distance / 20.f) * m_manipulationStruct.manipulationFactor);
-			}
-			else if (m_manipulationStruct.state == Moving)
-			{
-				int width, height;
-				glfwGetWindowSize(m_window, &width, &height);
-
-				float tempDepth;
-				static float depth;
-				glReadPixels(static_cast<int>(objectPosition.x), height - static_cast<int>(objectPosition.y), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &tempDepth);
-				if (tempDepth != 0)
+				if (m_manipulationStruct.state == Scaling && m_manipulationStruct.inititalScale.size() == objects.size())
 				{
-					depth = tempDepth;
+					float distanceOffset = glm::length(mainObjectPosition - startPosition);
+					float distance = glm::length(cursorPosition - mainObjectPosition) - distanceOffset;
+
+					object->setScale(m_manipulationStruct.inititalScale[i] + glm::vec3(distance / 20.f) * m_manipulationStruct.manipulationFactor);
 				}
+				else if (m_manipulationStruct.state == Moving && m_manipulationStruct.initialPosition.size() == objects.size())
+				{
+					glm::vec2 objectPosition = worldToScreen(object->getPosition(), activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix());
 
-				glm::vec3 cursorWorldPosition = screenToWorld(width, height, cursorPosition.x, cursorPosition.y, depth);
-				glm::vec3 startWorldPosition = screenToWorld(width, height, startPosition.x, startPosition.y, depth);
+					int width, height;
+					glfwGetWindowSize(m_window, &width, &height);
 
-				glm::vec3 direction = cursorWorldPosition - startWorldPosition;
+					float tempDepth;
+					static float depth;
+					glReadPixels(static_cast<int>(objectPosition.x), height - static_cast<int>(objectPosition.y), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &tempDepth);
+					if (tempDepth != 0)
+					{
+						depth = tempDepth;
+					}
 
-				object->setPosition(m_manipulationStruct.initialPosition + direction * m_manipulationStruct.manipulationFactor);
-			}
-			else if (m_manipulationStruct.state == Rotating)
-			{
-				glm::vec3 rotationAxis = activeCamera->getPosition() - object->getPosition();
-				rotationAxis.x = rotationAxis.x < 0 ? -1.f : 1.f;
-				rotationAxis.y = rotationAxis.y < 0 ? -1.f : 1.f;
-				rotationAxis.z = rotationAxis.z < 0 ? -1.f : 1.f;
+					glm::vec3 cursorWorldPosition = screenToWorld(width, height, cursorPosition.x, cursorPosition.y, depth);
+					glm::vec3 startWorldPosition = screenToWorld(width, height, startPosition.x, startPosition.y, depth);
 
-				glm::vec2 startDirection = startPosition - objectPosition;
-				glm::vec2 currentDirection = cursorPosition - objectPosition;
+					glm::vec3 direction = cursorWorldPosition - startWorldPosition;
 
-				float startRadians = atan2(startDirection.y, startDirection.x);
-				float currentRadians = atan2(currentDirection.y, currentDirection.x);
+					object->setPosition(m_manipulationStruct.initialPosition[i] + direction * m_manipulationStruct.manipulationFactor);
+				}
+				else if (m_manipulationStruct.state == Rotating && m_manipulationStruct.inititalRotation.size() == objects.size())
+				{
+					glm::vec3 rotationAxis = activeCamera->getPosition() - object->getPosition();
+					rotationAxis.x = rotationAxis.x < 0 ? -1.f : 1.f;
+					rotationAxis.y = rotationAxis.y < 0 ? -1.f : 1.f;
+					rotationAxis.z = rotationAxis.z < 0 ? -1.f : 1.f;
 
-				float degrees = glm::degrees(startRadians - currentRadians);
+					glm::vec2 startDirection = startPosition - mainObjectPosition;
+					glm::vec2 currentDirection = cursorPosition - mainObjectPosition;
 
-				float value = degrees < 0 ? 360.f - abs(degrees) : degrees;
+					float startRadians = atan2(startDirection.y, startDirection.x);
+					float currentRadians = atan2(currentDirection.y, currentDirection.x);
 
-				object->setRotation(m_manipulationStruct.inititalRotation + value * (m_manipulationStruct.manipulationFactor * rotationAxis));
+					float degrees = glm::degrees(startRadians - currentRadians);
+
+					float value = degrees < 0 ? 360.f - abs(degrees) : degrees;
+
+					object->setRotation(m_manipulationStruct.inititalRotation[i] + value * (m_manipulationStruct.manipulationFactor * rotationAxis));
+				}
 			}
 
 		}
@@ -183,7 +195,7 @@ public:
 			case GLFW_MOUSE_BUTTON_LEFT:
 				if (m_manipulationStruct.state != Nothing)
 				{
-					m_manipulationStruct.state = Nothing;
+					setManipulationState(Nothing);
 				}
 				else
 				{
@@ -241,7 +253,7 @@ public:
 				}
 				break;
 			case GLFW_KEY_A:
-
+				selectAllObjects();
 				break;
 			case GLFW_KEY_X:
 				setManipulationFactor(glm::vec3(1.f, 0.f, 0.f));
@@ -279,27 +291,54 @@ public:
 		}
 	}
 
+	void selectAllObjects()
+	{
+		// set manipulation state to nothing to prevent undefined behavior
+		setManipulationState(Nothing);
+
+		// send nullptr to clear objects and avoid duplicates
+		ImguiRenderer::setSelectedObject(nullptr);
+
+		for (auto& object : RendererManager::getInstance().getActiveScene()->getObjects())
+		{
+			ImguiRenderer::addSelectedObject(object);
+		}
+	}
+
 	void undoManipulation()
 	{
-		GameObject* object = ImguiRenderer::getSelectedObject();
-		if (object == nullptr) return;
+		auto& objects = ImguiRenderer::getSelectedObjects();
 
-		switch (m_manipulationStruct.state)
+		for (int i = 0; i < objects.size(); i++)
 		{
-		case Moving:
-			object->setPosition(m_manipulationStruct.initialPosition);
-			break;
-		case Rotating:
-			object->setRotation(m_manipulationStruct.inititalRotation);
-			break;
-		case Scaling:
-			object->setScale(m_manipulationStruct.inititalScale);
-			break;
-		default:
-			break;
+			auto object = objects[i];
+			if (object == nullptr) continue;
+
+			switch (m_manipulationStruct.state)
+			{
+			case Moving:
+				object->setPosition(m_manipulationStruct.initialPosition[i]);
+				break;
+			case Rotating:
+				object->setRotation(m_manipulationStruct.inititalRotation[i]);
+				break;
+			case Scaling:
+				object->setScale(m_manipulationStruct.inititalScale[i]);
+				break;
+			default:
+				break;
+			}
 		}
 
-		m_manipulationStruct.state = Nothing;
+		setManipulationState(Nothing);
+	}
+
+	void setManipulationState(ManipulationState state)
+	{
+		m_manipulationStruct.state = state;
+		m_manipulationStruct.initialPosition.clear();
+		m_manipulationStruct.inititalRotation.clear();
+		m_manipulationStruct.inititalScale.clear();
 	}
 
 	void recenterCamera()
@@ -329,46 +368,70 @@ public:
 
 	void deleteObject()
 	{
-		GameObject* object = ImguiRenderer::getSelectedObject();
-		if (object == nullptr) return;
+		auto& objects = ImguiRenderer::getSelectedObjects();
 
-		RendererManager::getInstance().deleteObject(*object);
+		for (int i = 0; i < objects.size(); i++)
+		{
+			auto object = objects[i];
+			if (object == nullptr) continue;
+
+			RendererManager::getInstance().deleteObject(*object);
+		}
+
 		ImguiRenderer::setSelectedObject(nullptr);
 	}
 
 	void scaleObject()
 	{
-		GameObject* object = ImguiRenderer::getSelectedObject();
-		if (object == nullptr) return;
-
-		m_manipulationStruct.state = m_manipulationStruct.state == Scaling ? Nothing : Scaling;
 		glfwGetCursorPos(m_window, &m_lastXManipulation, &m_lastYManipulation);
+		setManipulationState(m_manipulationStruct.state == Scaling ? Nothing : Scaling);
 
-		m_manipulationStruct.inititalScale = object->getScale();
+		auto& objects = ImguiRenderer::getSelectedObjects();
+
+		for (int i = 0; i < objects.size(); i++)
+		{
+			auto object = objects[i];
+			if (object == nullptr) continue;
+
+			m_manipulationStruct.inititalScale.push_back(object->getScale());
+		}
+
 		m_manipulationStruct.manipulationFactor = glm::vec3(1.f);
 	}
 
 	void moveObject()
 	{
-		GameObject* object = ImguiRenderer::getSelectedObject();
-		if (object == nullptr) return;
-
-		m_manipulationStruct.state = m_manipulationStruct.state == Moving ? Nothing : Moving;
 		glfwGetCursorPos(m_window, &m_lastXManipulation, &m_lastYManipulation);
+		setManipulationState(m_manipulationStruct.state == Moving ? Nothing : Moving);
 
-		m_manipulationStruct.initialPosition = object->getPosition();
+		auto& objects = ImguiRenderer::getSelectedObjects();
+
+		for (int i = 0; i < objects.size(); i++)
+		{
+			auto object = objects[i];
+			if (object == nullptr) continue;
+
+			m_manipulationStruct.initialPosition.push_back(object->getPosition());
+		}
+
 		m_manipulationStruct.manipulationFactor = glm::vec3(1.f);
 	}
 
 	void rotateObject()
 	{
-		GameObject* object = ImguiRenderer::getSelectedObject();
-		if (object == nullptr) return;
-
-		m_manipulationStruct.state = m_manipulationStruct.state == Rotating ? Nothing : Rotating;
 		glfwGetCursorPos(m_window, &m_lastXManipulation, &m_lastYManipulation);
+		setManipulationState(m_manipulationStruct.state == Rotating ? Nothing : Rotating);
 
-		m_manipulationStruct.inititalRotation = object->getRotation();
+		auto& objects = ImguiRenderer::getSelectedObjects();
+
+		for (int i = 0; i < objects.size(); i++)
+		{
+			auto object = objects[i];
+			if (object == nullptr) continue;
+
+			m_manipulationStruct.inititalRotation.push_back(object->getRotation());
+		}
+
 		m_manipulationStruct.manipulationFactor = glm::vec3(1.f);
 	}
 
@@ -550,23 +613,21 @@ public:
 		m_window = window;
 	}
 
-private:
-
-	enum ManipulationState
+	GLFWwindow* getWindow() const
 	{
-		Nothing,
-		Scaling,
-		Moving,
-		Rotating
-	};
+		return m_window;
+	}
+
+
+private:
 
 	struct ManipulationStruct
 	{
 		ManipulationState state;
 
-		glm::vec3 inititalScale;
-		glm::vec3 initialPosition;
-		glm::vec3 inititalRotation;
+		std::vector<glm::vec3> inititalScale;
+		std::vector<glm::vec3> initialPosition;
+		std::vector<glm::vec3> inititalRotation;
 
 		glm::vec3 manipulationFactor;
 	};

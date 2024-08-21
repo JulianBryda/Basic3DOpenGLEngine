@@ -1,0 +1,10 @@
+Key Shortcuts:
+	G: moves the selected object/s
+	R: rotates the selected object/s
+	S: scales the selected object/s
+	SHIFT + D: duplicates the last selected object
+	SHIFT + C: Centers the camera to the last selected object
+	A: selects all objects
+	X | Y | Z: used to specify the axis when scaling / moving / rotating objects
+	ESCAPE: used to undo a not finished Manipulation (rotating, scaling, moving)
+	DELETE: deletes selected objects 

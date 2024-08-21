@@ -24,6 +24,8 @@ public:
 
 	ImguiRenderer(GLFWwindow* window) : RendererBase(RendererType::UserInterface)
 	{
+		m_pWindow = window;
+
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
@@ -151,26 +153,79 @@ public:
 		}
 	}
 
+	bool isSelected(GameObject* object)
+	{
+		for (int i = 0; i < m_selectedObjects.size(); i++)
+		{
+			if (m_selectedObjects[i] == object)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	template <typename T>
+	int getIndex(std::vector<T>& vector, T& value)
+	{
+		for (int i = 0; i < vector.size(); i++)
+		{
+			if (vector[i] == value)
+			{
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
 	// static
+
+	static void addSelectedObject(GameObject* object)
+	{
+		if (object == nullptr) return;
+
+		object->setIsOutline(true);
+		m_selectedObjects.push_back(object);
+	}
+
+	static void removeSelectedObject(GameObject* object)
+	{
+		for (size_t i = 0; i < m_selectedObjects.size(); i++)
+		{
+			if (m_selectedObjects[i] == object)
+			{
+				m_selectedObjects.erase(m_selectedObjects.begin() + i);
+				break;
+			}
+		}
+	}
 
 	static void setSelectedObject(GameObject* object)
 	{
-		if (m_selectedObject != nullptr)
+		for (auto& obj : m_selectedObjects)
 		{
-			m_selectedObject->setIsOutline(false);
+			obj->setIsOutline(false);
 		}
+
+		m_selectedObjects.clear();
 
 		if (object != nullptr)
 		{
 			object->setIsOutline(true);
+			m_selectedObjects.push_back(object);
 		}
+	}
 
-		m_selectedObject = object;
+	static std::vector<GameObject*>& getSelectedObjects()
+	{
+		return m_selectedObjects;
 	}
 
 	static GameObject* getSelectedObject()
 	{
-		return m_selectedObject;
+		return m_selectedObjects[m_selectedObjects.size() - 1];
 	}
 
 private:
@@ -200,6 +255,8 @@ private:
 
 	Light* m_selectedLight;
 
+	GLFWwindow* m_pWindow;
+
 	// static
-	static GameObject* m_selectedObject;
+	static std::vector<GameObject*> m_selectedObjects;
 };
