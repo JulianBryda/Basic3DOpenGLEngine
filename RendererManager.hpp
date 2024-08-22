@@ -9,13 +9,6 @@
 #include "Imgui/imgui_impl_glfw.h"
 #include "Imgui/imgui_impl_opengl3.h"
 
-
-enum RenderMode
-{
-	Debug,
-	Render
-};
-
 class RendererManager
 {
 
@@ -23,7 +16,8 @@ public:
 
 	RendererManager()
 	{
-		m_renderMode = RenderMode::Debug;
+		m_useDebugShader = true;
+		m_pDebugShader = ShaderLib::getDebugShaderPtr();
 		m_activeScene = new Scene();
 		addScene(m_activeScene);
 	}
@@ -67,9 +61,14 @@ public:
 		return m_activeScene;
 	}
 
-	RenderMode getRenderMode() const
+	bool getIsUseDebugShader() const
 	{
-		return m_renderMode;
+		return m_useDebugShader;
+	}
+
+	Shader* getDebugShader() const
+	{
+		return m_pDebugShader;
 	}
 
 	RendererBase* getRenderer(RendererType type)
@@ -89,9 +88,14 @@ public:
 	}
 
 	// setter
-	void setRenderMode(RenderMode renderMode)
+	void setUseDebugShader(bool value)
 	{
-		RendererManager::m_renderMode = renderMode;
+		m_useDebugShader = value;
+	}
+
+	void setDebugShader(Shader* shader)
+	{
+		m_pDebugShader = shader;
 	}
 
 	void setActiveScene(Scene* scene)
@@ -141,6 +145,11 @@ public:
 		PhysicEngine::removeObject(&object);
 	}
 
+	void toggleUseDebugShader()
+	{
+		m_useDebugShader = !m_useDebugShader;
+	}
+
 private:
 
 	std::vector<RendererBase*> m_renderers;
@@ -148,7 +157,8 @@ private:
 	std::vector<Scene*> m_scenes;
 	Scene* m_activeScene;
 
-	RenderMode m_renderMode;
+	Shader* m_pDebugShader;
+	bool m_useDebugShader;
 
 
 	RendererManager(const RendererManager&) = delete;

@@ -24,9 +24,9 @@ public:
 			if (object->getHidden()) continue;
 
 			Shader* shader = nullptr;
-			if (RendererManager::getInstance().getRenderMode() == RenderMode::Debug)
+			if (RendererManager::getInstance().getIsUseDebugShader())
 			{
-				shader = ShaderLib::getDebugShaderPtr();
+				shader = RendererManager::getInstance().getDebugShader();
 			}
 			else
 			{

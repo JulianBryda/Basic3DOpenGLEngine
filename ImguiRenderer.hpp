@@ -69,7 +69,7 @@ public:
 
 		// render functions here
 		renderMenuBar();
-		if (m_showDebugInfo) renderDebugInfo();
+		if (m_showDebugMenu) renderDebugMenu();
 		if (m_showObjectManager) renderObjectManager();
 		if (m_showLightManager) renderLightManager();
 		if (m_showAssetManager) renderAssetManager();
@@ -233,7 +233,7 @@ private:
 	void setImguiStyle();
 
 	void renderMenuBar();
-	void renderDebugInfo();
+	void renderDebugMenu();
 
 	void renderObjectManager();
 	void renderLightManager();
@@ -247,7 +247,7 @@ private:
 	char m_selectedTexturePath[_MAX_PATH] = "";
 	std::string m_selectedAssetPath = "";
 
-	bool m_showDebugInfo = false,
+	bool m_showDebugMenu = false,
 		m_showObjectManager = false,
 		m_highlightCloseCollidableObjects = false,
 		m_showLightManager = false,

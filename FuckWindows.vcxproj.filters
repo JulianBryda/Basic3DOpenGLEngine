@@ -94,6 +94,9 @@
     <Filter Include="Header Files\Assets">
       <UniqueIdentifier>{1f108650-2b8f-47dd-b989-2d4bc93f053e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Config">
+      <UniqueIdentifier>{a3960561-87a4-4348-8012-aff590b5c1e5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FuckWindows.cpp">
@@ -260,6 +263,12 @@
     <ClInclude Include="GameObjectConstructor.hpp">
       <Filter>Header Files\Objects\Base</Filter>
     </ClInclude>
+    <ClInclude Include="GlobalConfig.hpp">
+      <Filter>Header Files\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="Landscape.hpp">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
@@ -304,6 +313,12 @@
     </None>
     <None Include="Shader\f_depth.glsl">
       <Filter>Source Files\Renderer\Shader\Fragment</Filter>
+    </None>
+    <None Include="Shader\f_debugColor.glsl">
+      <Filter>Source Files\Renderer\Shader\Fragment</Filter>
+    </None>
+    <None Include="Shader\v_debugColor.glsl">
+      <Filter>Source Files\Renderer\Shader\Vertex</Filter>
     </None>
   </ItemGroup>
 </Project>

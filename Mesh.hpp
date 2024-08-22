@@ -28,10 +28,10 @@ public:
 	}
 
 	// getter
-	inline std::vector<Vertex> getVertices() const { return this->m_vertices; }
+	inline std::vector<Vertex>& getVertices() { return this->m_vertices; }
 	inline std::vector<Vertex>* getVerticesPtr() { return &this->m_vertices; }
 
-	inline std::vector<GLuint> getIndices() const { return this->m_indices; }
+	inline std::vector<GLuint>& getIndices() { return this->m_indices; }
 	inline std::vector<GLuint>* getIndicesPtr() { return &this->m_indices; }
 
 	// setter

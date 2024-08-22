@@ -13,6 +13,7 @@ public:
 		renderShader = new Shader(".\\v_render.glsl", ".\\f_render.glsl", ".\\LibraryShader\\structs.glsl");
 		skyboxShader = new Shader(".\\v_skybox.glsl", ".\\f_skybox.glsl");
 		depthShader = new Shader(".\\v_depth.glsl", ".\\f_depth.glsl");
+		debugColorShader = new Shader(".\\v_debugColor.glsl", ".\\f_debugColor.glsl");
 	}
 
 	static Shader* getColorShaderPtr() { return colorShader; }
@@ -20,8 +21,9 @@ public:
 	static Shader* getRenderShaderPtr() { return renderShader; }
 	static Shader* getSkyboxShaderPtr() { return skyboxShader; }
 	static Shader* getDepthShaderPtr() { return depthShader; }
+	static Shader* getDebugColorShaderPtr() { return debugColorShader; }
 
 private:
 
-	static Shader* colorShader, * debugShader, * renderShader, * skyboxShader, * depthShader;
+	static Shader* colorShader, * debugShader, * renderShader, * skyboxShader, * depthShader, * debugColorShader;
 };

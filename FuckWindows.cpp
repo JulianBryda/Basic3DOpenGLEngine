@@ -13,6 +13,7 @@
 #include "AssetManager.hpp"
 #include "LightRenderer.hpp"
 #include "EnvironmentRenderer.hpp"
+#include "GlobalConfig.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -53,8 +54,10 @@ int main()
 		return -1;
 	}
 
+	auto settings = std::make_unique<GlobalConfig>();
+
 	// enable vsync
-	glfwSwapInterval(1);
+	glfwSwapInterval(g_settings->vsyncEnabled);
 
 	// enable anti aliasing
 	glEnable(GL_MULTISAMPLE);
@@ -131,6 +134,7 @@ int main()
 		glfwSwapBuffers(window);
 	}
 
+	settings.reset();
 	glfwTerminate();
 
 	return 0;

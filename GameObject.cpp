@@ -235,7 +235,7 @@ Shader* GameObject::getShaderPtr() const { return m_pShader; }
 
 Material* GameObject::getMaterialPtr() { return &m_material; }
 
-Mesh GameObject::getMesh() const { return this->m_mesh; }
+Mesh& GameObject::getMesh() { return this->m_mesh; }
 Mesh* GameObject::getMeshPtr() { return &this->m_mesh; }
 
 void GameObject::setPosition(glm::vec3 position) { this->position = position; }

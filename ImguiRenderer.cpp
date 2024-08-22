@@ -1,6 +1,7 @@
 #include "ImguiRenderer.hpp"
 #include "ObjectLoader.hpp"
 #include "GameObjectConstructor.hpp"
+#include "GlobalConfig.hpp"
 
 #include <windows.h>
 #include <commdlg.h>
@@ -96,7 +97,7 @@ void ImguiRenderer::renderMenuBar()
 		}
 		if (ImGui::BeginMenu("Viewport"))
 		{
-			ImGui::Checkbox("Show Debug Info", &m_showDebugInfo);
+			ImGui::Checkbox("Show Debug Menu", &m_showDebugMenu);
 
 			if (ImGui::BeginMenu("Camera"))
 			{
@@ -129,14 +130,14 @@ void ImguiRenderer::renderMenuBar()
 
 			if (ImGui::BeginMenu("Render Mode"))
 			{
-				if (ImGui::Checkbox("Debug", new bool(RendererManager::getInstance().getRenderMode() == RenderMode::Debug)))
+				if (ImGui::Checkbox("Debug", new bool(RendererManager::getInstance().getIsUseDebugShader())))
 				{
-					RendererManager::getInstance().setRenderMode(RenderMode::Debug);
+					RendererManager::getInstance().setUseDebugShader(true);
 				}
 
-				if (ImGui::Checkbox("Render", new bool(RendererManager::getInstance().getRenderMode() == RenderMode::Render)))
+				if (ImGui::Checkbox("Render", new bool(!RendererManager::getInstance().getIsUseDebugShader())))
 				{
-					RendererManager::getInstance().setRenderMode(RenderMode::Render);
+					RendererManager::getInstance().setUseDebugShader(false);
 				}
 
 				ImGui::EndMenu();
@@ -184,27 +185,47 @@ void ImguiRenderer::renderMenuBar()
 	}
 }
 
-void ImguiRenderer::renderDebugInfo()
+void ImguiRenderer::renderDebugMenu()
 {
-	ImGuiStyle& style = ImGui::GetStyle();
-	ImVec2 windowPadding = style.WindowPadding;
-
-	style.WindowRounding = 0.0f;
-	style.WindowPadding = ImVec2(3.0f, 3.0f);
-
-	ImGui::SetNextWindowPos(ImVec2(0.0f, 18.0f));
-	ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x, 20.0f));
-
-	ImGui::Begin("FPS Bar", nullptr,
-		ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
-		ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs);
+	ImGui::Begin("Debug Menu", nullptr);
 	{
 		ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+		if (ImGui::Checkbox("Vsync", new bool(GlobalConfig::getInstance().isVsyncEnabled())))
+		{
+			GlobalConfig::getInstance().toggleVsyncEnabled();
+		}
+
+
+		bool triangleDebug = RendererManager::getInstance().getDebugShader() == ShaderLib::getDebugColorShaderPtr();
+		if (ImGui::Checkbox("Triangle Debug", &triangleDebug))
+		{
+			if (triangleDebug)
+				RendererManager::getInstance().setDebugShader(ShaderLib::getDebugColorShaderPtr());
+			else
+				RendererManager::getInstance().setDebugShader(ShaderLib::getDebugShaderPtr());
+
+			RendererManager::getInstance().setUseDebugShader(true);
+		}
+
+		static bool wireframeDebug = false;
+		if (ImGui::Checkbox("Wireframe Debug", &wireframeDebug))
+		{
+			if (wireframeDebug)
+			{
+				RendererManager::getInstance().setDebugShader(ShaderLib::getColorShaderPtr());
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			}
+			else
+			{
+				RendererManager::getInstance().setDebugShader(ShaderLib::getDebugShaderPtr());
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			}
+
+			wireframeDebug = !wireframeDebug;
+			RendererManager::getInstance().setUseDebugShader(true);
+		}
 	}
 	ImGui::End();
-
-	style.WindowRounding = 5.0f;
-	style.WindowPadding = windowPadding;
 }
 
 void ImguiRenderer::renderObjectManager()
@@ -253,13 +274,15 @@ void ImguiRenderer::renderObjectManager()
 		{
 			if (m_selectedObjects.size() > 0)
 			{
-				float* pos[3] = { &getSelectedObject()->getPositionPtr()->x, &getSelectedObject()->getPositionPtr()->y, &getSelectedObject()->getPositionPtr()->z};
-				float* scale[3] = { &getSelectedObject()->getScalePtr()->x, &getSelectedObject()->getScalePtr()->y, &getSelectedObject()->getScalePtr()->z };
-				float* ambient[3] = { &getSelectedObject()->getMaterialPtr()->getAmbientPtr()->x, &getSelectedObject()->getMaterialPtr()->getAmbientPtr()->y, &getSelectedObject()->getMaterialPtr()->getAmbientPtr()->z };
-				float* diffuse[3] = { &getSelectedObject()->getMaterialPtr()->getDiffusePtr()->x, &getSelectedObject()->getMaterialPtr()->getDiffusePtr()->y, &getSelectedObject()->getMaterialPtr()->getDiffusePtr()->z };
-				float* specular[3] = { &getSelectedObject()->getMaterialPtr()->getSpecularPtr()->x, &getSelectedObject()->getMaterialPtr()->getSpecularPtr()->y, &getSelectedObject()->getMaterialPtr()->getSpecularPtr()->z };
+				GameObject* object = getSelectedObject();
 
-				ImGui::Text("Selected Object: %s", getSelectedObject()->getName().c_str());
+				float* pos[3] = { &object->getPositionPtr()->x, &object->getPositionPtr()->y, &object->getPositionPtr()->z };
+				float* scale[3] = { &object->getScalePtr()->x, &object->getScalePtr()->y, &object->getScalePtr()->z };
+				float* ambient[3] = { &object->getMaterialPtr()->getAmbientPtr()->x, &object->getMaterialPtr()->getAmbientPtr()->y, &object->getMaterialPtr()->getAmbientPtr()->z };
+				float* diffuse[3] = { &object->getMaterialPtr()->getDiffusePtr()->x, &object->getMaterialPtr()->getDiffusePtr()->y, &object->getMaterialPtr()->getDiffusePtr()->z };
+				float* specular[3] = { &object->getMaterialPtr()->getSpecularPtr()->x, &object->getMaterialPtr()->getSpecularPtr()->y, &object->getMaterialPtr()->getSpecularPtr()->z };
+
+				ImGui::Text("Selected Object: %s", object->getName().c_str());
 				ImGui::Separator();
 
 				if (ImGui::TreeNode("Object"))
@@ -272,21 +295,21 @@ void ImguiRenderer::renderObjectManager()
 					ImGui::Text("Rotation");
 					ImGui::SameLine();
 					ImGui::SetCursorPosX(ImGui::GetCursorPosX());
-					ImGui::InputFloat3("##1", *getSelectedObject()->getRotationPtr());
+					ImGui::InputFloat3("##1", *object->getRotationPtr());
 
 					ImGui::Text("Scale");
 					ImGui::SameLine();
 					ImGui::SetCursorPosX(ImGui::GetCursorPosX());
 					ImGui::InputFloat3("##2", *scale);
 
-					ImGui::Checkbox("Draw Wireframe", getSelectedObject()->getDrawWireframePtr());
+					ImGui::Checkbox("Draw Wireframe", object->getDrawWireframePtr());
 
 					ImGui::TreePop();
 				}
 
 				if (ImGui::TreeNode("Material"))
 				{
-					ImGui::Text("Shader: %s", getSelectedObject()->getShaderPtr()->getName().c_str());
+					ImGui::Text("Shader: %s", object->getShaderPtr()->getName().c_str());
 
 					ImGui::ColorEdit3("Ambient", *ambient, ImGuiColorEditFlags_NoInputs);
 					ImGui::SameLine();
@@ -295,9 +318,9 @@ void ImguiRenderer::renderObjectManager()
 					ImGui::ColorEdit3("Specular", *specular, ImGuiColorEditFlags_NoInputs);
 
 					ImGui::SetNextItemWidth(80.f);
-					ImGui::InputFloat("Shininess", getSelectedObject()->getMaterialPtr()->getShininessPtr());
+					ImGui::InputFloat("Shininess", object->getMaterialPtr()->getShininessPtr());
 
-					ImGui::Image((void*)(intptr_t)getSelectedObject()->getTexture(), ImVec2(150, 150));
+					ImGui::Image((void*)(intptr_t)object->getTexture(), ImVec2(150, 150));
 					ImGui::SameLine();
 					ImGui::BeginChild("Container", ImVec2(0, 150));
 					{
@@ -309,7 +332,7 @@ void ImguiRenderer::renderObjectManager()
 
 						if (ImGui::Button("Load Texture"))
 						{
-							getSelectedObject()->loadTexture(m_selectedTexturePath);
+							object->loadTexture(m_selectedTexturePath);
 						}
 					}
 					ImGui::EndChild();
@@ -317,16 +340,16 @@ void ImguiRenderer::renderObjectManager()
 					ImGui::TreePop();
 				}
 
-				if (getSelectedObject()->getIsPhysicsEnabled())
+				if (object->getIsPhysicsEnabled())
 				{
-					float* vel[3] = { &getSelectedObject()->getVelocityPtr()->x, &getSelectedObject()->getVelocityPtr()->y, &getSelectedObject()->getVelocityPtr()->z };
+					float* vel[3] = { &object->getVelocityPtr()->x, &object->getVelocityPtr()->y, &object->getVelocityPtr()->z };
 
 					if (ImGui::TreeNode("Physics"))
 					{
 						ImGui::Text("Mass");
 						ImGui::SameLine();
 						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
-						ImGui::InputFloat("##4523", getSelectedObject()->getMassPtr());
+						ImGui::InputFloat("##4523", object->getMassPtr());
 
 						ImGui::Text("Velocity");
 						ImGui::SameLine();
@@ -336,16 +359,16 @@ void ImguiRenderer::renderObjectManager()
 						ImGui::Text("Linear Drag");
 						ImGui::SameLine();
 						ImGui::SetCursorPosX(ImGui::GetCursorPosX());
-						ImGui::InputFloat("##3", getSelectedObject()->getLinearDragPtr());
+						ImGui::InputFloat("##3", object->getLinearDragPtr());
 
-						if (ImGui::Checkbox("Gravity", getSelectedObject()->getIsGravityEnabledPtr()))
+						if (ImGui::Checkbox("Gravity", object->getIsGravityEnabledPtr()))
 						{
-							if (getSelectedObject()->getIsGravityEnabled()) getSelectedObject()->setIsPullToObjectEnabled(false);
+							if (object->getIsGravityEnabled()) object->setIsPullToObjectEnabled(false);
 						}
 
-						if (ImGui::Checkbox("ObjectPull", getSelectedObject()->getIsPullToObjectEnabledPtr()))
+						if (ImGui::Checkbox("ObjectPull", object->getIsPullToObjectEnabledPtr()))
 						{
-							if (getSelectedObject()->getIsPullToObjectEnabled()) getSelectedObject()->setIsGravityEnabled(false);
+							if (object->getIsPullToObjectEnabled()) object->setIsGravityEnabled(false);
 						}
 
 						ImGui::TreePop();
@@ -353,27 +376,27 @@ void ImguiRenderer::renderObjectManager()
 
 					if (ImGui::TreeNode("Collisions"))
 					{
-						if (ImGui::Checkbox("Collision Enabled", getSelectedObject()->getIsCollisionEnabledPtr()))
+						if (ImGui::Checkbox("Collision Enabled", object->getIsCollisionEnabledPtr()))
 						{
-							getSelectedObject()->checkBuffers();
+							object->checkBuffers();
 						}
 
-						if (getSelectedObject()->getIsCollisionEnabled())
+						if (object->getIsCollisionEnabled())
 						{
-							ImGui::Checkbox("Draw Collision Box", getSelectedObject()->getIsDrawColliderPtr());
+							ImGui::Checkbox("Draw Collision Box", object->getIsDrawColliderPtr());
 
 							if (ImGui::Checkbox("Hide objects to far away for collision", &m_highlightCloseCollidableObjects))
 							{
 								if (PhysicEngine::getFocusedGameObject() == nullptr)
-									PhysicEngine::setFocusedGameObject(getSelectedObject());
+									PhysicEngine::setFocusedGameObject(object);
 								else
 									PhysicEngine::setFocusedGameObject(nullptr);
 							}
 
 							ImGui::BeginChild("Collider", ImVec2(0, 0), true);
 							{
-								float* anchor[3] = { &getSelectedObject()->getColliderPtr()->getAnchorPositionPtr()->x, &getSelectedObject()->getColliderPtr()->getAnchorPositionPtr()->y , &getSelectedObject()->getColliderPtr()->getAnchorPositionPtr()->z };
-								float* colliderScale[3] = { &getSelectedObject()->getColliderPtr()->getScalePtr()->x, &getSelectedObject()->getColliderPtr()->getScalePtr()->y , &getSelectedObject()->getColliderPtr()->getScalePtr()->z };
+								float* anchor[3] = { &object->getColliderPtr()->getAnchorPositionPtr()->x, &object->getColliderPtr()->getAnchorPositionPtr()->y , &object->getColliderPtr()->getAnchorPositionPtr()->z };
+								float* colliderScale[3] = { &object->getColliderPtr()->getScalePtr()->x, &object->getColliderPtr()->getScalePtr()->y , &object->getColliderPtr()->getScalePtr()->z };
 
 								ImGui::Text("Anchor");
 								ImGui::SameLine();
@@ -387,7 +410,7 @@ void ImguiRenderer::renderObjectManager()
 
 								ImGui::Spacing();
 
-								if (ImGui::Button("##6", ImVec2(40, 0))) getSelectedObject()->snapColliderToObject();
+								if (ImGui::Button("##6", ImVec2(40, 0))) object->snapColliderToObject();
 								ImGui::SameLine();
 								ImGui::Text("Snap Collider To Object");
 
@@ -399,12 +422,16 @@ void ImguiRenderer::renderObjectManager()
 						ImGui::TreePop();
 					}
 
+					ImGui::Separator();
+
+					ImGui::Text("Indices: %i", object->getMesh().getIndices().size());
+					ImGui::Text("Vertices: %i", object->getMesh().getVertices().size());
+
 					if (ImGui::Button("Delete"))
 					{
-						RendererManager::getInstance().deleteObject(*getSelectedObject());
-						removeSelectedObject(getSelectedObject());
+						RendererManager::getInstance().deleteObject(*object);
+						removeSelectedObject(object);
 					}
-
 				}
 			}
 		}

@@ -58,7 +58,7 @@ public:
 
 	Material* getMaterialPtr();
 
-	Mesh getMesh() const;
+	Mesh& getMesh();
 	Mesh* getMeshPtr();
 
 	void setPosition(glm::vec3 position);
