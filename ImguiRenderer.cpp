@@ -650,9 +650,12 @@ void ImguiRenderer::renderFpsGraph()
 {
 	ImGui::Begin("FPS Graph", nullptr, ImGuiWindowFlags_NoDocking);
 	{
-		auto data = g_stats->fpsHistory.data();
-		ImGui::PlotLines("##24323", data, g_stats->fpsHistory.size(), 0, "", g_stats->minFps, g_stats->maxFps * 1.5f, ImGui::GetContentRegionAvail());
-		//ImGui::PlotHistogram("##24323", data, g_stats->fpsHistory.size(), 0, "", g_stats->minFps, g_stats->maxFps * 1.5f, ImGui::GetContentRegionAvail());
+		if (ImPlot::BeginPlot("Real-Time FPS"))
+		{
+			ImPlot::PlotLine("Sine Wave", g_stats->fpsHistory.data(), g_stats->fpsHistory.size());
+
+			ImPlot::EndPlot();
+		}
 	}
 	ImGui::End();
 }
