@@ -29,8 +29,7 @@ public:
 	virtual void genBuffers();
 	virtual void updateBuffers();
 
-	virtual void draw();
-	virtual void drawWireframe();
+	void draw();
 
 	void loadTexture(const char* path);
 	static void loadTexture(const char* path, GLuint& texture);
@@ -39,8 +38,6 @@ public:
 	static void loadCubeMap(std::vector<const char*> faces, GLuint* texture);
 
 	bool getHidden() const;
-	bool getDrawWireframe() const;
-	bool* getDrawWireframePtr();
 	bool getIsOutline() const;
 
 	glm::vec3 getPosition() const;
@@ -96,6 +93,6 @@ private:
 
 	Mesh m_mesh;
 
-	bool m_hidden, m_drawWireframe, m_outline;
+	bool m_hidden, m_outline;
 
 };

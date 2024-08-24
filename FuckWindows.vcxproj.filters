@@ -52,12 +52,6 @@
     <Filter Include="Header Files\Libraries">
       <UniqueIdentifier>{ebb0ecd5-77eb-4197-95c5-b587c045fd69}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Libraries\Imgui">
-      <UniqueIdentifier>{07301700-4cb1-4f99-b3a5-6a63fb22d9ec}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Libraries\Imgui">
-      <UniqueIdentifier>{cc61fb18-3ba2-465b-ac8a-be14848b6504}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Objects\Base">
       <UniqueIdentifier>{20c4feb0-af94-44a2-821c-57dbabad4604}</UniqueIdentifier>
     </Filter>
@@ -94,7 +88,13 @@
     <Filter Include="Header Files\Assets">
       <UniqueIdentifier>{1f108650-2b8f-47dd-b989-2d4bc93f053e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Config">
+    <Filter Include="Source Files\Renderer\Shader\Fragment\Debug">
+      <UniqueIdentifier>{0227eb87-a5ad-4a55-b3b0-ff3d4b5ba6fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\Shader\Vertex\Debug">
+      <UniqueIdentifier>{122425f5-d2e6-47b6-b196-5c202d9f3a63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Global">
       <UniqueIdentifier>{a3960561-87a4-4348-8012-aff590b5c1e5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -104,27 +104,6 @@
     </ClCompile>
     <ClCompile Include="glad.c">
       <Filter>Source Files\Libraries</Filter>
-    </ClCompile>
-    <ClCompile Include="Imgui\imgui_demo.cpp">
-      <Filter>Source Files\Libraries\Imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Imgui\imgui_draw.cpp">
-      <Filter>Source Files\Libraries\Imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Imgui\imgui_impl_glfw.cpp">
-      <Filter>Source Files\Libraries\Imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Imgui\imgui_impl_opengl3.cpp">
-      <Filter>Source Files\Libraries\Imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Imgui\imgui_tables.cpp">
-      <Filter>Source Files\Libraries\Imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Imgui\imgui_widgets.cpp">
-      <Filter>Source Files\Libraries\Imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Imgui\imgui.cpp">
-      <Filter>Source Files\Libraries\Imgui</Filter>
     </ClCompile>
     <ClCompile Include="ImguiRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
@@ -166,33 +145,6 @@
     </ClInclude>
     <ClInclude Include="ImguiRenderer.hpp">
       <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="Imgui\imstb_textedit.h">
-      <Filter>Header Files\Libraries\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Imgui\imstb_truetype.h">
-      <Filter>Header Files\Libraries\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Imgui\imconfig.h">
-      <Filter>Header Files\Libraries\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Imgui\imgui.h">
-      <Filter>Header Files\Libraries\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Imgui\imgui_impl_glfw.h">
-      <Filter>Header Files\Libraries\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Imgui\imgui_impl_opengl3.h">
-      <Filter>Header Files\Libraries\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Imgui\imgui_impl_opengl3_loader.h">
-      <Filter>Header Files\Libraries\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Imgui\imgui_internal.h">
-      <Filter>Header Files\Libraries\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Imgui\imstb_rectpack.h">
-      <Filter>Header Files\Libraries\Imgui</Filter>
     </ClInclude>
     <ClInclude Include="Primitives.hpp">
       <Filter>Header Files\Objects\Base</Filter>
@@ -264,10 +216,19 @@
       <Filter>Header Files\Objects\Base</Filter>
     </ClInclude>
     <ClInclude Include="GlobalConfig.hpp">
-      <Filter>Header Files\Config</Filter>
+      <Filter>Header Files\Global</Filter>
     </ClInclude>
     <ClInclude Include="Landscape.hpp">
       <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalTextures.hpp">
+      <Filter>Header Files\Global</Filter>
+    </ClInclude>
+    <ClInclude Include="PostProcessingRenderer.hpp">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="StatTracker.hpp">
+      <Filter>Header Files\Global</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -314,11 +275,23 @@
     <None Include="Shader\f_depth.glsl">
       <Filter>Source Files\Renderer\Shader\Fragment</Filter>
     </None>
-    <None Include="Shader\f_debugColor.glsl">
-      <Filter>Source Files\Renderer\Shader\Fragment</Filter>
+    <None Include="Shader\v_debugOverdraw.glsl">
+      <Filter>Source Files\Renderer\Shader\Vertex\Debug</Filter>
     </None>
-    <None Include="Shader\v_debugColor.glsl">
-      <Filter>Source Files\Renderer\Shader\Vertex</Filter>
+    <None Include="Shader\v_debugTriangle.glsl">
+      <Filter>Source Files\Renderer\Shader\Vertex\Debug</Filter>
+    </None>
+    <None Include="Shader\v_debugWireframe.glsl">
+      <Filter>Source Files\Renderer\Shader\Vertex\Debug</Filter>
+    </None>
+    <None Include="Shader\f_debugWireframe.glsl">
+      <Filter>Source Files\Renderer\Shader\Fragment\Debug</Filter>
+    </None>
+    <None Include="Shader\f_debugOverdraw.glsl">
+      <Filter>Source Files\Renderer\Shader\Fragment\Debug</Filter>
+    </None>
+    <None Include="Shader\f_debugTriangle.glsl">
+      <Filter>Source Files\Renderer\Shader\Fragment\Debug</Filter>
     </None>
   </ItemGroup>
 </Project>

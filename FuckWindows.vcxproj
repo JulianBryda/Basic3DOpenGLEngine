@@ -118,7 +118,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;kernel32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;kernel32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>rmdir $(ProjectDir)x64\Debug\Assets /S /Q
@@ -145,7 +145,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;kernel32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;kernel32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>rmdir $(ProjectDir)x64\Debug\Assets /S /Q
@@ -162,13 +162,6 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClCompile Include="GameObjectPhysics.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="ImguiRenderer.cpp" />
-    <ClCompile Include="Imgui\imgui.cpp" />
-    <ClCompile Include="Imgui\imgui_demo.cpp" />
-    <ClCompile Include="Imgui\imgui_draw.cpp" />
-    <ClCompile Include="Imgui\imgui_impl_glfw.cpp" />
-    <ClCompile Include="Imgui\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="Imgui\imgui_tables.cpp" />
-    <ClCompile Include="Imgui\imgui_widgets.cpp" />
     <ClCompile Include="PhysicEngine.cpp" />
     <ClCompile Include="ShaderLib.cpp" />
   </ItemGroup>
@@ -183,17 +176,9 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="GameObjectConstructor.hpp" />
     <ClInclude Include="GameObjectPhysics.h" />
     <ClInclude Include="GlobalConfig.hpp" />
+    <ClInclude Include="GlobalTextures.hpp" />
     <ClInclude Include="IconsFontAwesome5.h" />
     <ClInclude Include="ImguiRenderer.hpp" />
-    <ClInclude Include="Imgui\imconfig.h" />
-    <ClInclude Include="Imgui\imgui.h" />
-    <ClInclude Include="Imgui\imgui_impl_glfw.h" />
-    <ClInclude Include="Imgui\imgui_impl_opengl3.h" />
-    <ClInclude Include="Imgui\imgui_impl_opengl3_loader.h" />
-    <ClInclude Include="Imgui\imgui_internal.h" />
-    <ClInclude Include="Imgui\imstb_rectpack.h" />
-    <ClInclude Include="Imgui\imstb_textedit.h" />
-    <ClInclude Include="Imgui\imstb_truetype.h" />
     <ClInclude Include="InputHandler.hpp" />
     <ClInclude Include="Landscape.hpp" />
     <ClInclude Include="Light.hpp" />
@@ -203,6 +188,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="Mesh.hpp" />
     <ClInclude Include="ObjectRenderer.hpp" />
     <ClInclude Include="PhysicEngine.hpp" />
+    <ClInclude Include="PostProcessingRenderer.hpp" />
     <ClInclude Include="Primitives.hpp" />
     <ClInclude Include="RendererBase.hpp" />
     <ClInclude Include="RendererManager.hpp" />
@@ -211,6 +197,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="ShaderLib.hpp" />
     <ClInclude Include="Skybox.hpp" />
     <ClInclude Include="SpotLight.hpp" />
+    <ClInclude Include="StatTracker.hpp" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="Vertex.hpp" />
@@ -220,7 +207,9 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <None Include="ObjectLoader.hpp" />
     <None Include="Shader\f_color.glsl" />
     <None Include="Shader\f_debug.glsl" />
-    <None Include="Shader\f_debugColor.glsl" />
+    <None Include="Shader\f_debugOverdraw.glsl" />
+    <None Include="Shader\f_debugTriangle.glsl" />
+    <None Include="Shader\f_debugWireframe.glsl" />
     <None Include="Shader\f_depth.glsl" />
     <None Include="Shader\f_render.glsl" />
     <None Include="Shader\f_skybox.glsl" />
@@ -228,7 +217,9 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <None Include="Shader\LibraryShader\structs.glsl" />
     <None Include="Shader\v_color.glsl" />
     <None Include="Shader\v_debug.glsl" />
-    <None Include="Shader\v_debugColor.glsl" />
+    <None Include="Shader\v_debugOverdraw.glsl" />
+    <None Include="Shader\v_debugTriangle.glsl" />
+    <None Include="Shader\v_debugWireframe.glsl" />
     <None Include="Shader\v_depth.glsl" />
     <None Include="Shader\v_render.glsl" />
     <None Include="Shader\v_skybox.glsl" />

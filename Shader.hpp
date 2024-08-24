@@ -89,6 +89,10 @@ public:
 	{
 		glUniform1i(glGetUniformLocation(m_id, name), value);
 	}
+	inline void setUInt(const char* name, unsigned int value) const
+	{
+		glUniform1ui(glGetUniformLocation(m_id, name), value);
+	}
 	inline void setFloat(const char* name, float value) const
 	{
 		glUniform1f(glGetUniformLocation(m_id, name), value);
@@ -110,6 +114,11 @@ public:
 	{
 		glActiveTexture(textureIndex);
 		glBindTexture(type, texture);
+	}
+
+	inline void setImageTexture(GLuint texture, GLenum format)
+	{
+		glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_READ_WRITE, format);
 	}
 
 	inline void setMaterial(Material* material) const

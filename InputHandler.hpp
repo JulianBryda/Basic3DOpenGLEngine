@@ -285,6 +285,9 @@ public:
 			case GLFW_KEY_F2:
 				saveDepthMaps();
 				break;
+			case GLFW_KEY_F3:
+				saveOverdrawMap();
+				break;
 			default:
 				break;
 			}
@@ -478,6 +481,36 @@ public:
 		// no object clicked, send nullptr
 		ImguiRenderer::setSelectedObject(nullptr);
 
+	}
+
+	void saveOverdrawMap()
+	{
+		const char* filePath = ".\\Assets\\Debug\\Overdraw.png";
+		int width = Config::g_settings->screenWidth, height = Config::g_settings->screenHeight;
+
+		std::vector<GLuint> pixels(width * height);
+
+		glBindTexture(GL_TEXTURE_2D, Textures::g_textures->overdrawTexture);
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, pixels.data());
+
+		std::vector<unsigned char> rgbaPixels(width * height * 4);
+
+		for (int i = 0; i < width * height; i++) {
+			unsigned char intensity = static_cast<unsigned char>(pixels[i] / 10);  // Scale the overdraw count to fit into 8 bits
+			rgbaPixels[i * 4 + 0] = intensity; // R
+			rgbaPixels[i * 4 + 1] = 0;         // G
+			rgbaPixels[i * 4 + 2] = 0;         // B
+			rgbaPixels[i * 4 + 3] = 255;       // A
+		}
+
+		if (stbi_write_png(filePath, width, height, 4, rgbaPixels.data(), width * 4))
+		{
+			std::cout << "Saved overdraw to " << filePath << std::endl;
+		}
+		else
+		{
+			std::cerr << "Failed to save overdraw to " << filePath << std::endl;
+		}
 	}
 
 	void saveDepthMaps()

@@ -2,9 +2,11 @@
 #include <format>
 #include <filesystem>
 
-#include "Imgui/imgui.h"
-#include "Imgui/imgui_impl_glfw.h"
-#include "Imgui/imgui_impl_opengl3.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
+#include "implot.h"
 
 #include "RendererBase.hpp"
 #include "RendererManager.hpp"
@@ -33,9 +35,10 @@ public:
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-		io.Fonts->AddFontDefault();
-		float baseFontSize = 13.0f;
+		float baseFontSize = 16.0f;
 		float iconFontSize = baseFontSize * 2.0f / 3.0f;
+
+		io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\arial.ttf", baseFontSize);
 
 		// merge in icons from Font Awesome
 		static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_16_FA, 0 };
@@ -57,6 +60,7 @@ public:
 	{
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
+		ImPlot::DestroyContext();
 		ImGui::DestroyContext();
 	}
 
@@ -65,14 +69,17 @@ public:
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
 
 		// render functions here
 		renderMenuBar();
-		if (m_showDebugMenu) renderDebugMenu();
-		if (m_showObjectManager) renderObjectManager();
-		if (m_showLightManager) renderLightManager();
-		if (m_showAssetManager) renderAssetManager();
+
+		if (m_debugMenu) renderDebugMenu();
+		if (m_objectManager) renderObjectManager();
+		if (m_lightManager) renderLightManager();
+		if (m_assetManager) renderAssetManager();
+		
+		if (m_fpsGraph) renderFpsGraph();
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -233,25 +240,30 @@ private:
 	void setImguiStyle();
 
 	void renderMenuBar();
-	void renderDebugMenu();
 
+	void renderDebugMenu();
 	void renderObjectManager();
 	void renderLightManager();
 	void renderAssetManager();
+
+	void renderFpsGraph();
 
 	void renderLightMaterialView();
 
 	// custom components 
 	bool IconItem(int id, const char* text, GLuint imageId, const float itemSize);
+	inline void ColoredText(const char* text, ImU32 color);
 
 	char m_selectedTexturePath[_MAX_PATH] = "";
 	std::string m_selectedAssetPath = "";
 
-	bool m_showDebugMenu = false,
-		m_showObjectManager = false,
+	bool m_debugMenu = false,
+		m_objectManager = false,
 		m_highlightCloseCollidableObjects = false,
-		m_showLightManager = false,
-		m_showAssetManager = false;
+		m_lightManager = false,
+		m_assetManager = false,
+		m_fpsGraph = false,
+		m_sceneStats = false;
 
 	Light* m_selectedLight;
 

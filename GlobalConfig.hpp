@@ -1,30 +1,58 @@
 #pragma once
 
-
-class GlobalConfig
+namespace Config
 {
+	// fucking c++ undeclared identifier :(
+	class GlobalConfig;
+	inline GlobalConfig* g_settings = nullptr;
 
-public:
-
-	GlobalConfig()
+	enum DebugMode
 	{
-		g_settings = this;
+		Triangles,
+		Wireframe,
+		Overdraw,
+		None
+	};
 
-		vsyncEnabled = true;
-		drawMode = GL_FILL;
-	}
-
-	~GlobalConfig()
+	enum RenderMode
 	{
-		delete g_settings;
-	}
+		Debug,
+		Render
+	};
+
+	class GlobalConfig
+	{
+
+	public:
+
+		GlobalConfig()
+		{
+			g_settings = this;
+
+			vsyncEnabled = true;
+			debugMode = None;
+			renderMode = Debug;
+			screenWidth = 1280;
+			screenHeight = 720;
+			
+		}
+
+		~GlobalConfig()
+		{
+			g_settings = nullptr;
+		}
+
+		void updateScreenSize(int newScreenWidth, int newScreenHeight)
+		{
+			screenWidth = newScreenWidth;
+			screenHeight = newScreenHeight;
+		}
 
 
+		bool vsyncEnabled;
+		DebugMode debugMode;
+		RenderMode renderMode;
 
-	bool vsyncEnabled;
-
-	GLenum drawMode;
-
-};
-
-inline GlobalConfig* g_settings;
+		int screenWidth, screenHeight;
+	};
+}

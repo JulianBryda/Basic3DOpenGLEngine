@@ -14,19 +14,6 @@ public:
 
 	}
 
-	void draw() override
-	{
-		glDisable(GL_CULL_FACE);
-		glDisable(GL_DEPTH_TEST);
-
-		glBindVertexArray(vao);
-		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(this->getMeshPtr()->getIndicesPtr()->size()), GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_CULL_FACE);
-	}
-
 
 	glm::mat4 getModelMatrix() const override
 	{

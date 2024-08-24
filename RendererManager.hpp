@@ -5,9 +5,9 @@
 #include "Scene.hpp"
 #include "PhysicEngine.hpp"
 
-#include "Imgui/imgui.h"
-#include "Imgui/imgui_impl_glfw.h"
-#include "Imgui/imgui_impl_opengl3.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 class RendererManager
 {
@@ -16,7 +16,6 @@ public:
 
 	RendererManager()
 	{
-		m_useDebugShader = true;
 		m_pDebugShader = ShaderLib::getDebugShaderPtr();
 		m_activeScene = new Scene();
 		addScene(m_activeScene);
@@ -33,19 +32,9 @@ public:
 	/// </summary>
 	void renderAll()
 	{
-		RendererType type = RendererType::MIN;
-
-		while (type != RendererType::MAX)
+		for (auto& renderer : m_renderers)
 		{
-			for (auto& renderer : m_renderers)
-			{
-				if (renderer->getType() == type)
-				{
-					renderer->render(getActiveScene());
-					type = static_cast<RendererType>(static_cast<int>(type) + 1);
-					break;
-				}
-			}
+			renderer->render(getActiveScene());
 		}
 	}
 
@@ -59,11 +48,6 @@ public:
 	Scene* getActiveScene()
 	{
 		return m_activeScene;
-	}
-
-	bool getIsUseDebugShader() const
-	{
-		return m_useDebugShader;
 	}
 
 	Shader* getDebugShader() const
@@ -88,10 +72,6 @@ public:
 	}
 
 	// setter
-	void setUseDebugShader(bool value)
-	{
-		m_useDebugShader = value;
-	}
 
 	void setDebugShader(Shader* shader)
 	{
@@ -106,13 +86,26 @@ public:
 	// modifier
 	void addRenderer(RendererBase* renderer)
 	{
-		//if (m_renderers.contains(type))
-		//{
-		//	std::cout << "Failed to add new renderer! Type: " << type << " already registered!\n";
-		//	return;
-		//}
-
 		m_renderers.push_back(renderer);
+
+		for (int i = 0; i < m_renderers.size() - 1; ++i)
+		{
+			bool swapped = false;
+
+			for (int j = 0; j < m_renderers.size() - i - 1; ++j)
+			{
+				if (m_renderers[j]->getType() > m_renderers[j + 1]->getType())
+				{
+					std::swap(m_renderers[j], m_renderers[j + 1]);
+					swapped = true;
+				}
+			}
+
+			if (!swapped)
+			{
+				break;
+			}
+		}
 	}
 
 	void addScene(Scene* scene)
@@ -145,11 +138,6 @@ public:
 		PhysicEngine::removeObject(&object);
 	}
 
-	void toggleUseDebugShader()
-	{
-		m_useDebugShader = !m_useDebugShader;
-	}
-
 private:
 
 	std::vector<RendererBase*> m_renderers;
@@ -158,7 +146,6 @@ private:
 	Scene* m_activeScene;
 
 	Shader* m_pDebugShader;
-	bool m_useDebugShader;
 
 
 	RendererManager(const RendererManager&) = delete;

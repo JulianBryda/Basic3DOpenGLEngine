@@ -20,6 +20,9 @@ public:
 
 	void render(Scene* activeScene) override
 	{
+		glDisable(GL_CULL_FACE);
+		glDisable(GL_DEPTH_TEST);
+
 		for (auto& object : activeScene->getEnvObjects())
 		{
 			if (object->getHidden()) continue;
@@ -36,6 +39,8 @@ public:
 			object->draw();
 		}
 
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
 	}
 
 private:

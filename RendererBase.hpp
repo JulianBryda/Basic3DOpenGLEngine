@@ -12,6 +12,7 @@ enum RendererType
 	MIN = Environment,
 	Lighting,
 	Object,
+	PostProcessing,
 	UserInterface,
 	MAX
 };

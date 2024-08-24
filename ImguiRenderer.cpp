@@ -2,6 +2,7 @@
 #include "ObjectLoader.hpp"
 #include "GameObjectConstructor.hpp"
 #include "GlobalConfig.hpp"
+#include "StatTracker.hpp"
 
 #include <windows.h>
 #include <commdlg.h>
@@ -22,18 +23,17 @@ void ImguiRenderer::renderMenuBar()
 
 			ImGui::EndMenu();
 		}
-		if (ImGui::BeginMenu("View"))
+		if (ImGui::BeginMenu("Create"))
 		{
-			ImGui::Checkbox("Object Manager", &m_showObjectManager);
+			ColoredText("Objects", IM_COL32(130, 130, 130, 255));
 
-			ImGui::Checkbox("Light Manager", &m_showLightManager);
+			if (ImGui::MenuItem("Plane"))
+			{
+				GameObject* obj = new GameObject(std::format("Plane{}", RendererManager::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Plane.obj", ShaderLib::getRenderShaderPtr(), ColliderType::BoundingBox);
+				obj->setIsPhysicsEnabled(true);
 
-			ImGui::Checkbox("Asset Manager", &m_showAssetManager);
-
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Objects"))
-		{
+				RendererManager::getInstance().addObject(obj);
+			}
 			if (ImGui::MenuItem("Cube"))
 			{
 				GameObject* obj = new GameObject(std::format("Cube{}", RendererManager::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Cube.obj", ShaderLib::getRenderShaderPtr(), ColliderType::BoundingBox);
@@ -49,24 +49,13 @@ void ImguiRenderer::renderMenuBar()
 
 				RendererManager::getInstance().addObject(obj);
 			}
-			if (ImGui::MenuItem("StressTest"))
-			{
-				GameObject* obj = new GameObject(std::format("StressTest{}", RendererManager::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\StressTest.obj", ShaderLib::getRenderShaderPtr(), ColliderType::BoundingBox);
-				obj->setIsPhysicsEnabled(true);
-
-				RendererManager::getInstance().addObject(obj);
-			}
 
 			ImGui::Spacing();
 			ImGui::Separator();
 			ImGui::Spacing();
 
-			ImGui::Checkbox("Object Manager", &m_showObjectManager);
+			ColoredText("Lights", IM_COL32(130, 130, 130, 255));
 
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Lighting"))
-		{
 			if (ImGui::MenuItem("PointLight"))
 			{
 				Scene* activeScene = RendererManager::getInstance().getActiveScene();
@@ -87,17 +76,33 @@ void ImguiRenderer::renderMenuBar()
 				activeScene->addLight(light);
 			}
 
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("View"))
+		{
+			ColoredText("Display", IM_COL32(130, 130, 130, 255));
+
+			ImGui::Checkbox("FPS Graph", &m_fpsGraph);
+
+			ImGui::Checkbox("Scene Stats", &m_sceneStats);
+
 			ImGui::Spacing();
 			ImGui::Separator();
 			ImGui::Spacing();
 
-			ImGui::Checkbox("Light Manager", &m_showLightManager);
+			ColoredText("Managers", IM_COL32(130, 130, 130, 255));
+
+			ImGui::Checkbox("Object", &m_objectManager);
+
+			ImGui::Checkbox("Light", &m_lightManager);
+
+			ImGui::Checkbox("Asset", &m_assetManager);
 
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Viewport"))
 		{
-			ImGui::Checkbox("Show Debug Menu", &m_showDebugMenu);
+			ImGui::Checkbox("Show Debug Menu", &m_debugMenu);
 
 			if (ImGui::BeginMenu("Camera"))
 			{
@@ -130,52 +135,18 @@ void ImguiRenderer::renderMenuBar()
 
 			if (ImGui::BeginMenu("Render Mode"))
 			{
-				if (ImGui::Checkbox("Debug", new bool(RendererManager::getInstance().getIsUseDebugShader())))
+				if (ImGui::Checkbox("Debug", new bool(Config::g_settings->renderMode == Config::RenderMode::Debug)))
 				{
-					RendererManager::getInstance().setUseDebugShader(true);
+					RendererManager::getInstance().setDebugShader(ShaderLib::getDebugShaderPtr());
+					Config::g_settings->renderMode = Config::RenderMode::Debug;
 				}
 
-				if (ImGui::Checkbox("Render", new bool(!RendererManager::getInstance().getIsUseDebugShader())))
+				if (ImGui::Checkbox("Render", new bool(Config::g_settings->renderMode == Config::RenderMode::Render)))
 				{
-					RendererManager::getInstance().setUseDebugShader(false);
+					Config::g_settings->renderMode = Config::RenderMode::Render;
 				}
 
 				ImGui::EndMenu();
-			}
-
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Test"))
-		{
-			if (ImGui::Button("Test File"))
-			{
-				OPENFILENAMEA ofn{};       // common dialog box structure
-				char szFile[260];       // buffer for file name
-				HWND hwnd = NULL;       // owner window
-
-				ofn.lStructSize = sizeof(ofn);
-				ofn.hwndOwner = hwnd;
-				ofn.lpstrFile = szFile;
-				// Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
-				// use the contents of szFile to initialize itself.
-				ofn.lpstrFile[0] = '\0';
-				ofn.nMaxFile = sizeof(szFile);
-				ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
-				ofn.nFilterIndex = 1;
-				ofn.lpstrFileTitle = NULL;
-				ofn.nMaxFileTitle = 0;
-				ofn.lpstrInitialDir = NULL;
-				ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-				// Display the Open dialog box
-				if (GetOpenFileNameA(&ofn) == TRUE)
-				{
-					//TODO IF USING SHADERLIB IN GAMEOBJECT, OBJECT WILL DELETE SHADERLIB SINCE IT DELETES ALSO ITS SHADER POINTER
-					GameObject* obj = new GameObject(std::format("Object{}", RendererManager::getInstance().getActiveScene()->getObjects().size()), ofn.lpstrFile, ShaderLib::getRenderShaderPtr(), ColliderType::BoundingBox);
-					obj->setIsPhysicsEnabled(true);
-
-					RendererManager::getInstance().addObject(obj);
-				}
 			}
 
 			ImGui::EndMenu();
@@ -190,39 +161,62 @@ void ImguiRenderer::renderDebugMenu()
 	ImGui::Begin("Debug Menu", nullptr);
 	{
 		ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-		if (ImGui::Checkbox("Vsync", new bool(GlobalConfig::getInstance().isVsyncEnabled())))
+		if (ImGui::Checkbox("Vsync", new bool(Config::g_settings->vsyncEnabled)))
 		{
-			GlobalConfig::getInstance().toggleVsyncEnabled();
+			Config::g_settings->vsyncEnabled = !Config::g_settings->vsyncEnabled;
+			glfwSwapInterval(Config::g_settings->vsyncEnabled);
 		}
 
-
-		bool triangleDebug = RendererManager::getInstance().getDebugShader() == ShaderLib::getDebugColorShaderPtr();
+		bool triangleDebug = Config::g_settings->debugMode == Config::DebugMode::Triangles;
 		if (ImGui::Checkbox("Triangle Debug", &triangleDebug))
 		{
 			if (triangleDebug)
-				RendererManager::getInstance().setDebugShader(ShaderLib::getDebugColorShaderPtr());
+			{
+				RendererManager::getInstance().setDebugShader(ShaderLib::getDebugTriangleShaderPtr());
+				Config::g_settings->debugMode = Config::DebugMode::Triangles;
+			}
 			else
+			{
 				RendererManager::getInstance().setDebugShader(ShaderLib::getDebugShaderPtr());
+				Config::g_settings->debugMode = Config::DebugMode::None;
+			}
 
-			RendererManager::getInstance().setUseDebugShader(true);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
 
-		static bool wireframeDebug = false;
+		bool overdrawDebug = Config::g_settings->debugMode == Config::DebugMode::Overdraw;
+		if (ImGui::Checkbox("Overdraw Debug", &overdrawDebug))
+		{
+			if (overdrawDebug)
+			{
+				RendererManager::getInstance().setDebugShader(ShaderLib::getDebugOverdrawShaderPtr());
+				Config::g_settings->debugMode = Config::DebugMode::Overdraw;
+			}
+			else
+			{
+				RendererManager::getInstance().setDebugShader(ShaderLib::getDebugShaderPtr());
+				Config::g_settings->debugMode = Config::DebugMode::None;
+			}
+
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		}
+
+		bool wireframeDebug = Config::g_settings->debugMode == Config::DebugMode::Wireframe;
 		if (ImGui::Checkbox("Wireframe Debug", &wireframeDebug))
 		{
 			if (wireframeDebug)
 			{
-				RendererManager::getInstance().setDebugShader(ShaderLib::getColorShaderPtr());
+				RendererManager::getInstance().setDebugShader(ShaderLib::getDebugWireframeShaderPtr());
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				Config::g_settings->debugMode = Config::DebugMode::Wireframe;
 			}
 			else
 			{
 				RendererManager::getInstance().setDebugShader(ShaderLib::getDebugShaderPtr());
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				Config::g_settings->debugMode = Config::DebugMode::None;
 			}
 
-			wireframeDebug = !wireframeDebug;
-			RendererManager::getInstance().setUseDebugShader(true);
 		}
 	}
 	ImGui::End();
@@ -301,8 +295,6 @@ void ImguiRenderer::renderObjectManager()
 					ImGui::SameLine();
 					ImGui::SetCursorPosX(ImGui::GetCursorPosX());
 					ImGui::InputFloat3("##2", *scale);
-
-					ImGui::Checkbox("Draw Wireframe", object->getDrawWireframePtr());
 
 					ImGui::TreePop();
 				}
@@ -654,6 +646,17 @@ void ImguiRenderer::renderAssetManager()
 	ImGui::End();
 }
 
+void ImguiRenderer::renderFpsGraph()
+{
+	ImGui::Begin("FPS Graph", nullptr, ImGuiWindowFlags_NoDocking);
+	{
+		auto data = g_stats->fpsHistory.data();
+		ImGui::PlotLines("##24323", data, g_stats->fpsHistory.size(), 0, "", g_stats->minFps, g_stats->maxFps * 1.5f, ImGui::GetContentRegionAvail());
+		//ImGui::PlotHistogram("##24323", data, g_stats->fpsHistory.size(), 0, "", g_stats->minFps, g_stats->maxFps * 1.5f, ImGui::GetContentRegionAvail());
+	}
+	ImGui::End();
+}
+
 bool ImguiRenderer::IconItem(int id, const char* text, GLuint imageId, const float itemSize)
 {
 	ImGui::PushID(id); // Push a unique ID for each item
@@ -686,6 +689,13 @@ bool ImguiRenderer::IconItem(int id, const char* text, GLuint imageId, const flo
 	return isSelected;
 }
 
+void ImguiRenderer::ColoredText(const char* text, ImU32 color)
+{
+	ImGui::PushStyleColor(ImGuiCol_Text, color);
+	ImGui::Text(text);
+	ImGui::PopStyleColor();
+}
+
 void ImguiRenderer::renderLightMaterialView()
 {
 	float* color[3] = { &m_selectedLight->getColorPtr()->x, &m_selectedLight->getColorPtr()->y, &m_selectedLight->getColorPtr()->z };
@@ -703,8 +713,6 @@ void ImguiRenderer::setImguiStyle()
 	colors[ImGuiCol_Text] = ImVec4(0.80f, 0.80f, 0.80f, 1.00f);
 	colors[ImGuiCol_TextDisabled] = ImVec4(0.24f, 0.24f, 0.29f, 1.00f);
 	colors[ImGuiCol_WindowBg] = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
-	colors[ImGuiCol_Border] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
-	colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
 	colors[ImGuiCol_FrameBg] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
 	colors[ImGuiCol_FrameBgHovered] = ImVec4(0.26f, 0.26f, 0.26f, 1.00f);
 	colors[ImGuiCol_FrameBgActive] = ImVec4(0.36f, 0.36f, 0.36f, 1.00f);
@@ -746,6 +754,9 @@ void ImguiRenderer::setImguiStyle()
 	colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
 	colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
+	colors[ImGuiCol_PopupBg] = ImVec4(0.15f, 0.15f, 0.15f, 0.8f);
+	colors[ImGuiCol_Border] = ImVec4(0.f, 0.f, 0.f, 0.f);
+	colors[ImGuiCol_BorderShadow] = ImVec4(0.f, 0.f, 0.f, 0.f);
 
 	// Adjust other settings
 	style.WindowMinSize = ImVec2(1.0f, 1.0f);
@@ -753,7 +764,6 @@ void ImguiRenderer::setImguiStyle()
 	style.FrameRounding = 4.0f;
 	style.GrabRounding = 3.0f;
 	style.ScrollbarRounding = 2.0f;
-
 }
 
 

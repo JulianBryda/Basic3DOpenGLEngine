@@ -20,9 +20,7 @@ public:
 
 	void render(Scene* activeScene) override
 	{
-		GLint viewport[4];
-		glGetIntegerv(GL_VIEWPORT, viewport);
-		glStencilMask(GL_FALSE);
+		int width = Config::g_settings->screenWidth, height = Config::g_settings->screenHeight;
 
 		for (auto& light : activeScene->getLights())
 		{
@@ -56,9 +54,8 @@ public:
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
-		glStencilMask(GL_TRUE);
 		glClear(GL_DEPTH_BUFFER_BIT);
-		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+		glViewport(0, 0, width, height);
 	}
 
 private:

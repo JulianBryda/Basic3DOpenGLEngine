@@ -9,7 +9,6 @@ GameObject::GameObject(std::string name, Mesh mesh, Shader* shader, ColliderType
 	this->m_rotation = glm::vec3(0.0f);
 	this->m_scale = glm::vec3(5.0f);
 	this->m_hidden = false;
-	this->m_drawWireframe = false;
 	this->m_outline = false;
 
 	this->m_material = Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 64.0f);
@@ -27,7 +26,6 @@ GameObject::GameObject(std::string name, std::string path, Shader* shader, Colli
 	this->m_rotation = glm::vec3(0.0f);
 	this->m_scale = glm::vec3(5.0f);
 	this->m_hidden = false;
-	this->m_drawWireframe = false;
 	this->m_outline = false;
 
 	this->m_material = Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 64.0f);
@@ -46,7 +44,6 @@ GameObject::GameObject(const GameObject& other) : GameObjectCollisions(this, oth
 	this->m_rotation = other.m_rotation;
 	this->m_scale = other.m_scale;
 	this->m_hidden = other.m_hidden;
-	this->m_drawWireframe = other.m_drawWireframe;
 	this->m_outline = other.m_outline;
 
 	this->m_material = Material(other.m_material);
@@ -124,15 +121,6 @@ void GameObject::draw()
 	glBindVertexArray(0);
 }
 
-void GameObject::drawWireframe()
-{
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-	this->draw();
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-}
-
 void GameObject::loadTexture(const char* path)
 {
 	loadTexture(path, this->m_texture);
@@ -204,8 +192,6 @@ void GameObject::loadCubeMap(std::vector<const char*> faces, GLuint* texture)
 
 
 bool GameObject::getHidden() const { return this->m_hidden; }
-bool GameObject::getDrawWireframe() const { return this->m_drawWireframe; }
-bool* GameObject::getDrawWireframePtr() { return &this->m_drawWireframe; }
 bool GameObject::getIsOutline() const { return this->m_outline; }
 
 glm::vec3 GameObject::getPosition() const { return this->position; }

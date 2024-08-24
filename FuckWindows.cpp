@@ -13,7 +13,10 @@
 #include "AssetManager.hpp"
 #include "LightRenderer.hpp"
 #include "EnvironmentRenderer.hpp"
+#include "PostProcessingRenderer.hpp"
 #include "GlobalConfig.hpp"
+#include "GlobalTextures.hpp"
+#include "StatTracker.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -34,7 +37,9 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-	GLFWwindow* window = glfwCreateWindow(1280, 720, "3D Renderer", NULL, NULL);
+	auto settings = Config::GlobalConfig();
+
+	GLFWwindow* window = glfwCreateWindow(settings.screenWidth, settings.screenHeight, "3D Renderer", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window!\n";
@@ -54,10 +59,10 @@ int main()
 		return -1;
 	}
 
-	auto settings = std::make_unique<GlobalConfig>();
+	auto textures = Textures::GlobalTextures(settings.screenWidth, settings.screenHeight);
 
 	// enable vsync
-	glfwSwapInterval(g_settings->vsyncEnabled);
+	glfwSwapInterval(Config::g_settings->vsyncEnabled);
 
 	// enable anti aliasing
 	glEnable(GL_MULTISAMPLE);
@@ -98,6 +103,10 @@ int main()
 	EnvironmentRenderer* envRenderer = new EnvironmentRenderer();
 	RendererManager::getInstance().addRenderer(envRenderer);
 
+	// register post process renderer
+	PostProcessingRenderer* ppoRenderer = new PostProcessingRenderer();
+	RendererManager::getInstance().addRenderer(ppoRenderer);
+
 	// add skybox
 	std::vector<const char*> faces =
 	{
@@ -114,12 +123,14 @@ int main()
 
 	RendererManager::getInstance().getActiveScene()->addEnvObject(skybox);
 
+	auto statTracker = StatTracker();
+
 	// window lopp
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// render stuff
 		RendererManager::getInstance().renderAll();
@@ -130,11 +141,12 @@ int main()
 		// handle input
 		InputHandler::getInstance().handleInput();
 
+		statTracker.countFrame();
+
 		// other stuff here
 		glfwSwapBuffers(window);
 	}
 
-	settings.reset();
 	glfwTerminate();
 
 	return 0;
@@ -143,6 +155,8 @@ int main()
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+	Textures::g_textures->updateTextures(width, height);
+	Config::g_settings->updateScreenSize(width, height);
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)

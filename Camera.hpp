@@ -1,5 +1,6 @@
 #pragma once
 #include "GameObject.h"
+#include "GlobalConfig.hpp"
 
 class Camera : public GameObject
 {
@@ -68,10 +69,7 @@ public:
 	// functions
 	float calcAspectRatio() const
 	{
-		GLint viewport[4];
-		glGetIntegerv(GL_VIEWPORT, viewport);
-
-		return static_cast<float>(viewport[2]) / static_cast<float>(viewport[3]);
+		return static_cast<float>(Config::g_settings->screenWidth) / static_cast<float>(Config::g_settings->screenHeight);
 	}
 
 private:
