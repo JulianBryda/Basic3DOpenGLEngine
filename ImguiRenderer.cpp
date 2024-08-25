@@ -650,9 +650,38 @@ void ImguiRenderer::renderFpsGraph()
 {
 	ImGui::Begin("FPS Graph", nullptr, ImGuiWindowFlags_NoDocking);
 	{
-		if (ImPlot::BeginPlot("Real-Time FPS"))
+		static bool lines = true, fills = true;
+		static int history = 10;
+
+		ImGui::Checkbox("Lines", &lines);
+		ImGui::SameLine();
+		ImGui::Checkbox("Fills", &fills);
+		ImGui::SameLine();
+		ImGui::SliderInt("History", &history, 1, g_stats->maxHistory);
+
+		if (ImPlot::BeginPlot("Real-Time FPS", ImGui::GetContentRegionAvail()))
 		{
-			ImPlot::PlotLine("Sine Wave", g_stats->fpsHistory.data(), g_stats->fpsHistory.size());
+			double start = max(g_stats->fpsHistory.size() - static_cast<float>(history), 0);
+			double end = g_stats->fpsHistory.size();
+
+			ImPlot::SetupAxisLimits(ImAxis_X1, start, end - 1, ImGuiCond_Always);
+			ImPlot::SetupAxisLimits(ImAxis_Y1, g_stats->minFps, g_stats->maxFps * 1.5f, ImGuiCond_Always);
+
+			if (lines)
+			{
+				ImPlot::SetNextLineStyle(ImVec4(0, 0, 0, -1), 2.f);
+				ImPlot::PlotLine("FPS", g_stats->fpsHistory.data(), g_stats->fpsHistory.size());
+				ImPlot::SetNextLineStyle(ImVec4(0, 0, 0, -1), 2.f);
+				ImPlot::PlotLine("Frame Time", g_stats->frameTimeHistory.data(), g_stats->frameTimeHistory.size());
+			}
+
+			if (fills)
+			{
+				ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, 0.5f);
+				ImPlot::PlotShaded("FPS", g_stats->fpsHistory.data(), g_stats->fpsHistory.size());
+				ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, 0.5f);
+				ImPlot::PlotShaded("Frame Time", g_stats->frameTimeHistory.data(), g_stats->frameTimeHistory.size());
+			}
 
 			ImPlot::EndPlot();
 		}
@@ -762,7 +791,7 @@ void ImguiRenderer::setImguiStyle()
 	colors[ImGuiCol_BorderShadow] = ImVec4(0.f, 0.f, 0.f, 0.f);
 
 	// Adjust other settings
-	style.WindowMinSize = ImVec2(1.0f, 1.0f);
+	style.WindowMinSize = ImVec2(20.f, 20.0f);
 	style.WindowRounding = 5.0f;
 	style.FrameRounding = 4.0f;
 	style.GrabRounding = 3.0f;

@@ -17,6 +17,7 @@ public:
 		g_stats = this;
 
 		frames = 0;
+		maxHistory = 100;
 
 		minFps = std::numeric_limits<float>::max();
 		maxFps = std::numeric_limits<float>::min();
@@ -38,6 +39,9 @@ public:
 
 	float minFps, maxFps;
 	std::vector<float> fpsHistory;
+	std::vector<float> frameTimeHistory;
+
+	int maxHistory;
 
 private:
 
@@ -50,8 +54,17 @@ private:
 			if (frames > maxFps)
 				maxFps = frames;
 
+			if (fpsHistory.size() >= maxHistory)
+			{
+				fpsHistory.erase(fpsHistory.begin());
+				frameTimeHistory.erase(frameTimeHistory.begin());
+			}
+
 			fpsHistory.push_back(frames);
+			frameTimeHistory.push_back(1000.f / frames);
 			frames = 0;
+
+			std::cout << fpsHistory.size() << std::endl;
 
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
