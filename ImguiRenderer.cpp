@@ -665,7 +665,7 @@ void ImguiRenderer::renderFpsGraph()
 
 		if (ImPlot::BeginPlot("Real-Time FPS", ImGui::GetContentRegionAvail()))
 		{
-			double start = max(g_stats->fpsHistory.size() - static_cast<float>(history), 0);
+			double start = max(g_stats->fpsHistory.size() - history, 0);
 			double end = g_stats->fpsHistory.size();
 
 			ImPlot::SetupAxisLimits(ImAxis_X1, start, end - 1, ImGuiCond_Always);

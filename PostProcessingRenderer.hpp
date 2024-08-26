@@ -57,18 +57,13 @@ public:
 
 		glStencilMask(0x00);
 
-		// enable color and depth buffer
+		// enable color buffer
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		glDepthMask(GL_TRUE);
-
-		// enable depth test
-		glEnable(GL_DEPTH_TEST);
 	}
 
 	void renderOutline(GameObject* object, Scene* activeScene, Shader* shader)
 	{
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-		glDisable(GL_DEPTH_TEST);
 
 		float scalingFactor = glm::length(glm::abs(activeScene->getActiveCamera()->getPosition() - object->getPosition())) / 150.f;
 		glm::mat4 outlineModelMatrix = glm::rotate(
@@ -86,6 +81,7 @@ public:
 
 		object->draw();
 
+		glDepthMask(GL_TRUE);
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_STENCIL_TEST);
 	}

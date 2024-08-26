@@ -135,14 +135,14 @@ int main()
 		// measure time
 		statTracker.measureTime([]()
 			{
-				// handle input
-				InputHandler::getInstance().handleInput();
-
 				// do fancy physic stuff
 				PhysicEngine::update();
 
 				// render stuff
 				RendererManager::getInstance().renderAll();
+
+				// handle input
+				InputHandler::getInstance().handleInput();
 			});
 
 		statTracker.countFrame();

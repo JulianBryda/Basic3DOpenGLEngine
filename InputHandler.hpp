@@ -127,7 +127,7 @@ public:
 					float tempDepth;
 					static float depth;
 					glReadPixels(static_cast<int>(objectPosition.x), height - static_cast<int>(objectPosition.y), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &tempDepth);
-					if (tempDepth != 0)
+					if (tempDepth > 0.f)
 					{
 						depth = tempDepth;
 					}

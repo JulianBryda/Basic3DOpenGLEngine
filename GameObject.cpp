@@ -50,6 +50,9 @@ GameObject::GameObject(const GameObject& other) : GameObjectCollisions(this, oth
 	this->m_pShader = other.m_pShader;
 	this->m_mesh = Mesh(other.m_mesh);
 
+	this->m_texture = other.m_texture;
+	this->m_textureType = other.m_textureType;
+
 	genBuffers();
 
 }
