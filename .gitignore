@@ -6,6 +6,9 @@
 # Asset Folder
 Assets/
 
+#imgui ini
+imgui.ini
+
 # User-specific files
 *.rsuser
 *.suo

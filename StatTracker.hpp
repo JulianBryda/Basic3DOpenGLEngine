@@ -64,8 +64,6 @@ private:
 			frameTimeHistory.push_back(1000.f / frames);
 			frames = 0;
 
-			std::cout << fpsHistory.size() << std::endl;
-
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
 	}
