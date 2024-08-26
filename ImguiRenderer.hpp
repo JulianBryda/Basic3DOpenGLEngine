@@ -75,12 +75,12 @@ public:
 		// render functions here
 		renderMenuBar();
 
-		if (m_debugMenu) renderDebugMenu();
 		if (m_objectManager) renderObjectManager();
 		if (m_lightManager) renderLightManager();
 		if (m_assetManager) renderAssetManager();
 		
 		if (m_fpsGraph) renderFpsGraph();
+		if (m_sceneStats) renderSceneStats();
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -242,12 +242,12 @@ private:
 
 	void renderMenuBar();
 
-	void renderDebugMenu();
 	void renderObjectManager();
 	void renderLightManager();
 	void renderAssetManager();
 
 	void renderFpsGraph();
+	void renderSceneStats();
 
 	void renderLightMaterialView();
 
@@ -258,8 +258,7 @@ private:
 	char m_selectedTexturePath[_MAX_PATH] = "";
 	std::string m_selectedAssetPath = "";
 
-	bool m_debugMenu = false,
-		m_objectManager = false,
+	bool m_objectManager = false,
 		m_highlightCloseCollidableObjects = false,
 		m_lightManager = false,
 		m_assetManager = false,

@@ -132,14 +132,18 @@ int main()
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// render stuff
-		RendererManager::getInstance().renderAll();
+		// measure time
+		statTracker.measureTime([]()
+			{
+				// handle input
+				InputHandler::getInstance().handleInput();
 
-		// do fancy physic stuff
-		PhysicEngine::update();
+				// do fancy physic stuff
+				PhysicEngine::update();
 
-		// handle input
-		InputHandler::getInstance().handleInput();
+				// render stuff
+				RendererManager::getInstance().renderAll();
+			});
 
 		statTracker.countFrame();
 

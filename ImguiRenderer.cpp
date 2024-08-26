@@ -20,6 +20,13 @@ void ImguiRenderer::renderMenuBar()
 		}
 		if (ImGui::BeginMenu("Edit"))
 		{
+			ColoredText("Managers", IM_COL32(130, 130, 130, 255));
+
+			ImGui::Checkbox("Object", &m_objectManager);
+
+			ImGui::Checkbox("Light", &m_lightManager);
+
+			ImGui::Checkbox("Asset", &m_assetManager);
 
 			ImGui::EndMenu();
 		}
@@ -90,23 +97,80 @@ void ImguiRenderer::renderMenuBar()
 			ImGui::Separator();
 			ImGui::Spacing();
 
-			ColoredText("Managers", IM_COL32(130, 130, 130, 255));
+			ColoredText("Debug", IM_COL32(130, 130, 130, 255));
 
-			ImGui::Checkbox("Object", &m_objectManager);
+			if (ImGui::Checkbox("Vsync", new bool(Config::g_settings->vsyncEnabled)))
+			{
+				Config::g_settings->vsyncEnabled = !Config::g_settings->vsyncEnabled;
+				glfwSwapInterval(Config::g_settings->vsyncEnabled);
+			}
 
-			ImGui::Checkbox("Light", &m_lightManager);
+			if (ImGui::BeginMenu("Visualizers"))
+			{
+				bool triangleDebug = Config::g_settings->debugMode == Config::DebugMode::Triangles;
+				if (ImGui::RadioButton("Triangle View", triangleDebug))
+				{
+					if (!triangleDebug)
+					{
+						RendererManager::getInstance().setDebugShader(ShaderLib::getDebugTriangleShaderPtr());
+						Config::g_settings->debugMode = Config::DebugMode::Triangles;
+					}
+					else
+					{
+						RendererManager::getInstance().setDebugShader(ShaderLib::getDebugShaderPtr());
+						Config::g_settings->debugMode = Config::DebugMode::None;
+					}
 
-			ImGui::Checkbox("Asset", &m_assetManager);
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				}
+
+				bool overdrawDebug = Config::g_settings->debugMode == Config::DebugMode::Overdraw;
+				if (ImGui::RadioButton("Overdraw View", overdrawDebug))
+				{
+					if (!overdrawDebug)
+					{
+						RendererManager::getInstance().setDebugShader(ShaderLib::getDebugOverdrawShaderPtr());
+						Config::g_settings->debugMode = Config::DebugMode::Overdraw;
+					}
+					else
+					{
+						RendererManager::getInstance().setDebugShader(ShaderLib::getDebugShaderPtr());
+						Config::g_settings->debugMode = Config::DebugMode::None;
+					}
+
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				}
+
+				bool wireframeDebug = Config::g_settings->debugMode == Config::DebugMode::Wireframe;
+				if (ImGui::RadioButton("Wireframe View", wireframeDebug))
+				{
+					if (!wireframeDebug)
+					{
+						RendererManager::getInstance().setDebugShader(ShaderLib::getDebugWireframeShaderPtr());
+						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						Config::g_settings->debugMode = Config::DebugMode::Wireframe;
+					}
+					else
+					{
+						RendererManager::getInstance().setDebugShader(ShaderLib::getDebugShaderPtr());
+						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+						Config::g_settings->debugMode = Config::DebugMode::None;
+					}
+
+				}
+
+				ImGui::EndMenu();
+			}
 
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Viewport"))
 		{
-			ImGui::Checkbox("Show Debug Menu", &m_debugMenu);
+			ColoredText("Camera", IM_COL32(130, 130, 130, 255));
 
-			if (ImGui::BeginMenu("Camera"))
+			if (ImGui::BeginMenu("Add"))
 			{
-				if (ImGui::MenuItem("Add Pers"))
+				if (ImGui::MenuItem("Perspective"))
 				{
 					Camera* camera = new Camera(std::format("Camera{}", RendererManager::getInstance().getActiveScene()->getCameras().size()), false);
 					camera->setPosition(glm::vec3(0.0f, 0.0f, 1.0f));
@@ -114,7 +178,7 @@ void ImguiRenderer::renderMenuBar()
 					RendererManager::getInstance().getActiveScene()->addCamera(camera);
 				}
 
-				if (ImGui::MenuItem("Add Ortho", nullptr, nullptr, false))
+				if (ImGui::MenuItem("Orthographic", nullptr, nullptr, false))
 				{
 					Camera* camera = new Camera(std::format("Camera{}", RendererManager::getInstance().getActiveScene()->getCameras().size()), true);
 					camera->setPosition(glm::vec3(0.0f, 0.0f, 1.0f));
@@ -122,6 +186,11 @@ void ImguiRenderer::renderMenuBar()
 					RendererManager::getInstance().getActiveScene()->addCamera(camera);
 				}
 
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("Cameras"))
+			{
 				for (auto& camera : RendererManager::getInstance().getActiveScene()->getCameras())
 				{
 					if (ImGui::Checkbox(camera->getName().c_str(), new bool(camera == RendererManager::getInstance().getActiveScene()->getActiveCamera())))
@@ -133,20 +202,21 @@ void ImguiRenderer::renderMenuBar()
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::BeginMenu("Render Mode"))
+			ImGui::Spacing();
+			ImGui::Separator();
+			ImGui::Spacing();
+
+			ColoredText("Render", IM_COL32(130, 130, 130, 255));
+
+			if (ImGui::RadioButton("Debug", Config::g_settings->renderMode == Config::RenderMode::Debug))
 			{
-				if (ImGui::Checkbox("Debug", new bool(Config::g_settings->renderMode == Config::RenderMode::Debug)))
-				{
-					RendererManager::getInstance().setDebugShader(ShaderLib::getDebugShaderPtr());
-					Config::g_settings->renderMode = Config::RenderMode::Debug;
-				}
+				RendererManager::getInstance().setDebugShader(ShaderLib::getDebugShaderPtr());
+				Config::g_settings->renderMode = Config::RenderMode::Debug;
+			}
 
-				if (ImGui::Checkbox("Render", new bool(Config::g_settings->renderMode == Config::RenderMode::Render)))
-				{
-					Config::g_settings->renderMode = Config::RenderMode::Render;
-				}
-
-				ImGui::EndMenu();
+			if (ImGui::RadioButton("Render", Config::g_settings->renderMode == Config::RenderMode::Render))
+			{
+				Config::g_settings->renderMode = Config::RenderMode::Render;
 			}
 
 			ImGui::EndMenu();
@@ -154,72 +224,6 @@ void ImguiRenderer::renderMenuBar()
 
 		ImGui::EndMainMenuBar();
 	}
-}
-
-void ImguiRenderer::renderDebugMenu()
-{
-	ImGui::Begin("Debug Menu", nullptr);
-	{
-		ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-		if (ImGui::Checkbox("Vsync", new bool(Config::g_settings->vsyncEnabled)))
-		{
-			Config::g_settings->vsyncEnabled = !Config::g_settings->vsyncEnabled;
-			glfwSwapInterval(Config::g_settings->vsyncEnabled);
-		}
-
-		bool triangleDebug = Config::g_settings->debugMode == Config::DebugMode::Triangles;
-		if (ImGui::Checkbox("Triangle Debug", &triangleDebug))
-		{
-			if (triangleDebug)
-			{
-				RendererManager::getInstance().setDebugShader(ShaderLib::getDebugTriangleShaderPtr());
-				Config::g_settings->debugMode = Config::DebugMode::Triangles;
-			}
-			else
-			{
-				RendererManager::getInstance().setDebugShader(ShaderLib::getDebugShaderPtr());
-				Config::g_settings->debugMode = Config::DebugMode::None;
-			}
-
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		}
-
-		bool overdrawDebug = Config::g_settings->debugMode == Config::DebugMode::Overdraw;
-		if (ImGui::Checkbox("Overdraw Debug", &overdrawDebug))
-		{
-			if (overdrawDebug)
-			{
-				RendererManager::getInstance().setDebugShader(ShaderLib::getDebugOverdrawShaderPtr());
-				Config::g_settings->debugMode = Config::DebugMode::Overdraw;
-			}
-			else
-			{
-				RendererManager::getInstance().setDebugShader(ShaderLib::getDebugShaderPtr());
-				Config::g_settings->debugMode = Config::DebugMode::None;
-			}
-
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		}
-
-		bool wireframeDebug = Config::g_settings->debugMode == Config::DebugMode::Wireframe;
-		if (ImGui::Checkbox("Wireframe Debug", &wireframeDebug))
-		{
-			if (wireframeDebug)
-			{
-				RendererManager::getInstance().setDebugShader(ShaderLib::getDebugWireframeShaderPtr());
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				Config::g_settings->debugMode = Config::DebugMode::Wireframe;
-			}
-			else
-			{
-				RendererManager::getInstance().setDebugShader(ShaderLib::getDebugShaderPtr());
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				Config::g_settings->debugMode = Config::DebugMode::None;
-			}
-
-		}
-	}
-	ImGui::End();
 }
 
 void ImguiRenderer::renderObjectManager()
@@ -673,6 +677,10 @@ void ImguiRenderer::renderFpsGraph()
 				ImPlot::PlotLine("FPS", g_stats->fpsHistory.data(), g_stats->fpsHistory.size());
 				ImPlot::SetNextLineStyle(ImVec4(0, 0, 0, -1), 2.f);
 				ImPlot::PlotLine("Frame Time", g_stats->frameTimeHistory.data(), g_stats->frameTimeHistory.size());
+				ImPlot::SetNextLineStyle(ImVec4(0, 0, 0, -1), 2.f);
+				ImPlot::PlotLine("CPU Time", g_stats->cpuTimeHistory.data(), g_stats->cpuTimeHistory.size());
+				ImPlot::SetNextLineStyle(ImVec4(0, 0, 0, -1), 2.f);
+				ImPlot::PlotLine("GPU Time", g_stats->gpuTimeHistory.data(), g_stats->gpuTimeHistory.size());
 			}
 
 			if (fills)
@@ -681,12 +689,42 @@ void ImguiRenderer::renderFpsGraph()
 				ImPlot::PlotShaded("FPS", g_stats->fpsHistory.data(), g_stats->fpsHistory.size());
 				ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, 0.5f);
 				ImPlot::PlotShaded("Frame Time", g_stats->frameTimeHistory.data(), g_stats->frameTimeHistory.size());
+				ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, 0.5f);
+				ImPlot::PlotShaded("CPU Time", g_stats->cpuTimeHistory.data(), g_stats->cpuTimeHistory.size());
+				ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, 0.5f);
+				ImPlot::PlotShaded("GPU Time", g_stats->gpuTimeHistory.data(), g_stats->gpuTimeHistory.size());
 			}
 
 			ImPlot::EndPlot();
 		}
 	}
 	ImGui::End();
+}
+
+void ImguiRenderer::renderSceneStats()
+{
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(0, 0, 0, 150));
+	ImGui::Begin("Scene Stats", nullptr);
+	{
+		ImGui::Text("Objects: %i", RendererManager::getInstance().getActiveScene()->getObjects().size());
+		ImGui::Text("Env-Objects: %i", RendererManager::getInstance().getActiveScene()->getEnvObjects().size());
+
+		ImGui::Spacing();
+		ImGui::Separator();
+		ImGui::Spacing();
+
+		ImGui::Text("Lights: %i", RendererManager::getInstance().getActiveScene()->getLights().size());
+
+		ImGui::Spacing();
+		ImGui::Separator();
+		ImGui::Spacing();
+
+		ImGui::Text("Vertices: %i", RendererManager::getInstance().getActiveScene()->countVertices());
+		ImGui::Text("Indices: %i", RendererManager::getInstance().getActiveScene()->countIndices());
+
+	}
+	ImGui::End();
+	ImGui::PopStyleColor();
 }
 
 bool ImguiRenderer::IconItem(int id, const char* text, GLuint imageId, const float itemSize)
@@ -786,7 +824,7 @@ void ImguiRenderer::setImguiStyle()
 	colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
 	colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
-	colors[ImGuiCol_PopupBg] = ImVec4(0.15f, 0.15f, 0.15f, 0.8f);
+	colors[ImGuiCol_PopupBg] = ImVec4(0.15f, 0.15f, 0.15f, 0.85f);
 	colors[ImGuiCol_Border] = ImVec4(0.f, 0.f, 0.f, 0.f);
 	colors[ImGuiCol_BorderShadow] = ImVec4(0.f, 0.f, 0.f, 0.f);
 

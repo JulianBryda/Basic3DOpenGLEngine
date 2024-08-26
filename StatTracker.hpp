@@ -16,13 +16,20 @@ public:
 	{
 		g_stats = this;
 
+		fpsHistory.push_back(0.f);
+		frameTimeHistory.push_back(0.f);
+		cpuTimeHistory.push_back(0.f);
+		gpuTimeHistory.push_back(0.f);
+
 		frames = 0;
 		maxHistory = 100;
+
+		shouldMeasureTime = false;
 
 		minFps = std::numeric_limits<float>::max();
 		maxFps = std::numeric_limits<float>::min();
 
-		std::thread t(&StatTracker::addFramesToHistory, this);
+		std::thread t(&StatTracker::update, this);
 		t.detach();
 	}
 
@@ -31,42 +38,112 @@ public:
 		g_stats = nullptr;
 	}
 
-	void countFrame()
+	inline void countFrame()
 	{
 		frames++;
+	}
+
+	template <typename Func>
+	void measureTime(Func func)
+	{
+		if (shouldMeasureTime)
+		{
+			const auto start = std::chrono::high_resolution_clock::now();
+
+			GLuint query;
+			glGenQueries(1, &query);
+			glBeginQuery(GL_TIME_ELAPSED, query);
+
+			func();
+
+			glEndQuery(GL_TIME_ELAPSED);
+
+			// total time
+			const auto end = std::chrono::high_resolution_clock::now();
+			const std::chrono::duration<double> duration = end - start;
+			const double cpuTime = duration.count();
+
+			glFinish();
+
+			// gpu time
+			GLuint64 queryResult;
+			glGetQueryObjectui64v(query, GL_QUERY_RESULT, &queryResult);
+			const double gpuTime = queryResult / 1e9;
+
+			addCpuTimeToHistory(cpuTime * 1000.f);
+			addGpuTimeToHistory(gpuTime * 1000.f);
+
+			glDeleteQueries(1, &query);
+
+			shouldMeasureTime = false;
+		}
+		else
+		{
+			func();
+		}
 	}
 
 
 	float minFps, maxFps;
 	std::vector<float> fpsHistory;
 	std::vector<float> frameTimeHistory;
+	std::vector<float> cpuTimeHistory;
+	std::vector<float> gpuTimeHistory;
 
 	int maxHistory;
 
 private:
 
+	void addCpuTimeToHistory(float value)
+	{
+		if (cpuTimeHistory.size() >= maxHistory)
+		{
+			cpuTimeHistory.erase(cpuTimeHistory.begin());
+		}
+
+		cpuTimeHistory.push_back(value);
+	}
+
+	void addGpuTimeToHistory(float value)
+	{
+		if (gpuTimeHistory.size() >= maxHistory)
+		{
+			gpuTimeHistory.erase(gpuTimeHistory.begin());
+		}
+
+		gpuTimeHistory.push_back(value);
+	}
+
 	void addFramesToHistory()
+	{
+		if (frames < minFps)
+			minFps = frames;
+		if (frames > maxFps)
+			maxFps = frames;
+
+		if (fpsHistory.size() >= maxHistory)
+		{
+			fpsHistory.erase(fpsHistory.begin());
+			frameTimeHistory.erase(frameTimeHistory.begin());
+		}
+
+		fpsHistory.push_back(frames);
+		frameTimeHistory.push_back(1000.f / frames);
+		frames = 0;
+	}
+
+	void update()
 	{
 		while (true)
 		{
-			if (frames < minFps)
-				minFps = frames;
-			if (frames > maxFps)
-				maxFps = frames;
-
-			if (fpsHistory.size() >= maxHistory)
-			{
-				fpsHistory.erase(fpsHistory.begin());
-				frameTimeHistory.erase(frameTimeHistory.begin());
-			}
-
-			fpsHistory.push_back(frames);
-			frameTimeHistory.push_back(1000.f / frames);
-			frames = 0;
+			addFramesToHistory();
+			shouldMeasureTime = true;
 
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
 	}
 
 	int frames;
+
+	bool shouldMeasureTime;
 };
