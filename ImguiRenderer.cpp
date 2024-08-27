@@ -4,8 +4,6 @@
 #include "GlobalConfig.hpp"
 #include "StatTracker.hpp"
 
-#include <windows.h>
-#include <commdlg.h>
 #include <iostream>
 
 
@@ -665,7 +663,7 @@ void ImguiRenderer::renderFpsGraph()
 
 		if (ImPlot::BeginPlot("Real-Time FPS", ImGui::GetContentRegionAvail()))
 		{
-			double start = max(g_stats->fpsHistory.size() - history, 0);
+			double start = std::max(static_cast<int>(g_stats->fpsHistory.size()) - history, 0);
 			double end = g_stats->fpsHistory.size();
 
 			ImPlot::SetupAxisLimits(ImAxis_X1, start, end - 1, ImGuiCond_Always);
@@ -693,6 +691,7 @@ void ImguiRenderer::renderFpsGraph()
 				ImPlot::PlotShaded("CPU Time", g_stats->cpuTimeHistory.data(), g_stats->cpuTimeHistory.size());
 				ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, 0.5f);
 				ImPlot::PlotShaded("GPU Time", g_stats->gpuTimeHistory.data(), g_stats->gpuTimeHistory.size());
+
 			}
 
 			ImPlot::EndPlot();
@@ -704,7 +703,7 @@ void ImguiRenderer::renderFpsGraph()
 void ImguiRenderer::renderSceneStats()
 {
 	ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(0, 0, 0, 150));
-	ImGui::Begin("Scene Stats", nullptr);
+	ImGui::Begin("Scene Stats", nullptr, ImGuiWindowFlags_NoDocking);
 	{
 		ImGui::Text("Objects: %i", RendererManager::getInstance().getActiveScene()->getObjects().size());
 		ImGui::Text("Env-Objects: %i", RendererManager::getInstance().getActiveScene()->getEnvObjects().size());
