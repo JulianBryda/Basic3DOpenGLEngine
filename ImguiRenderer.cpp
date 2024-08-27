@@ -605,7 +605,7 @@ void ImguiRenderer::renderAssetManager()
 			ImGui::BeginChild("Data View");
 			{
 				const float itemSize = 120.0f;
-				const int numColumns = ceilf(ImGui::GetWindowWidth() * 0.8f / itemSize);
+				const int numColumns = ceil(ImGui::GetWindowWidth() * 0.8f / itemSize);
 
 				ImGui::Columns(numColumns, nullptr, false);
 

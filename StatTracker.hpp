@@ -16,7 +16,7 @@ public:
 	{
 		g_stats = this;
 
-		fpsHistory.push_back(0.f);
+		fpsHistory.push_back(0);
 		frameTimeHistory.push_back(0.f);
 		cpuTimeHistory.push_back(0.f);
 		gpuTimeHistory.push_back(0.f);
@@ -26,8 +26,8 @@ public:
 
 		shouldMeasureTime = false;
 
-		minFps = std::numeric_limits<float>::max();
-		maxFps = std::numeric_limits<float>::min();
+		minFps = std::numeric_limits<uint32_t>::max();
+		maxFps = std::numeric_limits<uint32_t>::min();
 
 		std::thread t(&StatTracker::update, this);
 		t.detach();
@@ -60,15 +60,15 @@ public:
 
 			// total time
 			const auto end = std::chrono::high_resolution_clock::now();
-			const std::chrono::duration<double> duration = end - start;
-			const double cpuTime = duration.count();
+			const std::chrono::duration<float> duration = end - start;
+			const float cpuTime = duration.count();
 
 			glFinish();
 
 			// gpu time
 			GLuint64 queryResult;
 			glGetQueryObjectui64v(query, GL_QUERY_RESULT, &queryResult);
-			const double gpuTime = queryResult / 1e9;
+			const float gpuTime = static_cast<float>(queryResult / 1e9);
 
 			addCpuTimeToHistory(cpuTime * 1000.f);
 			addGpuTimeToHistory(gpuTime * 1000.f);
@@ -84,8 +84,8 @@ public:
 	}
 
 
-	float minFps, maxFps;
-	std::vector<float> fpsHistory;
+	uint32_t minFps, maxFps;
+	std::vector<uint32_t> fpsHistory;
 	std::vector<float> frameTimeHistory;
 	std::vector<float> cpuTimeHistory;
 	std::vector<float> gpuTimeHistory;
@@ -143,7 +143,7 @@ private:
 		}
 	}
 
-	int frames;
+	uint32_t frames;
 
 	bool shouldMeasureTime;
 };

@@ -49,28 +49,28 @@ public:
 		return this->m_objects;
 	}
 
-	inline int countVertices()
+	inline uint32_t countVertices()
 	{
-		int vertices = 0;
+		size_t vertices = 0;
 
 		for (auto& object : m_objects)
 		{
 			vertices += object->getMesh().getVertices().size();
 		}
-		
-		return vertices;
+
+		return static_cast<uint32_t>(vertices);
 	}
 
-	inline int countIndices()
+	inline uint32_t countIndices()
 	{
-		int indices = 0;
+		size_t indices = 0;
 
 		for (auto& object : m_objects)
 		{
 			indices += object->getMesh().getIndices().size();
 		}
 
-		return indices;
+		return static_cast<uint32_t>(indices);
 	}
 
 	inline std::vector<GameObject*>& getEnvObjects()
