@@ -156,74 +156,57 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="FuckWindows.cpp" />
-    <ClCompile Include="GameObject.cpp" />
-    <ClCompile Include="GameObjectCollisions.cpp" />
-    <ClCompile Include="GameObjectPhysics.cpp" />
-    <ClCompile Include="glad.c" />
-    <ClCompile Include="ImguiRenderer.cpp" />
-    <ClCompile Include="PhysicEngine.cpp" />
-    <ClCompile Include="ShaderLib.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="AssetManager.hpp" />
-    <ClInclude Include="Camera.hpp" />
-    <ClInclude Include="Collider.hpp" />
-    <ClInclude Include="DirectionalLight.hpp" />
-    <ClInclude Include="EnvironmentRenderer.hpp" />
-    <ClInclude Include="GameObject.h" />
-    <ClInclude Include="GameObjectCollisions.h" />
-    <ClInclude Include="GameObjectConstructor.hpp" />
-    <ClInclude Include="GameObjectPhysics.h" />
-    <ClInclude Include="GlobalConfig.hpp" />
-    <ClInclude Include="GlobalTextures.hpp" />
-    <ClInclude Include="IconsFontAwesome5.h" />
-    <ClInclude Include="ImguiRenderer.hpp" />
-    <ClInclude Include="InputHandler.hpp" />
-    <ClInclude Include="Landscape.hpp" />
-    <ClInclude Include="Light.hpp" />
-    <ClInclude Include="LightRenderer.hpp" />
-    <ClInclude Include="PointLight.hpp" />
-    <ClInclude Include="Material.hpp" />
-    <ClInclude Include="Mesh.hpp" />
-    <ClInclude Include="ObjectRenderer.hpp" />
-    <ClInclude Include="PhysicEngine.hpp" />
-    <ClInclude Include="PostProcessingRenderer.hpp" />
-    <ClInclude Include="Primitives.hpp" />
-    <ClInclude Include="RendererBase.hpp" />
-    <ClInclude Include="RendererManager.hpp" />
-    <ClInclude Include="Scene.hpp" />
-    <ClInclude Include="Shader.hpp" />
-    <ClInclude Include="ShaderLib.hpp" />
-    <ClInclude Include="Skybox.hpp" />
-    <ClInclude Include="SpotLight.hpp" />
-    <ClInclude Include="StatTracker.hpp" />
-    <ClInclude Include="stb_image.h" />
-    <ClInclude Include="stb_image_write.h" />
-    <ClInclude Include="Vertex.hpp" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="cpp.hint" />
-    <None Include="ObjectLoader.hpp" />
-    <None Include="Shader\f_color.glsl" />
-    <None Include="Shader\f_debug.glsl" />
-    <None Include="Shader\f_debugOverdraw.glsl" />
-    <None Include="Shader\f_debugTriangle.glsl" />
-    <None Include="Shader\f_debugWireframe.glsl" />
-    <None Include="Shader\f_depth.glsl" />
-    <None Include="Shader\f_render.glsl" />
-    <None Include="Shader\f_skybox.glsl" />
-    <None Include="Shader\f_texture.glsl" />
-    <None Include="Shader\LibraryShader\structs.glsl" />
-    <None Include="Shader\v_color.glsl" />
-    <None Include="Shader\v_debug.glsl" />
-    <None Include="Shader\v_debugOverdraw.glsl" />
-    <None Include="Shader\v_debugTriangle.glsl" />
-    <None Include="Shader\v_debugWireframe.glsl" />
-    <None Include="Shader\v_depth.glsl" />
-    <None Include="Shader\v_render.glsl" />
-    <None Include="Shader\v_skybox.glsl" />
-    <None Include="Shader\v_texture.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Collider.hpp" />
+    <ClInclude Include="src\Core\PhysicEngine.hpp" />
+    <ClInclude Include="src\GlobalConfig.hpp" />
+    <ClInclude Include="src\GlobalTextures.hpp" />
+    <ClInclude Include="src\Landscape.hpp" />
+    <ClInclude Include="src\Renderer\Data\Mesh.hpp" />
+    <ClInclude Include="src\Renderer\Data\Vertex.hpp" />
+    <ClInclude Include="src\Renderer\Environment\Environment.hpp" />
+    <ClInclude Include="src\Renderer\Graphics\Material.hpp" />
+    <ClInclude Include="src\Renderer\Graphics\Shader.hpp" />
+    <ClInclude Include="src\Renderer\Lighting\Lighting.hpp" />
+    <ClInclude Include="src\Renderer\Object\Object.hpp" />
+    <ClInclude Include="src\Renderer\PostProcess\PostProcess.hpp" />
+    <ClInclude Include="src\Renderer\Renderer.hpp" />
+    <ClInclude Include="src\Renderer\UI\UserInterface.hpp" />
+    <ClInclude Include="src\Scene\Lights\DirectionalLight.hpp" />
+    <ClInclude Include="src\Scene\Lights\Light.hpp" />
+    <ClInclude Include="src\Scene\Lights\PointLight.hpp" />
+    <ClInclude Include="src\Scene\Lights\SpotLight.hpp" />
+    <ClInclude Include="src\Scene\Objects\Camera.hpp" />
+    <ClInclude Include="src\Scene\Objects\GameObject.h" />
+    <ClInclude Include="src\Scene\Objects\GameObjectCollisions.h" />
+    <ClInclude Include="src\Scene\Objects\GameObjectPhysics.h" />
+    <ClInclude Include="src\Scene\Objects\Skybox.hpp" />
+    <ClInclude Include="src\Scene\Scene.hpp" />
+    <ClInclude Include="src\ThirdParty\IconsFontAwesome5.h" />
+    <ClInclude Include="src\ThirdParty\stb_image.h" />
+    <ClInclude Include="src\ThirdParty\stb_image_write.h" />
+    <ClInclude Include="src\Utils\AssetManager.hpp" />
+    <ClInclude Include="src\Utils\GameObjectConstructor.hpp" />
+    <ClInclude Include="src\Utils\ObjectLoader.hpp" />
+    <ClInclude Include="src\Utils\ShaderLib.hpp" />
+    <ClInclude Include="src\Utils\StatTracker.hpp" />
+    <ClInclude Include="src\Window\AppWindow.hpp" />
+    <ClInclude Include="src\Window\InputHandler.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Core\FuckWindows.cpp" />
+    <ClCompile Include="src\Core\PhysicEngine.cpp" />
+    <ClCompile Include="src\GlobalConfig.cpp" />
+    <ClCompile Include="src\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\Renderer\UI\UserInterface.cpp" />
+    <ClCompile Include="src\Scene\Objects\GameObject.cpp" />
+    <ClCompile Include="src\Scene\Objects\GameObjectCollisions.cpp" />
+    <ClCompile Include="src\Scene\Objects\GameObjectPhysics.cpp" />
+    <ClCompile Include="src\ThirdParty\glad.c" />
+    <ClCompile Include="src\Utils\ShaderLib.cpp" />
+    <ClCompile Include="src\Window\AppWindow.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
