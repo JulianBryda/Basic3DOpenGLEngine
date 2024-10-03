@@ -157,12 +157,30 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
+    <None Include="Shader\f_color.glsl" />
+    <None Include="Shader\f_debug.glsl" />
+    <None Include="Shader\f_debugOverdraw.glsl" />
+    <None Include="Shader\f_debugTriangle.glsl" />
+    <None Include="Shader\f_debugWireframe.glsl" />
+    <None Include="Shader\f_depth.glsl" />
+    <None Include="Shader\f_render.glsl" />
+    <None Include="Shader\f_skybox.glsl" />
+    <None Include="Shader\f_texture.glsl" />
+    <None Include="Shader\v_color.glsl" />
+    <None Include="Shader\v_debug.glsl" />
+    <None Include="Shader\v_debugOverdraw.glsl" />
+    <None Include="Shader\v_debugTriangle.glsl" />
+    <None Include="Shader\v_debugWireframe.glsl" />
+    <None Include="Shader\v_depth.glsl" />
+    <None Include="Shader\v_render.glsl" />
+    <None Include="Shader\v_skybox.glsl" />
+    <None Include="Shader\v_texture.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Collider.hpp" />
     <ClInclude Include="src\Core\PhysicEngine.hpp" />
-    <ClInclude Include="src\GlobalConfig.hpp" />
-    <ClInclude Include="src\GlobalTextures.hpp" />
+    <ClInclude Include="src\Globals\GlobalConfig.hpp" />
+    <ClInclude Include="src\Globals\GlobalTextures.hpp" />
     <ClInclude Include="src\Landscape.hpp" />
     <ClInclude Include="src\Renderer\Data\Mesh.hpp" />
     <ClInclude Include="src\Renderer\Data\Vertex.hpp" />
@@ -185,6 +203,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="src\Scene\Objects\Skybox.hpp" />
     <ClInclude Include="src\Scene\Scene.hpp" />
     <ClInclude Include="src\ThirdParty\IconsFontAwesome5.h" />
+    <ClInclude Include="src\ThirdParty\PerlinNoise.hpp" />
     <ClInclude Include="src\ThirdParty\stb_image.h" />
     <ClInclude Include="src\ThirdParty\stb_image_write.h" />
     <ClInclude Include="src\Utils\AssetManager.hpp" />
@@ -198,7 +217,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
   <ItemGroup>
     <ClCompile Include="src\Core\FuckWindows.cpp" />
     <ClCompile Include="src\Core\PhysicEngine.cpp" />
-    <ClCompile Include="src\GlobalConfig.cpp" />
+    <ClCompile Include="src\Globals\GlobalConfig.cpp" />
     <ClCompile Include="src\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Renderer\UI\UserInterface.cpp" />
     <ClCompile Include="src\Scene\Objects\GameObject.cpp" />

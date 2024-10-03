@@ -21,7 +21,7 @@ void Renderer::render()
 
 	Object::render(m_activeScene);
 
-	PostProcess::render(m_activeScene);
+	PostProcess::getInstance().render(m_activeScene);
 
 	UserInterface::getInstance().render(m_activeScene);
 }

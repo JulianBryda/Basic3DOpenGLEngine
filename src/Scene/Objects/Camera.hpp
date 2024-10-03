@@ -1,6 +1,6 @@
 #pragma once
 #include "GameObject.h"
-#include "../GlobalConfig.hpp"
+#include "../Globals/GlobalConfig.hpp"
 
 class Camera : public GameObject
 {

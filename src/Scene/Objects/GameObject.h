@@ -75,6 +75,10 @@ protected:
 	GLuint vao;
 
 	glm::vec3 position;
+	glm::vec3 scale;
+	glm::vec3 rotation;
+
+	Mesh mesh;
 
 private:
 
@@ -83,14 +87,9 @@ private:
 	GLuint m_vbo, m_ebo, m_texture;
 	GLenum m_textureType;
 
-	glm::vec3 m_scale;
-	glm::vec3 m_rotation;
-
 	Shader* m_pShader;
 
 	Material m_material;
-
-	Mesh m_mesh;
 
 	bool m_hidden, m_outline;
 

@@ -4,7 +4,7 @@
 
 #include "../../Scene/Scene.hpp"
 #include "../Graphics/Shader.hpp"
-#include "../../GlobalTextures.hpp"
+#include "../../Globals/GlobalTextures.hpp"
 
 namespace Object
 {

@@ -2,8 +2,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "../GlobalConfig.hpp"
-#include "../GlobalTextures.hpp"
+#include "../Globals/GlobalConfig.hpp"
+#include "../Globals/GlobalTextures.hpp"
 
 #include "../Utils/ShaderLib.hpp"
 
@@ -63,7 +63,10 @@ int main()
 	glEnable(GL_BLEND);
 
 	// set line width for better visualization
-	glLineWidth(2.0f);
+	glLineWidth(2.f);
+
+	// set point size for better visualization
+	glPointSize(10.f);
 
 	// load shader
 	ShaderLib::LoadShader();

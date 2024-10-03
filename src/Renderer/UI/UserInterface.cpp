@@ -4,9 +4,10 @@
 #include "../../Utils/GameObjectConstructor.hpp"
 #include "../../Utils/StatTracker.hpp"
 
-#include "../../GlobalConfig.hpp"
+#include "../../Globals/GlobalConfig.hpp"
 
 #include "../Renderer.hpp"
+#include "../../Landscape.hpp"
 
 #include <iostream>
 
@@ -55,6 +56,19 @@ void UserInterface::renderMenuBar()
 			{
 				GameObject* obj = new GameObject(std::format("Sphere{}", Renderer::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Sphere.obj", ShaderLib::getRenderShaderPtr(), ColliderType::Circular);
 				obj->setIsPhysicsEnabled(true);
+
+				Renderer::getInstance().addObject(obj);
+			}
+
+			ImGui::Spacing();
+			ImGui::Separator();
+			ImGui::Spacing();
+
+			ColoredText("Landscape", IM_COL32(130, 130, 130, 255));
+
+			if (ImGui::MenuItem("Landscape"))
+			{
+				Landscape* obj = new Landscape(std::format("Landscape{}", Renderer::getInstance().getActiveScene()->getObjects().size()));
 
 				Renderer::getInstance().addObject(obj);
 			}
@@ -276,6 +290,7 @@ void UserInterface::renderObjectManager()
 			{
 				GameObject* object = getSelectedObject();
 
+
 				float* pos[3] = { &object->getPositionPtr()->x, &object->getPositionPtr()->y, &object->getPositionPtr()->z };
 				float* scale[3] = { &object->getScalePtr()->x, &object->getScalePtr()->y, &object->getScalePtr()->z };
 				float* ambient[3] = { &object->getMaterialPtr()->getAmbientPtr()->x, &object->getMaterialPtr()->getAmbientPtr()->y, &object->getMaterialPtr()->getAmbientPtr()->z };
@@ -429,6 +444,45 @@ void UserInterface::renderObjectManager()
 					{
 						Renderer::getInstance().deleteObject(*object);
 						removeSelectedObject(object);
+					}
+				}
+				else
+				{
+					Landscape* landscape = dynamic_cast<Landscape*>(object);
+					if (landscape)
+					{
+						if (ImGui::TreeNode("Landscape"))
+						{
+							static int* frequency[2] = { landscape->getResolutionXPtr(), landscape->getResolutionYPtr() };
+
+							ImGui::Text("Seed");
+							ImGui::SameLine();
+							ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+							ImGui::InputInt("##582345", landscape->getSeedPtr());
+
+							ImGui::Text("Octaves");
+							ImGui::SameLine();
+							ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+							ImGui::InputInt("##2946", landscape->getOctavesPtr());
+
+							ImGui::Text("Resolution");
+							ImGui::SameLine();
+							ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+							ImGui::InputInt2("##58275", *frequency);
+
+							ImGui::Text("Frequency");
+							ImGui::SameLine();
+							ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+							ImGui::InputFloat("##58245", landscape->getFrequencyPtr());
+
+
+							if (ImGui::Button("Update"))
+							{
+								landscape->update();
+							}
+
+							ImGui::TreePop();
+						}
 					}
 				}
 			}

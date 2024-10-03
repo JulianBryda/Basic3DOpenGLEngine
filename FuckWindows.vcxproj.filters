@@ -2,6 +2,60 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <None Include="cpp.hint" />
+    <None Include="Shader\f_color.glsl">
+      <Filter>Shader\Fragment</Filter>
+    </None>
+    <None Include="Shader\f_debug.glsl">
+      <Filter>Shader\Fragment</Filter>
+    </None>
+    <None Include="Shader\f_debugOverdraw.glsl">
+      <Filter>Shader\Fragment</Filter>
+    </None>
+    <None Include="Shader\f_debugTriangle.glsl">
+      <Filter>Shader\Fragment</Filter>
+    </None>
+    <None Include="Shader\f_debugWireframe.glsl">
+      <Filter>Shader\Fragment</Filter>
+    </None>
+    <None Include="Shader\f_depth.glsl">
+      <Filter>Shader\Fragment</Filter>
+    </None>
+    <None Include="Shader\f_render.glsl">
+      <Filter>Shader\Fragment</Filter>
+    </None>
+    <None Include="Shader\f_skybox.glsl">
+      <Filter>Shader\Fragment</Filter>
+    </None>
+    <None Include="Shader\f_texture.glsl">
+      <Filter>Shader\Fragment</Filter>
+    </None>
+    <None Include="Shader\v_color.glsl">
+      <Filter>Shader\Vertex</Filter>
+    </None>
+    <None Include="Shader\v_debug.glsl">
+      <Filter>Shader\Vertex</Filter>
+    </None>
+    <None Include="Shader\v_debugOverdraw.glsl">
+      <Filter>Shader\Vertex</Filter>
+    </None>
+    <None Include="Shader\v_debugTriangle.glsl">
+      <Filter>Shader\Vertex</Filter>
+    </None>
+    <None Include="Shader\v_debugWireframe.glsl">
+      <Filter>Shader\Vertex</Filter>
+    </None>
+    <None Include="Shader\v_depth.glsl">
+      <Filter>Shader\Vertex</Filter>
+    </None>
+    <None Include="Shader\v_render.glsl">
+      <Filter>Shader\Vertex</Filter>
+    </None>
+    <None Include="Shader\v_skybox.glsl">
+      <Filter>Shader\Vertex</Filter>
+    </None>
+    <None Include="Shader\v_texture.glsl">
+      <Filter>Shader\Vertex</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -52,15 +106,21 @@
     <Filter Include="src\Window">
       <UniqueIdentifier>{d280b49f-85ad-4bf0-b91f-1b243dfe3c59}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Globals">
+      <UniqueIdentifier>{8b4239b9-d6b5-487e-8abc-24a1aa98d9bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{4d1ebe19-1637-484b-be49-b8fb50c29d96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\Vertex">
+      <UniqueIdentifier>{b109f075-d0c0-42db-9ac6-2fdd3d05c408}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\Fragment">
+      <UniqueIdentifier>{9d1c2895-2b84-48b6-9a42-fbfc283873e2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Collider.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GlobalConfig.hpp">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GlobalTextures.hpp">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\Landscape.hpp">
@@ -159,11 +219,17 @@
     <ClInclude Include="src\Window\InputHandler.hpp">
       <Filter>src\Window</Filter>
     </ClInclude>
+    <ClInclude Include="src\Globals\GlobalConfig.hpp">
+      <Filter>src\Globals</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Globals\GlobalTextures.hpp">
+      <Filter>src\Globals</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ThirdParty\PerlinNoise.hpp">
+      <Filter>src\ThirdParty</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\GlobalConfig.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\Core\FuckWindows.cpp">
       <Filter>src\Core</Filter>
     </ClCompile>
@@ -193,6 +259,9 @@
     </ClCompile>
     <ClCompile Include="src\Window\AppWindow.cpp">
       <Filter>src\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Globals\GlobalConfig.cpp">
+      <Filter>src\Globals</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

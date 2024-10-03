@@ -2,7 +2,7 @@
 #include <iostream>
 #include <GLFW/glfw3.h>
 
-#include "../GlobalConfig.hpp"
+#include "../Globals/GlobalConfig.hpp"
 
 class AppWindow
 {

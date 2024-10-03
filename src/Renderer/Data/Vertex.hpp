@@ -33,6 +33,9 @@ public:
 	glm::vec2 getUv() const { return this->m_uv; }
 	glm::vec2* getUvPtr() { return &this->m_uv; }
 
+	// setter
+	void setNormal(glm::vec3 value) { m_normal = value; }
+
 private:
 
 	glm::vec3 m_vertex;

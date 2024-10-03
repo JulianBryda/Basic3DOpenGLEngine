@@ -6,14 +6,14 @@ GameObject::GameObject(std::string name, Mesh mesh, Shader* shader, ColliderType
 {
 	this->m_name = name;
 	this->position = glm::vec3(0.0f);
-	this->m_rotation = glm::vec3(0.0f);
-	this->m_scale = glm::vec3(5.0f);
+	this->rotation = glm::vec3(0.0f);
+	this->scale = glm::vec3(5.0f);
 	this->m_hidden = false;
 	this->m_outline = false;
 
 	this->m_material = Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 64.0f);
 	this->m_pShader = shader;
-	this->m_mesh = mesh;
+	this->mesh = mesh;
 
 	genBuffers();
 	loadTexture(".\\Assets\\Textures\\default.png");
@@ -23,15 +23,15 @@ GameObject::GameObject(std::string name, std::string path, Shader* shader, Colli
 {
 	this->m_name = name;
 	this->position = glm::vec3(0.0f);
-	this->m_rotation = glm::vec3(0.0f);
-	this->m_scale = glm::vec3(5.0f);
+	this->rotation = glm::vec3(0.0f);
+	this->scale = glm::vec3(5.0f);
 	this->m_hidden = false;
 	this->m_outline = false;
 
 	this->m_material = Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 64.0f);
 	this->m_pShader = shader;
 
-	ObjectLoader::load_model_mesh_assimp(path.c_str(), m_mesh);
+	ObjectLoader::load_model_mesh_assimp(path.c_str(), mesh);
 
 	genBuffers();
 	loadTexture(".\\Assets\\Textures\\default.png");
@@ -41,14 +41,14 @@ GameObject::GameObject(const GameObject& other) : GameObjectCollisions(this, oth
 {
 	this->m_name = other.m_name + "_dup";
 	this->position = other.position;
-	this->m_rotation = other.m_rotation;
-	this->m_scale = other.m_scale;
+	this->rotation = other.rotation;
+	this->scale = other.scale;
 	this->m_hidden = other.m_hidden;
 	this->m_outline = other.m_outline;
 
 	this->m_material = Material(other.m_material);
 	this->m_pShader = other.m_pShader;
-	this->m_mesh = Mesh(other.m_mesh);
+	this->mesh = Mesh(other.mesh);
 
 	this->m_texture = other.m_texture;
 	this->m_textureType = other.m_textureType;
@@ -74,10 +74,10 @@ void GameObject::genBuffers()
 	glBindVertexArray(vao);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * this->m_mesh.getVerticesPtr()->size(), this->m_mesh.getVerticesPtr()->data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * this->mesh.getVerticesPtr()->size(), this->mesh.getVerticesPtr()->data(), GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * this->m_mesh.getIndicesPtr()->size(), this->m_mesh.getIndicesPtr()->data(), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * this->mesh.getIndicesPtr()->size(), this->mesh.getIndicesPtr()->data(), GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -98,10 +98,10 @@ void GameObject::updateBuffers()
 	glBindVertexArray(vao);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * this->m_mesh.getVerticesPtr()->size(), this->m_mesh.getVerticesPtr()->data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * this->mesh.getVerticesPtr()->size(), this->mesh.getVerticesPtr()->data(), GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * this->m_mesh.getIndicesPtr()->size(), this->m_mesh.getIndicesPtr()->data(), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * this->mesh.getIndicesPtr()->size(), this->mesh.getIndicesPtr()->data(), GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -120,7 +120,7 @@ void GameObject::updateBuffers()
 void GameObject::draw()
 {
 	glBindVertexArray(vao);
-	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(this->m_mesh.getIndicesPtr()->size()), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(this->mesh.getIndicesPtr()->size()), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
@@ -199,9 +199,9 @@ bool GameObject::getIsOutline() const { return this->m_outline; }
 
 glm::vec3 GameObject::getPosition() const { return this->position; }
 glm::vec3* GameObject::getPositionPtr() { return &this->position; }
-glm::vec3 GameObject::getRotation() const { return m_rotation; }
-glm::vec3 GameObject::getScale() const { return m_scale; }
-glm::vec3* GameObject::getScalePtr() { return &m_scale; }
+glm::vec3 GameObject::getRotation() const { return rotation; }
+glm::vec3 GameObject::getScale() const { return scale; }
+glm::vec3* GameObject::getScalePtr() { return &scale; }
 
 glm::mat4 GameObject::getModelMatrix() const
 {
@@ -211,10 +211,10 @@ glm::mat4 GameObject::getModelMatrix() const
 				glm::scale(
 					glm::translate(
 						glm::mat4(1.0f), this->position),
-					this->m_scale),
-				glm::radians(m_rotation.x), glm::vec3(1.f, 0.f, 0.f)),
-			glm::radians(m_rotation.y), glm::vec3(0.f, 1.f, 0.f)),
-		glm::radians(m_rotation.z), glm::vec3(0.f, 0.f, 1.f));
+					this->scale),
+				glm::radians(rotation.x), glm::vec3(1.f, 0.f, 0.f)),
+			glm::radians(rotation.y), glm::vec3(0.f, 1.f, 0.f)),
+		glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f));
 }
 
 GLuint GameObject::getTexture() const { return this->m_texture; }
@@ -224,12 +224,12 @@ Shader* GameObject::getShaderPtr() const { return m_pShader; }
 
 Material* GameObject::getMaterialPtr() { return &m_material; }
 
-Mesh& GameObject::getMesh() { return this->m_mesh; }
-Mesh* GameObject::getMeshPtr() { return &this->m_mesh; }
+Mesh& GameObject::getMesh() { return this->mesh; }
+Mesh* GameObject::getMeshPtr() { return &this->mesh; }
 
 void GameObject::setPosition(glm::vec3 position) { this->position = position; }
-void GameObject::setRotation(glm::vec3 rotation) { this->m_rotation = rotation; }
-void GameObject::setScale(glm::vec3 scale) { this->m_scale = scale; }
+void GameObject::setRotation(glm::vec3 rotation) { this->rotation = rotation; }
+void GameObject::setScale(glm::vec3 scale) { this->scale = scale; }
 
 void GameObject::setIsHidden(bool isHidden) { this->m_hidden = isHidden; }
 void GameObject::setIsOutline(bool isOutline) { this->m_outline = isOutline; }
@@ -247,6 +247,6 @@ void GameObject::setName(std::string name) { m_name = name; }
 
 float** GameObject::getRotationPtr()
 {
-	static float* rotation[3] = { &this->m_rotation.x, &this->m_rotation.y, &this->m_rotation.z };
+	static float* rotation[3] = { &this->rotation.x, &this->rotation.y, &this->rotation.z };
 	return rotation;
 }

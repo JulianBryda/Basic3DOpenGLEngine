@@ -5,8 +5,67 @@
 #include "../../Scene/Scene.hpp"
 #include "../Graphics/Shader.hpp"
 
-namespace PostProcess
+class PostProcess
 {
+
+public:
+
+	PostProcess()
+	{
+		Vertex vertex = Vertex(glm::vec3(0.f), glm::vec3(0.f), glm::vec2(0.f));
+
+		glGenVertexArrays(1, &m_vao);
+		glGenBuffers(1, &m_vbo);
+
+		glBindVertexArray(m_vao);
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex), &vertex, GL_STATIC_DRAW);
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+		glEnableVertexAttribArray(0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+
+	~PostProcess()
+	{
+		glDeleteBuffers(1, &m_vbo);
+		glDeleteVertexArrays(1, &m_vao);
+	}
+
+	static PostProcess& getInstance()
+	{
+		static PostProcess instance;
+		return instance;
+	}
+
+	void render(Scene* activeScene)
+	{
+		for (auto& object : activeScene->getObjects())
+		{
+			if (!object->getIsOutline()) continue;
+
+			Shader* shader = ShaderLib::getColorShaderPtr();
+			shader->use();
+
+			shader->setMat4("projection", activeScene->getActiveCamera()->getProjectionMatrix());
+			shader->setMat4("view", activeScene->getActiveCamera()->getViewMatrix());
+			shader->setMat4("model", object->getModelMatrix());
+
+			shader->setFloat4("color", glm::vec4(1.f, 0.6f, 0.f, 1.f));
+
+			createOutline(object);
+
+			renderOutline(object, activeScene, shader);
+
+			renderOrigin();
+		}
+	}
+
+private:
+
 	void createOutline(GameObject* object)
 	{
 		glEnable(GL_STENCIL_TEST);
@@ -54,24 +113,16 @@ namespace PostProcess
 		glDisable(GL_STENCIL_TEST);
 	}
 
-	void render(Scene* activeScene)
+	void renderOrigin()
 	{
-		for (auto& object : activeScene->getObjects())
-		{
-			if (!object->getIsOutline()) continue;
+		glDisable(GL_DEPTH_TEST);
 
-			Shader* shader = ShaderLib::getColorShaderPtr();
-			shader->use();
+		glBindVertexArray(m_vao);
+		glDrawArrays(GL_POINTS, 0, 1);
+		glBindVertexArray(0);
 
-			shader->setMat4("projection", activeScene->getActiveCamera()->getProjectionMatrix());
-			shader->setMat4("view", activeScene->getActiveCamera()->getViewMatrix());
-			shader->setMat4("model", object->getModelMatrix());
-
-			shader->setFloat4("color", glm::vec4(1.f, 0.6f, 0.f, 1.f));
-
-			createOutline(object);
-
-			renderOutline(object, activeScene, shader);
-		}
+		glEnable(GL_DEPTH_TEST);
 	}
+
+	GLuint m_vao, m_vbo;
 };
