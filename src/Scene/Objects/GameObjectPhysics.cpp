@@ -1,5 +1,5 @@
 #include "GameObjectPhysics.h"
-#include "GameObject.h"
+#include "GameObject.hpp"
 #include "../../Core/PhysicEngine.hpp"
 
 GameObjectPhysics::GameObjectPhysics(GameObject* gameObject)

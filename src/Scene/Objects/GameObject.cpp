@@ -1,4 +1,4 @@
-#include "GameObject.h"
+#include "GameObject.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -17,6 +17,8 @@ GameObject::GameObject(std::string name, Mesh mesh, Shader* shader, ColliderType
 
 	genBuffers();
 	loadTexture(".\\Assets\\Textures\\default.png");
+
+	initParameterAtlas();
 }
 
 GameObject::GameObject(std::string name, std::string path, Shader* shader, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
@@ -35,6 +37,8 @@ GameObject::GameObject(std::string name, std::string path, Shader* shader, Colli
 
 	genBuffers();
 	loadTexture(".\\Assets\\Textures\\default.png");
+
+	initParameterAtlas();
 }
 
 GameObject::GameObject(const GameObject& other) : GameObjectCollisions(this, other.collider->getColliderType()), GameObjectPhysics(this)
@@ -55,6 +59,7 @@ GameObject::GameObject(const GameObject& other) : GameObjectCollisions(this, oth
 
 	genBuffers();
 
+	initParameterAtlas();
 }
 
 GameObject::~GameObject()
@@ -203,9 +208,9 @@ glm::vec3 GameObject::getRotation() const { return rotation; }
 glm::vec3 GameObject::getScale() const { return scale; }
 glm::vec3* GameObject::getScalePtr() { return &scale; }
 
-glm::mat4 GameObject::getModelMatrix() const
+glm::mat4 GameObject::getModelMatrix()
 {
-	return glm::rotate(
+	modelMatrix = glm::rotate(
 		glm::rotate(
 			glm::rotate(
 				glm::scale(
@@ -215,6 +220,8 @@ glm::mat4 GameObject::getModelMatrix() const
 				glm::radians(rotation.x), glm::vec3(1.f, 0.f, 0.f)),
 			glm::radians(rotation.y), glm::vec3(0.f, 1.f, 0.f)),
 		glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f));
+
+	return modelMatrix;
 }
 
 GLuint GameObject::getTexture() const { return this->m_texture; }

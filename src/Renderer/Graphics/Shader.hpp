@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
@@ -7,26 +7,27 @@
 #include <sstream>
 #include <format>
 #include <iostream>
+#include <variant>
 
 #include "Material.hpp"
 #include "../Scene/Lights/Light.hpp"
 #include "../Scene/Lights/SpotLight.hpp"
 #include "../Scene/Lights/DirectionalLight.hpp"
 
-
-class LibraryShader
-{
-public:
-	LibraryShader(const char* shaderPath, GLenum shaderType) : path(shaderPath), type(shaderType), id(0) {}
-
-	const char* path;
-	GLenum type;
-	GLuint id;
-};
-
 class Shader
 {
 public:
+
+	template <typename T>
+	struct Parameter
+	{
+		const char* name;
+		GLint arraySize;
+		T* value;
+	};
+
+	using UniformType = std::variant<Parameter<bool>, Parameter<float>, Parameter<int>, Parameter<glm::vec2>, Parameter<glm::vec3>, Parameter<glm::mat4>>;
+
 
 	Shader(std::string_view vShaderPath, std::string_view fShaderPath, std::string_view gShaderPath = "")
 	{
@@ -56,6 +57,9 @@ public:
 			std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 		}
 
+		// get uniforms required by shader and save it in m_parameterAtlas
+		extractShaderParameters();
+
 		// delete the shaders as they're linked into program and are no longer necessary
 		glDeleteShader(vertex);
 		glDeleteShader(fragment);
@@ -73,6 +77,8 @@ public:
 	GLuint getId() const { return this->m_id; }
 
 	std::string getName() const { return this->m_name; }
+
+	std::vector<size_t>& getParameterAtlas() { return m_parameterAtlas; }
 
 	// utility uniform functions
 	inline void setBool(const char* name, bool value) const
@@ -164,8 +170,134 @@ public:
 		this->setInt("lightCount", static_cast<int>(count));
 	}
 
+	void setUniform(const UniformType& param)
+	{
+		std::visit([&](auto&& arg)
+			{
+				setUniformParam(arg);
+			}, param);
+	}
+
+
 private:
 
+	template <typename T>
+	void setUniformParam(const Parameter<T>& param);
+
+	template <>
+	void setUniformParam(const Parameter<bool>& param)
+	{
+		GLint location = glGetUniformLocation(m_id, param.name);
+
+		if (param.arraySize > 1)
+		{
+			glUniform1iv(location, param.arraySize, (GLint*)param.value);
+		}
+		else
+		{
+			glUniform1i(location, *param.value);
+		}
+	}
+
+	template <>
+	void setUniformParam(const Parameter<int>& param)
+	{
+		GLint location = glGetUniformLocation(m_id, param.name);
+
+		if (param.arraySize > 1)
+		{
+			glUniform1iv(location, param.arraySize, param.value);
+		}
+		else
+		{
+			glUniform1i(location, *param.value);
+		}
+	}
+
+	template <>
+	void setUniformParam(const Parameter<float>& param)
+	{
+		GLint location = glGetUniformLocation(m_id, param.name);
+
+		if (param.arraySize > 1)
+		{
+			glUniform1fv(location, param.arraySize, param.value);
+		}
+		else
+		{
+			glUniform1f(location, *param.value);
+		}
+	}
+
+	template <>
+	void setUniformParam(const Parameter<glm::vec2>& param)
+	{
+		GLint location = glGetUniformLocation(m_id, param.name);
+
+		if (param.arraySize > 1)
+		{
+			glUniform2fv(location, param.arraySize, glm::value_ptr(*param.value));
+		}
+		else
+		{
+			glUniform2f(location, param.value->x, param.value->y);
+		}
+	}
+
+	template <>
+	void setUniformParam(const Parameter<glm::vec3>& param)
+	{
+		GLint location = glGetUniformLocation(m_id, param.name);
+
+		if (param.arraySize > 1)
+		{
+			glUniform3fv(location, param.arraySize, glm::value_ptr(*param.value));
+		}
+		else
+		{
+			glUniform3f(location, param.value->x, param.value->y, param.value->z);
+		}
+	}
+
+	template <>
+	void setUniformParam(const Parameter<glm::mat4>& param)
+	{
+		GLint location = glGetUniformLocation(m_id, param.name);
+
+		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(*param.value));
+	}
+
+
+	void extractShaderParameters()
+	{
+#ifdef _DEBUG
+		std::cout << "Loaded Shader \"" << m_name << "\" with parameters:\n";
+#endif
+
+		GLint uniformCount;
+		glGetProgramInterfaceiv(this->m_id, GL_UNIFORM, GL_ACTIVE_RESOURCES, &uniformCount);
+
+		std::vector<GLchar> nameData(256);
+		std::vector<GLenum> properties;
+		properties.push_back(GL_NAME_LENGTH);
+		properties.push_back(GL_TYPE);
+		properties.push_back(GL_ARRAY_SIZE);
+		std::vector<GLint> values(properties.size());
+		for (GLuint i = 0; i < uniformCount; i++)
+		{
+			glGetProgramResourceiv(this->m_id, GL_UNIFORM, i, properties.size(), properties.data(), values.size(), NULL, values.data());
+
+			nameData.resize(values[0]); // length of the name
+			glGetProgramResourceName(this->m_id, GL_UNIFORM, i, nameData.size(), NULL, nameData.data());
+			std::string name(nameData.data(), nameData.size() - 1);
+
+			m_parameterAtlas.push_back(std::hash<std::string>()(name));
+
+#ifdef _DEBUG
+			std::cout << "\tName: " << name << "\n\tType: " << convertGLToString(values[1]) << "\n\tArray Size: " << values[2] << "\n\n";
+#endif
+		}
+	}
 
 	void create_shader(GLuint& shaderId, const char* shaderCode, GLenum shaderType)
 	{
@@ -221,18 +353,6 @@ private:
 		}
 	}
 
-#pragma region Shader compilation
-	void compile_shader(LibraryShader& shader)
-	{
-		std::string shaderCode;
-
-		// read shader code
-		this->read_shader_from_file(shader.path, shaderCode, shader.type);
-
-		// create shader
-		this->create_shader(shader.id, shaderCode.c_str(), shader.type);
-	}
-
 	void compile_shader(std::string_view shaderPath, GLuint& shaderId, GLenum shaderType)
 	{
 		std::string shaderCode;
@@ -243,9 +363,47 @@ private:
 		// create shader
 		this->create_shader(shaderId, shaderCode.c_str(), shaderType);
 	}
-#pragma endregion
+
+	std::string convertGLToString(GLint value)
+	{
+		switch (value)
+		{
+		case GL_BOOL:
+			return "GL_BOOL";
+		case GL_INT:
+			return "GL_INT";
+		case GL_FLOAT:
+			return "GL_FLOAT";
+		case GL_FLOAT_VEC2:
+			return "GL_FLOAT_VEC2";
+		case GL_FLOAT_VEC3:
+			return "GL_FLOAT_VEC3";
+		case GL_FLOAT_VEC4:
+			return "GL_FLOAT_VEC4";
+		case GL_INT_VEC2:
+			return "GL_INT_VEC2";
+		case GL_INT_VEC3:
+			return "GL_INT_VEC3";
+		case GL_INT_VEC4:
+			return "GL_INT_VEC4";
+		case GL_FLOAT_MAT2:
+			return "GL_FLOAT_MAT2";
+		case GL_FLOAT_MAT3:
+			return "GL_FLOAT_MAT3";
+		case GL_FLOAT_MAT4:
+			return "GL_FLOAT_MAT4";
+		case GL_SAMPLER_2D:
+			return "GL_SAMPLER_2D";
+		case GL_SAMPLER_CUBE:
+			return "GL_SAMPLER_CUBE";
+		default:
+			return std::to_string(value);
+		}
+	}
 
 	GLuint m_id;
 
 	std::string m_name;
+
+	std::vector<size_t> m_parameterAtlas;
 };

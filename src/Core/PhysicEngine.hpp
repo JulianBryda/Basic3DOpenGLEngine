@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 
-#include "../Scene/Objects/GameObject.h"
+#include "../Scene/Objects/GameObject.hpp"
 
 class PhysicEngine
 {

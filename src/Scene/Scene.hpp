@@ -27,7 +27,6 @@ public:
 
 	}
 
-
 	// getter
 	inline std::vector<Light*>& getLights()
 	{
@@ -179,5 +178,4 @@ private:
 
 	std::vector<GameObject*> m_objects;
 	std::vector<GameObject*> m_envObjects;
-
 };

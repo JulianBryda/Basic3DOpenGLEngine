@@ -1,14 +1,14 @@
 #version 460 core
-layout (location = 0) in vec4 aPos;
+layout (location = 0) in vec4 position;
 
 out vec3 uvs;
 
-uniform mat4 projection;
-uniform mat4 view;
-uniform mat4 model;
+uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 modelMatrix;
 
 void main()
 {
-	uvs = aPos.xyz;
-	gl_Position = projection * view * model * aPos;
+	uvs = position.xyz;
+	gl_Position = projectionMatrix * viewMatrix * modelMatrix * position;
 }

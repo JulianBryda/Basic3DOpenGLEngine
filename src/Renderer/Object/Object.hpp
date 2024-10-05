@@ -15,12 +15,24 @@ namespace Object
 		Shader* shader = Renderer::getInstance().getDebugShader();
 		shader->use();
 
-		shader->setMat4("projection", activeScene->getActiveCamera()->getProjectionMatrix());
-		shader->setMat4("view", activeScene->getActiveCamera()->getViewMatrix());
-		shader->setMat4("model", object->getModelMatrix());
+		auto& objectAtlas = object->getParameterAtlas();
+		auto finalAtlas = activeScene->getActiveCamera()->getParameterAtlas(); // do not use refernce on this one!
 
-		shader->setFloat3("viewPos", activeScene->getActiveCamera()->getPosition());
-		shader->setMaterial(object->getMaterialPtr());
+		//merge maps
+		for (const auto& pair : objectAtlas)
+		{
+			finalAtlas.insert_or_assign(pair.first, pair.second);
+		}
+
+		for (auto& name : shader->getParameterAtlas())
+		{
+			if (finalAtlas.contains(name))
+			{
+				Shader::UniformType uniformType = finalAtlas[name];
+
+				shader->setUniform(uniformType);
+			}
+		}
 
 		shader->setTexture(GL_TEXTURE_2D, Textures::g_textures->overdrawTexture, GL_TEXTURE0);
 		shader->setUInt("atomicImage", 0);
@@ -42,11 +54,24 @@ namespace Object
 		Shader* shader = object->getShaderPtr();
 		shader->use();
 
-		shader->setMat4("projection", activeScene->getActiveCamera()->getProjectionMatrix());
-		shader->setMat4("view", activeScene->getActiveCamera()->getViewMatrix());
-		shader->setMat4("model", object->getModelMatrix());
+		auto& objectAtlas = object->getParameterAtlas();
+		auto finalAtlas = activeScene->getActiveCamera()->getParameterAtlas(); // do not use refernce on this one!
 
-		shader->setFloat3("viewPos", activeScene->getActiveCamera()->getPosition());
+		//merge maps
+		for (const auto& pair : objectAtlas)
+		{
+			finalAtlas.insert_or_assign(pair.first, pair.second);
+		}
+
+		for (auto& name : shader->getParameterAtlas())
+		{
+			if (finalAtlas.contains(name))
+			{
+				Shader::UniformType uniformType = finalAtlas[name];
+
+				shader->setUniform(uniformType);
+			}
+		}
 
 		Landscape* landscape = dynamic_cast<Landscape*>(object);
 		if (landscape)
@@ -61,8 +86,6 @@ namespace Object
 		{
 			shader->setFloat("time", glfwGetTime());
 
-			shader->setMaterial(object->getMaterialPtr());
-
 			shader->setTexture(object->getTextureType(), object->getTexture(), GL_TEXTURE0);
 
 			shader->setLightCount(activeScene->getLights().size());
@@ -74,6 +97,7 @@ namespace Object
 
 		object->draw();
 
+		/*
 		// cleanup texture to prevent wrong usage on other objects
 		shader->setTexture(object->getTextureType(), 0, GL_TEXTURE0);
 
@@ -92,6 +116,7 @@ namespace Object
 
 			object->drawCollider();
 		}
+		*/
 	}
 
 	void render(Scene* activeScene)

@@ -1,5 +1,5 @@
 #include "GameObjectCollisions.h"
-#include "GameObject.h"
+#include "GameObject.hpp"
 
 GameObjectCollisions::GameObjectCollisions(GameObject* gameObject, ColliderType colliderType)
 {

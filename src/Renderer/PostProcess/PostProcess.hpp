@@ -50,9 +50,9 @@ public:
 			Shader* shader = ShaderLib::get("color.glsl");
 			shader->use();
 
-			shader->setMat4("projection", activeScene->getActiveCamera()->getProjectionMatrix());
-			shader->setMat4("view", activeScene->getActiveCamera()->getViewMatrix());
-			shader->setMat4("model", object->getModelMatrix());
+			shader->setMat4("projectionMatrix", activeScene->getActiveCamera()->getProjectionMatrix());
+			shader->setMat4("viewMatrix", activeScene->getActiveCamera()->getViewMatrix());
+			shader->setMat4("modelMatrix", object->getModelMatrix());
 
 			shader->setFloat4("color", glm::vec4(1.f, 0.6f, 0.f, 1.f));
 
@@ -104,7 +104,7 @@ private:
 				glm::radians(object->getRotation().y), glm::vec3(0.f, 1.f, 0.f)),
 			glm::radians(object->getRotation().z), glm::vec3(0.f, 0.f, 1.f));
 
-		shader->setMat4("model", outlineModelMatrix);
+		shader->setMat4("modelMatrix", outlineModelMatrix);
 
 		object->draw();
 

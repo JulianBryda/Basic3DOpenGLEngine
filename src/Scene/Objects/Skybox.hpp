@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 
-#include "GameObject.h"
+#include "GameObject.hpp"
 #include "../Renderer/Renderer.hpp"
 
 class Skybox : public GameObject
@@ -15,9 +15,11 @@ public:
 	}
 
 
-	glm::mat4 getModelMatrix() const override
+	glm::mat4 getModelMatrix() override
 	{
-		return glm::scale(glm::translate(glm::mat4(1.0f), Renderer::getInstance().getActiveScene()->getActiveCamera()->getPosition() + this->position), this->getScale());
+		modelMatrix = glm::scale(glm::translate(glm::mat4(1.0f), Renderer::getInstance().getActiveScene()->getActiveCamera()->getPosition() + this->position), this->getScale());
+
+		return modelMatrix;
 	}
 
 };

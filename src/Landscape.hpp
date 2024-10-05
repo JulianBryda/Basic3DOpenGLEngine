@@ -4,7 +4,7 @@
 #include <thread>
 #include <future>
 
-#include "Scene/Objects/GameObject.h"
+#include "Scene/Objects/GameObject.hpp"
 
 #include "ThirdParty/PerlinNoise.hpp"
 

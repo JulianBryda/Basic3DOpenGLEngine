@@ -20,9 +20,9 @@ namespace Environment
 			Shader* shader = object->getShaderPtr();
 			shader->use();
 
-			shader->setMat4("projection", activeScene->getActiveCamera()->getProjectionMatrix());
-			shader->setMat4("view", activeScene->getActiveCamera()->getViewMatrix());
-			shader->setMat4("model", object->getModelMatrix());
+			shader->setMat4("projectionMatrix", activeScene->getActiveCamera()->getProjectionMatrix());
+			shader->setMat4("viewMatrix", activeScene->getActiveCamera()->getViewMatrix());
+			shader->setMat4("modelMatrix", object->getModelMatrix());
 
 			shader->setTexture(object->getTextureType(), object->getTexture(), GL_TEXTURE0);
 

@@ -28,6 +28,16 @@ public:
 	virtual void genBuffers();
 	virtual void updateBuffers();
 
+	virtual void initParameterAtlas()
+	{
+		parameterAtlas.insert({ std::hash<std::string>()("modelMatrix"), Shader::Parameter<glm::mat4>("modelMatrix", 1, &modelMatrix) });
+
+		parameterAtlas.insert({ std::hash<std::string>()("material.ambient"), Shader::Parameter<glm::vec3>("material.ambient", 1, m_material.getAmbientPtr()) });
+		parameterAtlas.insert({ std::hash<std::string>()("material.diffuse"), Shader::Parameter<glm::vec3>("material.diffuse", 1, m_material.getDiffusePtr()) });
+		parameterAtlas.insert({ std::hash<std::string>()("material.specular"), Shader::Parameter<glm::vec3>("material.specular", 1, m_material.getSpecularPtr()) });
+		parameterAtlas.insert({ std::hash<std::string>()("material.shininess"), Shader::Parameter<float>("material.shininess", 1, m_material.getShininessPtr()) });
+	}
+
 	void draw();
 
 	void loadTexture(const char* path);
@@ -35,6 +45,9 @@ public:
 
 	void loadCubeMap(std::vector<const char*> faces);
 	static void loadCubeMap(std::vector<const char*> faces, GLuint* texture);
+
+	// getter
+	std::string getName() const;
 
 	bool getHidden() const;
 	bool getIsOutline() const;
@@ -45,7 +58,7 @@ public:
 	glm::vec3 getScale() const;
 	glm::vec3* getScalePtr();
 
-	virtual glm::mat4 getModelMatrix() const;
+	virtual glm::mat4 getModelMatrix();
 
 	GLuint getTexture() const;
 	GLenum getTextureType() const;
@@ -57,6 +70,9 @@ public:
 	Mesh& getMesh();
 	Mesh* getMeshPtr();
 
+	std::unordered_map<size_t, Shader::UniformType>& getParameterAtlas() { return parameterAtlas; }
+
+	// setter
 	void setPosition(glm::vec3 position);
 	void setRotation(glm::vec3 rotation);
 	void setScale(glm::vec3 scale);
@@ -64,8 +80,6 @@ public:
 	void setShader(Shader* shader);
 	void setIsOutline(bool isOutline);
 	void setName(std::string name);
-
-	std::string getName() const;
 
 	// imgui pointer functions
 	float** getRotationPtr();
@@ -80,6 +94,10 @@ protected:
 
 	Mesh mesh;
 
+	glm::mat4 modelMatrix;
+
+	std::unordered_map<size_t, Shader::UniformType> parameterAtlas;
+
 private:
 
 	std::string m_name;
@@ -92,5 +110,4 @@ private:
 	Material m_material;
 
 	bool m_hidden, m_outline;
-
 };

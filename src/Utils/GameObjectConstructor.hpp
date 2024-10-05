@@ -1,5 +1,5 @@
 #pragma once
-#include "../Scene/Objects/GameObject.h"
+#include "../Scene/Objects/GameObject.hpp"
 #include "ObjectLoader.hpp"
 
 namespace GameObjectConstructor

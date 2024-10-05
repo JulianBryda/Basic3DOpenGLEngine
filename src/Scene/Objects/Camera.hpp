@@ -1,5 +1,5 @@
 #pragma once
-#include "GameObject.h"
+#include "GameObject.hpp"
 #include "../Globals/GlobalConfig.hpp"
 
 class Camera : public GameObject
@@ -29,6 +29,16 @@ public:
 		{
 			this->m_projection = glm::perspective(glm::radians(80.0f), calcAspectRatio(), this->m_near, this->m_far);
 		}
+
+		initParameterAtlas();
+	}
+
+	void initParameterAtlas() override
+	{
+		parameterAtlas.insert({ std::hash<std::string>()("viewPos"), Shader::Parameter<glm::vec3>("viewPos", 1, &position) });
+
+		parameterAtlas.insert({ std::hash<std::string>()("projectionMatrix"), Shader::Parameter<glm::mat4>("projectionMatrix", 1, &m_projection) });
+		parameterAtlas.insert({ std::hash<std::string>()("viewMatrix"), Shader::Parameter<glm::mat4>("viewMatrix", 1, &m_view) });
 	}
 
 	// getter

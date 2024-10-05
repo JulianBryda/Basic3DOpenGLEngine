@@ -22,13 +22,13 @@ namespace Lighting
 				glm::vec3 max = glm::vec3(0.f);
 				glm::vec3 min = activeScene->getWorldBBMinMax(max);
 
-				shader->setMat4("projection", light->getProjectionMatrix(min, max));
+				shader->setMat4("projectionMatrix", light->getProjectionMatrix(min, max));
 			}
 			else
 			{
-				shader->setMat4("projection", light->getProjectionMatrix());
+				shader->setMat4("projectionMatrix", light->getProjectionMatrix());
 			}
-			shader->setMat4("view", light->getViewMatrix());
+			shader->setMat4("viewMatrix", light->getViewMatrix());
 
 			glViewport(0, 0, light->getShadowWidth(), light->getShadowHeight());
 			glBindFramebuffer(GL_FRAMEBUFFER, light->getDepthMapFBO());
@@ -36,7 +36,7 @@ namespace Lighting
 
 			for (auto& object : activeScene->getObjects())
 			{
-				shader->setMat4("model", object->getModelMatrix());
+				shader->setMat4("modelMatrix", object->getModelMatrix());
 
 				object->draw();
 			}
