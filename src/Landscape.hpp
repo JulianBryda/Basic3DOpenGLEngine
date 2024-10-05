@@ -2,6 +2,7 @@
 #include <iostream>
 #include <random>
 #include <thread>
+#include <future>
 
 #include "Scene/Objects/GameObject.h"
 
@@ -11,7 +12,7 @@ class Landscape : public GameObject
 {
 public:
 
-	Landscape(std::string name) : GameObject(name, Mesh(), ShaderLib::get("color.glsl"), BoundingBox)
+	Landscape(std::string name) : GameObject(name, Mesh(), ShaderLib::get("terrain.glsl"), BoundingBox)
 	{
 		resolutionX = 128;
 		resolutionY = 128;
@@ -20,6 +21,12 @@ public:
 		frequency = 0.005f;
 		height = 1.f;
 		octaves = 8;
+
+		slopeStart = 0.85f;
+		slopeEnd = 0.95f;
+
+		flatColor = glm::vec3(121.f / 255.f, 157.f / 255.f, 65.f / 255.f);
+		slopeColor = glm::vec3(115.f / 255.f, 97.f / 255.f, 54.f / 255.f);
 
 		scale = glm::vec3(100.f);
 
@@ -74,76 +81,64 @@ public:
 
 	void simulateErosion(const int iterations, const float depositionRate, const float evapRate, const float friction)
 	{
-		std::random_device rd;
-		std::mt19937 gen(rd());
-		std::uniform_int_distribution<> distrX(1, resolutionX - 2);
-		std::uniform_int_distribution<> distrY(1, resolutionY - 2);
-
 		system("cls");
 		std::cout << "Hydraulic erosion simulation at 0%\n";
 
-		for (int i = 0; i < iterations; i++)
+		std::vector<std::future<void>> futures;
+		std::vector<int*> progress;
+
+		const int processor_count = std::thread::hardware_concurrency();
+		const int iterationsPerThread = iterations / processor_count;
+
+		if (iterationsPerThread > 0)
 		{
-			int x = distrX(gen);
-			int y = distrY(gen);
-
-			Particle particle(glm::vec2(x, y));
-
-			while (particle.volume > 0.01f)
+			for (int i = 0; i < processor_count; i++)
 			{
-				glm::ivec2 ipos = particle.pos;
-				if (!glm::all(glm::greaterThan(ipos, glm::ivec2(0))) || !glm::all(glm::lessThan(ipos, glm::ivec2(resolutionX - 1, resolutionY - 1)))) break;
+				int prog = 0;
+				futures.emplace_back(std::async(std::launch::async, [&] {
+					erode(iterationsPerThread, depositionRate, evapRate, friction, prog);
+					}));
+				progress.emplace_back(&prog);
+			}
+		}
+		else
+		{
+			erode(iterationsPerThread, depositionRate, evapRate, friction);
+		}
 
-				glm::vec3 n = surfaceNormal(ipos.x, ipos.y);
+		bool finished = false;
 
-				particle.speed += glm::vec2(n.x, n.z) / (particle.volume * 1.f);
-				particle.pos += particle.speed;
-				particle.speed *= 1.f - friction;
+		while (!finished)
+		{
+			int totalProgress = 0;
 
-				if (!glm::all(glm::greaterThan(particle.pos, glm::vec2(0))) || !glm::all(glm::lessThan(particle.pos, glm::vec2(resolutionX, resolutionY)))) break;
+			for (int i = 0; i < futures.size(); i++)
+			{
+				auto status = futures[i].wait_for(std::chrono::milliseconds(0));
+				if (status == std::future_status::ready)
+				{
+					finished = true;
+				}
+				else
+				{
+					finished = false;
+				}
 
-				float maxsediment = particle.volume * glm::length(particle.speed) * (heightmap[ipos.x * resolutionY + ipos.y] - heightmap[static_cast<int>(particle.pos.x) * resolutionY + static_cast<int>(particle.pos.y)]);
-				if (maxsediment < 0.0) maxsediment = 0.0;
-				float sdiff = maxsediment - particle.sediment;
-
-				particle.sediment += depositionRate * sdiff;
-				heightmap[ipos.x * resolutionY + ipos.y] -= particle.volume * depositionRate * sdiff;
-
-				particle.volume *= 1.0f - evapRate;
+				totalProgress += *progress[i];
 			}
 
-			if (i % (iterations / 100) == 0)
-			{
-				setConsolePosition(32, 0);
+			totalProgress /= futures.size();
 
-				int percent = static_cast<float>(i) / iterations * 100.f;
-				std::cout << percent + 1 << "%\n";
-			}
+			setConsolePosition(32, 0);
+			std::cout << totalProgress + 1 << "%\n";
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		}
 
 		mesh = generateMesh(heightmap, resolutionX, resolutionY);
 		mesh.calculateNormals();
 
 		updateBuffers();
-	}
-
-
-	glm::vec3 surfaceNormal(int x, int y)
-	{
-		float scale = 60.f;
-
-		glm::vec3 n = glm::vec3(0.15) * glm::normalize(glm::vec3(scale * (heightmap[x * resolutionY + y] - heightmap[(x + 1) * resolutionY + y]), 1.0, 0.0));  //Positive X
-		n += glm::vec3(0.15) * glm::normalize(glm::vec3(scale * (heightmap[(x - 1) * resolutionY + y] - heightmap[x * resolutionY + y]), 1.0, 0.0));  //Negative X
-		n += glm::vec3(0.15) * glm::normalize(glm::vec3(0.0, 1.0, scale * (heightmap[x * resolutionY + y] - heightmap[x * resolutionY + (y + 1)])));    //Positive Y
-		n += glm::vec3(0.15) * glm::normalize(glm::vec3(0.0, 1.0, scale * (heightmap[x * resolutionY + (y - 1)] - heightmap[x * resolutionY + y])));  //Negative Y
-
-		//Diagonals! (This removes the last spatial artifacts)
-		n += glm::vec3(0.1) * glm::normalize(glm::vec3(scale * (heightmap[x * resolutionY + y] - heightmap[(x + 1) * resolutionY + (y + 1)]) / sqrt(2.f), sqrt(2.f), scale * (heightmap[x * resolutionY + y] - heightmap[(x + 1) * resolutionY + (y + 1)]) / sqrt(2.f)));    //Positive Y
-		n += glm::vec3(0.1) * glm::normalize(glm::vec3(scale * (heightmap[x * resolutionY + y] - heightmap[(x + 1) * resolutionY + (y - 1)]) / sqrt(2.f), sqrt(2.f), scale * (heightmap[x * resolutionY + y] - heightmap[(x + 1) * resolutionY + (y - 1)]) / sqrt(2.f)));    //Positive Y
-		n += glm::vec3(0.1) * glm::normalize(glm::vec3(scale * (heightmap[x * resolutionY + y] - heightmap[(x - 1) * resolutionY + (y + 1)]) / sqrt(2.f), sqrt(2.f), scale * (heightmap[x * resolutionY + y] - heightmap[(x - 1) * resolutionY + (y + 1)]) / sqrt(2.f)));    //Positive Y
-		n += glm::vec3(0.1) * glm::normalize(glm::vec3(scale * (heightmap[x * resolutionY + y] - heightmap[(x - 1) * resolutionY + (y - 1)]) / sqrt(2.f), sqrt(2.f), scale * (heightmap[x * resolutionY + y] - heightmap[(x - 1) * resolutionY + (y - 1)]) / sqrt(2.f)));    //Positive Y
-
-		return n;
 	}
 
 	void fillHeightmap(float* heightmap, const siv::PerlinNoise::seed_type seed, int resolutionX, int resolutionY, float frequency, int octaves) const
@@ -223,8 +218,18 @@ public:
 
 	float getFrequency() const { return frequency; }
 	float* getFrequencyPtr() { return &frequency; }
-	float getHeight() { return height; }
+	float getHeight() const { return height; }
 	float* getHeightPtr() { return &height; }
+
+	float getSlopeStart() const { return slopeStart; }
+	float* getSlopeStartPtr() { return &slopeStart; }
+	float getSlopeEnd() const { return slopeEnd; }
+	float* getSlopeEndPtr() { return &slopeEnd; }
+
+	glm::vec3 getFlatColor() const { return flatColor; }
+	glm::vec3* getFlatColorPtr() { return &flatColor; }
+	glm::vec3 getSlopeColor() const { return slopeColor; }
+	glm::vec3* getSlopeColorPtr() { return &slopeColor; }
 
 	int getOctaves() const { return octaves; }
 	int* getOctavesPtr() { return &octaves; }
@@ -258,8 +263,77 @@ private:
 		float sediment = 0.f;
 	};
 
+	void erode(const int iterations, const float depositionRate, const float evapRate, const float friction)
+	{
+		int progress = 0;
+		erode(iterations, depositionRate, evapRate, friction, progress);
+	}
+
+	void erode(const int iterations, const float depositionRate, const float evapRate, const float friction, int& progress)
+	{
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<> distrX(1, resolutionX - 2);
+		std::uniform_int_distribution<> distrY(1, resolutionY - 2);
+
+		for (int i = 0; i < iterations; i++)
+		{
+			int x = distrX(gen);
+			int y = distrY(gen);
+
+			Particle particle(glm::vec2(x, y));
+
+			while (particle.volume > 0.01f)
+			{
+				glm::ivec2 ipos = particle.pos;
+				if (!glm::all(glm::greaterThan(ipos, glm::ivec2(0))) || !glm::all(glm::lessThan(ipos, glm::ivec2(resolutionX - 1, resolutionY - 1)))) break;
+
+				glm::vec3 n = surfaceNormal(ipos.x, ipos.y);
+
+				particle.speed += glm::vec2(n.x, n.z) / (particle.volume * 1.f);
+				particle.pos += particle.speed;
+				particle.speed *= 1.f - friction;
+
+				if (!glm::all(glm::greaterThan(particle.pos, glm::vec2(0))) || !glm::all(glm::lessThan(particle.pos, glm::vec2(resolutionX, resolutionY)))) break;
+
+				float maxsediment = particle.volume * glm::length(particle.speed) * (heightmap[ipos.x * resolutionY + ipos.y] - heightmap[static_cast<int>(particle.pos.x) * resolutionY + static_cast<int>(particle.pos.y)]);
+				if (maxsediment < 0.0) maxsediment = 0.0;
+				float sdiff = maxsediment - particle.sediment;
+
+				particle.sediment += depositionRate * sdiff;
+				heightmap[ipos.x * resolutionY + ipos.y] -= particle.volume * depositionRate * sdiff;
+
+				particle.volume *= 1.0f - evapRate;
+			}
+
+			progress = static_cast<float>(i) / iterations * 100.f;
+		}
+	}
+
+	glm::vec3 surfaceNormal(int x, int y)
+	{
+		float scale = 60.f;
+
+		glm::vec3 n = glm::vec3(0.15) * glm::normalize(glm::vec3(scale * (heightmap[x * resolutionY + y] - heightmap[(x + 1) * resolutionY + y]), 1.0, 0.0));  //Positive X
+		n += glm::vec3(0.15) * glm::normalize(glm::vec3(scale * (heightmap[(x - 1) * resolutionY + y] - heightmap[x * resolutionY + y]), 1.0, 0.0));  //Negative X
+		n += glm::vec3(0.15) * glm::normalize(glm::vec3(0.0, 1.0, scale * (heightmap[x * resolutionY + y] - heightmap[x * resolutionY + (y + 1)])));    //Positive Y
+		n += glm::vec3(0.15) * glm::normalize(glm::vec3(0.0, 1.0, scale * (heightmap[x * resolutionY + (y - 1)] - heightmap[x * resolutionY + y])));  //Negative Y
+
+		//Diagonals! (This removes the last spatial artifacts)
+		n += glm::vec3(0.1) * glm::normalize(glm::vec3(scale * (heightmap[x * resolutionY + y] - heightmap[(x + 1) * resolutionY + (y + 1)]) / sqrt(2.f), sqrt(2.f), scale * (heightmap[x * resolutionY + y] - heightmap[(x + 1) * resolutionY + (y + 1)]) / sqrt(2.f)));    //Positive Y
+		n += glm::vec3(0.1) * glm::normalize(glm::vec3(scale * (heightmap[x * resolutionY + y] - heightmap[(x + 1) * resolutionY + (y - 1)]) / sqrt(2.f), sqrt(2.f), scale * (heightmap[x * resolutionY + y] - heightmap[(x + 1) * resolutionY + (y - 1)]) / sqrt(2.f)));    //Positive Y
+		n += glm::vec3(0.1) * glm::normalize(glm::vec3(scale * (heightmap[x * resolutionY + y] - heightmap[(x - 1) * resolutionY + (y + 1)]) / sqrt(2.f), sqrt(2.f), scale * (heightmap[x * resolutionY + y] - heightmap[(x - 1) * resolutionY + (y + 1)]) / sqrt(2.f)));    //Positive Y
+		n += glm::vec3(0.1) * glm::normalize(glm::vec3(scale * (heightmap[x * resolutionY + y] - heightmap[(x - 1) * resolutionY + (y - 1)]) / sqrt(2.f), sqrt(2.f), scale * (heightmap[x * resolutionY + y] - heightmap[(x - 1) * resolutionY + (y - 1)]) / sqrt(2.f)));    //Positive Y
+
+		return n;
+	}
+
+
 	int resolutionX, resolutionY, seed, octaves;
 	float* heightmap;
 	float frequency, height;
+
+	float slopeStart, slopeEnd;
+	glm::vec3 flatColor, slopeColor;
 
 };

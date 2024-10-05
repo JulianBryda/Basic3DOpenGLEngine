@@ -442,6 +442,29 @@ void UserInterface::renderObjectManager()
 					{
 						if (ImGui::TreeNode("Landscape"))
 						{
+							float* flatColor[3] = { &landscape->getFlatColorPtr()->x, &landscape->getFlatColorPtr()->y, &landscape->getFlatColorPtr()->z };
+							float* slopeColor[3] = { &landscape->getSlopeColorPtr()->x, &landscape->getSlopeColorPtr()->y, &landscape->getSlopeColorPtr()->z };
+
+							ImGui::ColorEdit3("Flat Color", *flatColor, ImGuiColorEditFlags_NoInputs);
+							ImGui::SameLine();
+							ImGui::ColorEdit3("Slope Color", *slopeColor, ImGuiColorEditFlags_NoInputs);
+
+							ImGui::Text("Slope Start");
+							ImGui::SameLine();
+							ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+							ImGui::SetNextItemWidth(150.0f);
+							ImGui::SliderFloat("##32543", landscape->getSlopeStartPtr(), 0.f, 1.f);
+							ImGui::SameLine();
+							ImGui::Text("Slope End");
+							ImGui::SameLine();
+							ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+							ImGui::SetNextItemWidth(150.0f);
+							ImGui::SliderFloat("##3646", landscape->getSlopeEndPtr(), 0.f, 1.f);
+
+							ImGui::Spacing();
+							ColoredText("Terrain Generation", IM_COL32(130, 130, 130, 255));
+							ImGui::Separator();
+
 							int* resolution[2] = { landscape->getResolutionXPtr(), landscape->getResolutionYPtr() };
 
 							ImGui::Text("Seed");
@@ -511,6 +534,8 @@ void UserInterface::renderObjectManager()
 							}
 
 							ImGui::Spacing();
+							ColoredText("Terrain Modifier", IM_COL32(130, 130, 130, 255));
+							ImGui::Separator();
 
 							static float smoothingFactor = 1.f;
 
@@ -529,6 +554,7 @@ void UserInterface::renderObjectManager()
 					}
 				}
 
+				ImGui::Spacing();
 				ImGui::Separator();
 
 				ImGui::Text("Indices: %i", object->getMesh().getIndices().size());

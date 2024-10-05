@@ -6,6 +6,8 @@
 #include "../Graphics/Shader.hpp"
 #include "../../Globals/GlobalTextures.hpp"
 
+#include "../../Landscape.hpp"
+
 namespace Object
 {
 	void renderDebug(GameObject* object, Scene* activeScene)
@@ -44,17 +46,30 @@ namespace Object
 		shader->setMat4("view", activeScene->getActiveCamera()->getViewMatrix());
 		shader->setMat4("model", object->getModelMatrix());
 
-		shader->setFloat("time", glfwGetTime());
-
 		shader->setFloat3("viewPos", activeScene->getActiveCamera()->getPosition());
-		shader->setMaterial(object->getMaterialPtr());
 
-		shader->setTexture(object->getTextureType(), object->getTexture(), GL_TEXTURE0);
-
-		shader->setLightCount(activeScene->getLights().size());
-		for (int i = 0; i < activeScene->getLights().size(); i++)
+		Landscape* landscape = dynamic_cast<Landscape*>(object);
+		if (landscape)
 		{
-			shader->setLight(activeScene->getLights()[i], i, GL_TEXTURE1 + i);
+			shader->setFloat("slopeStart", landscape->getSlopeStart());
+			shader->setFloat("slopeEnd", landscape->getSlopeEnd());
+
+			shader->setFloat3("flatColor", landscape->getFlatColor());
+			shader->setFloat3("slopeColor", landscape->getSlopeColor());
+		}
+		else
+		{
+			shader->setFloat("time", glfwGetTime());
+
+			shader->setMaterial(object->getMaterialPtr());
+
+			shader->setTexture(object->getTextureType(), object->getTexture(), GL_TEXTURE0);
+
+			shader->setLightCount(activeScene->getLights().size());
+			for (int i = 0; i < activeScene->getLights().size(); i++)
+			{
+				shader->setLight(activeScene->getLights()[i], i, GL_TEXTURE1 + i);
+			}
 		}
 
 		object->draw();

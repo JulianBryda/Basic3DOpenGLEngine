@@ -165,6 +165,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <None Include="Shader\Fragment\f_depth.glsl" />
     <None Include="Shader\Fragment\f_render.glsl" />
     <None Include="Shader\Fragment\f_skybox.glsl" />
+    <None Include="Shader\Fragment\f_terrain.glsl" />
     <None Include="Shader\Fragment\f_texture.glsl" />
     <None Include="Shader\Fragment\f_visualizeNormals.glsl" />
     <None Include="Shader\Geometry\g_visualizeNormals.glsl" />
@@ -176,6 +177,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <None Include="Shader\Vertex\v_depth.glsl" />
     <None Include="Shader\Vertex\v_render.glsl" />
     <None Include="Shader\Vertex\v_skybox.glsl" />
+    <None Include="Shader\Vertex\v_terrain.glsl" />
     <None Include="Shader\Vertex\v_texture.glsl" />
     <None Include="Shader\Vertex\v_visualizeNormals.glsl" />
   </ItemGroup>
