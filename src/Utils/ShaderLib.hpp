@@ -1,33 +1,19 @@
 #pragma once
+#include <unordered_map>
+
 #include "../Renderer/Graphics/Shader.hpp"
 
-class ShaderLib
+namespace ShaderLib
 {
 
-public:
+	void precompileShaders();
 
-	static void LoadShader()
-	{
-		colorShader = new Shader(".\\v_color.glsl", ".\\f_color.glsl");
-		debugShader = new Shader(".\\v_debug.glsl", ".\\f_debug.glsl");
-		renderShader = new Shader(".\\v_render.glsl", ".\\f_render.glsl", ".\\LibraryShader\\structs.glsl");
-		skyboxShader = new Shader(".\\v_skybox.glsl", ".\\f_skybox.glsl");
-		depthShader = new Shader(".\\v_depth.glsl", ".\\f_depth.glsl");
-		debugTriangleShader = new Shader(".\\v_debugTriangle.glsl", ".\\f_debugTriangle.glsl");
-		debugWireframeShader = new Shader(".\\v_debugWireframe.glsl", ".\\f_debugWireframe.glsl");
-		debugOverdrawShader = new Shader(".\\v_debugOverdraw.glsl", ".\\f_debugOverdraw.glsl");
-	}
+	void addShader(Shader* shader);
+	void removeShader(Shader* shader);
+	void deleteShader(Shader* shader);
+	Shader* get(std::string name);
 
-	static Shader* getColorShaderPtr() { return colorShader; }
-	static Shader* getDebugShaderPtr() { return debugShader; }
-	static Shader* getRenderShaderPtr() { return renderShader; }
-	static Shader* getSkyboxShaderPtr() { return skyboxShader; }
-	static Shader* getDepthShaderPtr() { return depthShader; }
-	static Shader* getDebugTriangleShaderPtr() { return debugTriangleShader; }
-	static Shader* getDebugWireframeShaderPtr() { return debugWireframeShader; }
-	static Shader* getDebugOverdrawShaderPtr() { return debugOverdrawShader; }
 
-private:
+	inline std::unordered_map<size_t, Shader*> g_shaders;
 
-	static Shader* colorShader, * debugShader, * renderShader, * skyboxShader, * depthShader, * debugTriangleShader, * debugWireframeShader, * debugOverdrawShader;
-};
+}

@@ -28,30 +28,24 @@ class Shader
 {
 public:
 
-	Shader(std::string_view vShaderPath, std::string_view fShaderPath, const char* libraryShader = "")
+	Shader(std::string_view vShaderPath, std::string_view fShaderPath, std::string_view gShaderPath = "")
 	{
 		this->m_name = vShaderPath.substr(vShaderPath.find_last_of("\\") + 3);
 
-		LibraryShader libShader{ libraryShader, GL_FRAGMENT_SHADER };
-		GLuint vertex, fragment;
+		GLuint vertex, fragment, geometry;
 		int success;
 		char infoLog[512];
 
 		// compile shader
 		this->compile_shader(vShaderPath, vertex, GL_VERTEX_SHADER);
 		this->compile_shader(fShaderPath, fragment, GL_FRAGMENT_SHADER);
-
-		bool test = strcmp(libraryShader, "");
-
-		if (strcmp(libraryShader, "")) this->compile_shader(libShader);
+		if (gShaderPath != "") this->compile_shader(gShaderPath, geometry, GL_GEOMETRY_SHADER);
 
 		// shader Program
 		this->m_id = glCreateProgram();
 		glAttachShader(this->m_id, vertex);
 		glAttachShader(this->m_id, fragment);
-
-		// attach library shaders
-		if (strcmp(libraryShader, "")) glAttachShader(this->m_id, libShader.id);
+		if (gShaderPath != "") glAttachShader(this->m_id, geometry);
 
 		glLinkProgram(this->m_id);
 		// print linking errors if any
@@ -62,10 +56,10 @@ public:
 			std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 		}
 
-		// delete the shaders as they're linked into our program now and no longer necessary
+		// delete the shaders as they're linked into program and are no longer necessary
 		glDeleteShader(vertex);
 		glDeleteShader(fragment);
-		if (strcmp(libraryShader, "")) glDeleteShader(libShader.id);
+		if (gShaderPath != "") glDeleteShader(geometry);
 	}
 
 	~Shader() { glDeleteProgram(this->m_id); }

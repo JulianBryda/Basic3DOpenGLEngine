@@ -47,7 +47,7 @@ public:
 		{
 			if (!object->getIsOutline()) continue;
 
-			Shader* shader = ShaderLib::getColorShaderPtr();
+			Shader* shader = ShaderLib::get("color.glsl");
 			shader->use();
 
 			shader->setMat4("projection", activeScene->getActiveCamera()->getProjectionMatrix());

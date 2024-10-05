@@ -2,58 +2,67 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <None Include="cpp.hint" />
-    <None Include="Shader\f_color.glsl">
+    <None Include="Shader\Fragment\f_color.glsl">
       <Filter>Shader\Fragment</Filter>
     </None>
-    <None Include="Shader\f_debug.glsl">
+    <None Include="Shader\Fragment\f_debug.glsl">
       <Filter>Shader\Fragment</Filter>
     </None>
-    <None Include="Shader\f_debugOverdraw.glsl">
+    <None Include="Shader\Fragment\f_debugOverdraw.glsl">
       <Filter>Shader\Fragment</Filter>
     </None>
-    <None Include="Shader\f_debugTriangle.glsl">
+    <None Include="Shader\Fragment\f_debugTriangle.glsl">
       <Filter>Shader\Fragment</Filter>
     </None>
-    <None Include="Shader\f_debugWireframe.glsl">
+    <None Include="Shader\Fragment\f_debugWireframe.glsl">
       <Filter>Shader\Fragment</Filter>
     </None>
-    <None Include="Shader\f_depth.glsl">
+    <None Include="Shader\Fragment\f_depth.glsl">
       <Filter>Shader\Fragment</Filter>
     </None>
-    <None Include="Shader\f_render.glsl">
+    <None Include="Shader\Fragment\f_render.glsl">
       <Filter>Shader\Fragment</Filter>
     </None>
-    <None Include="Shader\f_skybox.glsl">
+    <None Include="Shader\Fragment\f_skybox.glsl">
       <Filter>Shader\Fragment</Filter>
     </None>
-    <None Include="Shader\f_texture.glsl">
+    <None Include="Shader\Fragment\f_texture.glsl">
       <Filter>Shader\Fragment</Filter>
     </None>
-    <None Include="Shader\v_color.glsl">
+    <None Include="Shader\Vertex\v_color.glsl">
       <Filter>Shader\Vertex</Filter>
     </None>
-    <None Include="Shader\v_debug.glsl">
+    <None Include="Shader\Vertex\v_debug.glsl">
       <Filter>Shader\Vertex</Filter>
     </None>
-    <None Include="Shader\v_debugOverdraw.glsl">
+    <None Include="Shader\Vertex\v_debugOverdraw.glsl">
       <Filter>Shader\Vertex</Filter>
     </None>
-    <None Include="Shader\v_debugTriangle.glsl">
+    <None Include="Shader\Vertex\v_debugTriangle.glsl">
       <Filter>Shader\Vertex</Filter>
     </None>
-    <None Include="Shader\v_debugWireframe.glsl">
+    <None Include="Shader\Vertex\v_debugWireframe.glsl">
       <Filter>Shader\Vertex</Filter>
     </None>
-    <None Include="Shader\v_depth.glsl">
+    <None Include="Shader\Vertex\v_depth.glsl">
       <Filter>Shader\Vertex</Filter>
     </None>
-    <None Include="Shader\v_render.glsl">
+    <None Include="Shader\Vertex\v_render.glsl">
       <Filter>Shader\Vertex</Filter>
     </None>
-    <None Include="Shader\v_skybox.glsl">
+    <None Include="Shader\Vertex\v_skybox.glsl">
       <Filter>Shader\Vertex</Filter>
     </None>
-    <None Include="Shader\v_texture.glsl">
+    <None Include="Shader\Vertex\v_texture.glsl">
+      <Filter>Shader\Vertex</Filter>
+    </None>
+    <None Include="Shader\Geometry\g_visualizeNormals.glsl">
+      <Filter>Shader\Geometry</Filter>
+    </None>
+    <None Include="Shader\Fragment\f_visualizeNormals.glsl">
+      <Filter>Shader\Fragment</Filter>
+    </None>
+    <None Include="Shader\Vertex\v_visualizeNormals.glsl">
       <Filter>Shader\Vertex</Filter>
     </None>
   </ItemGroup>
@@ -117,6 +126,9 @@
     </Filter>
     <Filter Include="Shader\Fragment">
       <UniqueIdentifier>{9d1c2895-2b84-48b6-9a42-fbfc283873e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\Geometry">
+      <UniqueIdentifier>{8f5f4cb3-19c8-441d-afd8-f2a2f5402a79}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -251,9 +263,6 @@
     <ClCompile Include="src\ThirdParty\glad.c">
       <Filter>src\ThirdParty</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utils\ShaderLib.cpp">
-      <Filter>src\Utils</Filter>
-    </ClCompile>
     <ClCompile Include="src\Renderer\Renderer.cpp">
       <Filter>src\Renderer</Filter>
     </ClCompile>
@@ -262,6 +271,12 @@
     </ClCompile>
     <ClCompile Include="src\Globals\GlobalConfig.cpp">
       <Filter>src\Globals</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Landscape.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utils\ShaderLib.cpp">
+      <Filter>src\Utils</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

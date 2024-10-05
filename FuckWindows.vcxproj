@@ -157,24 +157,27 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
-    <None Include="Shader\f_color.glsl" />
-    <None Include="Shader\f_debug.glsl" />
-    <None Include="Shader\f_debugOverdraw.glsl" />
-    <None Include="Shader\f_debugTriangle.glsl" />
-    <None Include="Shader\f_debugWireframe.glsl" />
-    <None Include="Shader\f_depth.glsl" />
-    <None Include="Shader\f_render.glsl" />
-    <None Include="Shader\f_skybox.glsl" />
-    <None Include="Shader\f_texture.glsl" />
-    <None Include="Shader\v_color.glsl" />
-    <None Include="Shader\v_debug.glsl" />
-    <None Include="Shader\v_debugOverdraw.glsl" />
-    <None Include="Shader\v_debugTriangle.glsl" />
-    <None Include="Shader\v_debugWireframe.glsl" />
-    <None Include="Shader\v_depth.glsl" />
-    <None Include="Shader\v_render.glsl" />
-    <None Include="Shader\v_skybox.glsl" />
-    <None Include="Shader\v_texture.glsl" />
+    <None Include="Shader\Fragment\f_color.glsl" />
+    <None Include="Shader\Fragment\f_debug.glsl" />
+    <None Include="Shader\Fragment\f_debugOverdraw.glsl" />
+    <None Include="Shader\Fragment\f_debugTriangle.glsl" />
+    <None Include="Shader\Fragment\f_debugWireframe.glsl" />
+    <None Include="Shader\Fragment\f_depth.glsl" />
+    <None Include="Shader\Fragment\f_render.glsl" />
+    <None Include="Shader\Fragment\f_skybox.glsl" />
+    <None Include="Shader\Fragment\f_texture.glsl" />
+    <None Include="Shader\Fragment\f_visualizeNormals.glsl" />
+    <None Include="Shader\Geometry\g_visualizeNormals.glsl" />
+    <None Include="Shader\Vertex\v_color.glsl" />
+    <None Include="Shader\Vertex\v_debug.glsl" />
+    <None Include="Shader\Vertex\v_debugOverdraw.glsl" />
+    <None Include="Shader\Vertex\v_debugTriangle.glsl" />
+    <None Include="Shader\Vertex\v_debugWireframe.glsl" />
+    <None Include="Shader\Vertex\v_depth.glsl" />
+    <None Include="Shader\Vertex\v_render.glsl" />
+    <None Include="Shader\Vertex\v_skybox.glsl" />
+    <None Include="Shader\Vertex\v_texture.glsl" />
+    <None Include="Shader\Vertex\v_visualizeNormals.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Collider.hpp" />
@@ -218,6 +221,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClCompile Include="src\Core\FuckWindows.cpp" />
     <ClCompile Include="src\Core\PhysicEngine.cpp" />
     <ClCompile Include="src\Globals\GlobalConfig.cpp" />
+    <ClCompile Include="src\Landscape.cpp" />
     <ClCompile Include="src\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Renderer\UI\UserInterface.cpp" />
     <ClCompile Include="src\Scene\Objects\GameObject.cpp" />

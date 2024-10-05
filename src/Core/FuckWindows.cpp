@@ -69,7 +69,7 @@ int main()
 	glPointSize(10.f);
 
 	// load shader
-	ShaderLib::LoadShader();
+	ShaderLib::precompileShaders();
 
 	// init InputHandler
 	InputHandler::getInstance().setWindow(window);

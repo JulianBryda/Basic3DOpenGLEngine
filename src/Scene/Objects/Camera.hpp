@@ -7,7 +7,7 @@ class Camera : public GameObject
 
 public:
 
-	Camera(std::string name, bool isOrtho) : GameObject(name, ".\\Assets\\Objects\\Camera.obj", ShaderLib::getColorShaderPtr(), ColliderType::NONE)
+	Camera(std::string name, bool isOrtho) : GameObject(name, ".\\Assets\\Objects\\Camera.obj", ShaderLib::get("color.glsl"), ColliderType::NONE)
 	{
 		this->m_anchor = glm::vec3(0.0f);
 		this->m_view = glm::lookAt(this->position, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));

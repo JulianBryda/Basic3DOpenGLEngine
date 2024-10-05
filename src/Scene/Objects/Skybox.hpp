@@ -9,7 +9,7 @@ class Skybox : public GameObject
 
 public:
 
-	Skybox(std::string name) : GameObject(name, ".\\Assets\\Objects\\Cube.obj", ShaderLib::getSkyboxShaderPtr(), ColliderType::NONE)
+	Skybox(std::string name) : GameObject(name, ".\\Assets\\Objects\\Cube.obj", ShaderLib::get("skybox.glsl"), ColliderType::NONE)
 	{
 
 	}

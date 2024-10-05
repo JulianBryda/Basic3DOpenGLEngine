@@ -15,7 +15,7 @@ public:
 
 	Renderer()
 	{
-		m_pDebugShader = ShaderLib::getDebugShaderPtr();
+		m_pDebugShader = ShaderLib::get("debug.glsl");
 		m_activeScene = new Scene();
 		addScene(m_activeScene);
 	}

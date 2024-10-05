@@ -44,6 +44,8 @@ namespace Object
 		shader->setMat4("view", activeScene->getActiveCamera()->getViewMatrix());
 		shader->setMat4("model", object->getModelMatrix());
 
+		shader->setFloat("time", glfwGetTime());
+
 		shader->setFloat3("viewPos", activeScene->getActiveCamera()->getPosition());
 		shader->setMaterial(object->getMaterialPtr());
 
@@ -60,7 +62,7 @@ namespace Object
 		// cleanup texture to prevent wrong usage on other objects
 		shader->setTexture(object->getTextureType(), 0, GL_TEXTURE0);
 
-		shader = ShaderLib::getColorShaderPtr();
+		shader = ShaderLib::get("color.glsl");
 		shader->use();
 
 		shader->setMat4("projection", activeScene->getActiveCamera()->getProjectionMatrix());

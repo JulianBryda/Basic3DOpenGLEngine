@@ -39,14 +39,14 @@ void UserInterface::renderMenuBar()
 
 			if (ImGui::MenuItem("Plane"))
 			{
-				GameObject* obj = new GameObject(std::format("Plane{}", Renderer::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Plane.obj", ShaderLib::getRenderShaderPtr(), ColliderType::BoundingBox);
+				GameObject* obj = new GameObject(std::format("Plane{}", Renderer::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Plane.obj", ShaderLib::get("render.glsl"), ColliderType::BoundingBox);
 				obj->setIsPhysicsEnabled(true);
 
 				Renderer::getInstance().addObject(obj);
 			}
 			if (ImGui::MenuItem("Cube"))
 			{
-				GameObject* obj = new GameObject(std::format("Cube{}", Renderer::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Cube.obj", ShaderLib::getRenderShaderPtr(), ColliderType::BoundingBox);
+				GameObject* obj = new GameObject(std::format("Cube{}", Renderer::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Cube.obj", ShaderLib::get("render.glsl"), ColliderType::BoundingBox);
 				obj->setIsPhysicsEnabled(true);
 
 				Renderer::getInstance().addObject(obj);
@@ -54,7 +54,7 @@ void UserInterface::renderMenuBar()
 			}
 			if (ImGui::MenuItem("Sphere"))
 			{
-				GameObject* obj = new GameObject(std::format("Sphere{}", Renderer::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Sphere.obj", ShaderLib::getRenderShaderPtr(), ColliderType::Circular);
+				GameObject* obj = new GameObject(std::format("Sphere{}", Renderer::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Sphere.obj", ShaderLib::get("render.glsl"), ColliderType::Circular);
 				obj->setIsPhysicsEnabled(true);
 
 				Renderer::getInstance().addObject(obj);
@@ -128,12 +128,12 @@ void UserInterface::renderMenuBar()
 				{
 					if (!triangleDebug)
 					{
-						Renderer::getInstance().setDebugShader(ShaderLib::getDebugTriangleShaderPtr());
+						Renderer::getInstance().setDebugShader(ShaderLib::get("debugTriangle.glsl"));
 						Config::g_settings->debugMode = Config::DebugMode::Triangles;
 					}
 					else
 					{
-						Renderer::getInstance().setDebugShader(ShaderLib::getDebugShaderPtr());
+						Renderer::getInstance().setDebugShader(ShaderLib::get("debug.glsl"));
 						Config::g_settings->debugMode = Config::DebugMode::None;
 					}
 
@@ -145,12 +145,12 @@ void UserInterface::renderMenuBar()
 				{
 					if (!overdrawDebug)
 					{
-						Renderer::getInstance().setDebugShader(ShaderLib::getDebugOverdrawShaderPtr());
+						Renderer::getInstance().setDebugShader(ShaderLib::get("debugOverdraw.glsl"));
 						Config::g_settings->debugMode = Config::DebugMode::Overdraw;
 					}
 					else
 					{
-						Renderer::getInstance().setDebugShader(ShaderLib::getDebugShaderPtr());
+						Renderer::getInstance().setDebugShader(ShaderLib::get("debug.glsl"));
 						Config::g_settings->debugMode = Config::DebugMode::None;
 					}
 
@@ -162,13 +162,13 @@ void UserInterface::renderMenuBar()
 				{
 					if (!wireframeDebug)
 					{
-						Renderer::getInstance().setDebugShader(ShaderLib::getDebugWireframeShaderPtr());
+						Renderer::getInstance().setDebugShader(ShaderLib::get("debugWireframe.glsl"));
 						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 						Config::g_settings->debugMode = Config::DebugMode::Wireframe;
 					}
 					else
 					{
-						Renderer::getInstance().setDebugShader(ShaderLib::getDebugShaderPtr());
+						Renderer::getInstance().setDebugShader(ShaderLib::get("debug.glsl"));
 						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 						Config::g_settings->debugMode = Config::DebugMode::None;
 					}
@@ -226,7 +226,7 @@ void UserInterface::renderMenuBar()
 
 			if (ImGui::RadioButton("Debug", Config::g_settings->renderMode == Config::RenderMode::Debug))
 			{
-				Renderer::getInstance().setDebugShader(ShaderLib::getDebugShaderPtr());
+				Renderer::getInstance().setDebugShader(ShaderLib::get("debug.glsl"));
 				Config::g_settings->renderMode = Config::RenderMode::Debug;
 			}
 
@@ -434,17 +434,6 @@ void UserInterface::renderObjectManager()
 
 						ImGui::TreePop();
 					}
-
-					ImGui::Separator();
-
-					ImGui::Text("Indices: %i", object->getMesh().getIndices().size());
-					ImGui::Text("Vertices: %i", object->getMesh().getVertices().size());
-
-					if (ImGui::Button("Delete"))
-					{
-						Renderer::getInstance().deleteObject(*object);
-						removeSelectedObject(object);
-					}
 				}
 				else
 				{
@@ -453,14 +442,14 @@ void UserInterface::renderObjectManager()
 					{
 						if (ImGui::TreeNode("Landscape"))
 						{
-							static int* frequency[2] = { landscape->getResolutionXPtr(), landscape->getResolutionYPtr() };
+							int* resolution[2] = { landscape->getResolutionXPtr(), landscape->getResolutionYPtr() };
 
 							ImGui::Text("Seed");
 							ImGui::SameLine();
 							ImGui::SetCursorPosX(ImGui::GetCursorPosX());
 							ImGui::InputInt("##582345", landscape->getSeedPtr());
 
-							ImGui::Text("Octaves");
+							ImGui::Text("Detail");
 							ImGui::SameLine();
 							ImGui::SetCursorPosX(ImGui::GetCursorPosX());
 							ImGui::InputInt("##2946", landscape->getOctavesPtr());
@@ -468,22 +457,87 @@ void UserInterface::renderObjectManager()
 							ImGui::Text("Resolution");
 							ImGui::SameLine();
 							ImGui::SetCursorPosX(ImGui::GetCursorPosX());
-							ImGui::InputInt2("##58275", *frequency);
+							ImGui::InputInt2("##58275", *resolution);
 
 							ImGui::Text("Frequency");
 							ImGui::SameLine();
 							ImGui::SetCursorPosX(ImGui::GetCursorPosX());
 							ImGui::InputFloat("##58245", landscape->getFrequencyPtr());
 
+							ImGui::Text("Height");
+							ImGui::SameLine();
+							ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+							ImGui::InputFloat("##2498", landscape->getHeightPtr());
 
 							if (ImGui::Button("Update"))
 							{
 								landscape->update();
 							}
 
+							ImGui::Spacing();
+							ColoredText("Hydraulic erosion", IM_COL32(130, 130, 130, 255));
+							ImGui::Separator();
+
+							static int dropCount = 0;
+							static float depositionRate = 0.3f;
+							static float evapRate = 0.001f;
+							static float friction = 0.05f;
+
+							ImGui::Text("Deposition Rate");
+							ImGui::SameLine();
+							ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+							ImGui::InputFloat("##289467", &depositionRate);
+
+							ImGui::Text("Evap Rate");
+							ImGui::SameLine();
+							ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+							ImGui::InputFloat("##35355", &evapRate);
+
+							ImGui::Text("Friction");
+							ImGui::SameLine();
+							ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+							ImGui::InputFloat("##35366", &friction);
+
+							ImGui::Spacing();
+
+							ImGui::Text("Droplet Count");
+							ImGui::SameLine();
+							ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+							ImGui::InputInt("##3875", &dropCount);
+
+							if (ImGui::Button("Simulate"))
+							{
+								landscape->simulateErosion(dropCount, depositionRate, evapRate, friction);
+							}
+
+							ImGui::Spacing();
+
+							static float smoothingFactor = 1.f;
+
+							ImGui::Text("Smoothing Factor");
+							ImGui::SameLine();
+							ImGui::SetCursorPosX(ImGui::GetCursorPosX());
+							ImGui::SliderFloat("##83965", &smoothingFactor, 0, 1);
+
+							if (ImGui::Button("Smoothen"))
+							{
+								landscape->smoothenHeightmap(smoothingFactor);
+							}
+
 							ImGui::TreePop();
 						}
 					}
+				}
+
+				ImGui::Separator();
+
+				ImGui::Text("Indices: %i", object->getMesh().getIndices().size());
+				ImGui::Text("Vertices: %i", object->getMesh().getVertices().size());
+
+				if (ImGui::Button("Delete"))
+				{
+					Renderer::getInstance().deleteObject(*object);
+					removeSelectedObject(object);
 				}
 			}
 		}

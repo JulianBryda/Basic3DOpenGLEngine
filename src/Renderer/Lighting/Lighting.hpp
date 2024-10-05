@@ -14,7 +14,7 @@ namespace Lighting
 
 		for (auto& light : activeScene->getLights())
 		{
-			Shader* shader = ShaderLib::getDepthShaderPtr();
+			Shader* shader = ShaderLib::get("depth.glsl");
 			shader->use();
 
 			if (light->getLightType() == Directional)
