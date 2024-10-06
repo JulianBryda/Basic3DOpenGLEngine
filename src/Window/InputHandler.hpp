@@ -172,11 +172,15 @@ public:
 			switch (key)
 			{
 			case GLFW_MOUSE_BUTTON_MIDDLE:
+			{
+				if (checkForUi()) break;
+
 				if (mods == GLFW_MOD_SHIFT)
 					m_shiftMouseMiddle = true;
 				else
 					m_mouseMiddle = true;
 				break;
+			}
 			case GLFW_MOUSE_BUTTON_LEFT:
 				glfwGetCursorPos(m_window, &m_lastXClick, &m_lastYClick);
 				break;
@@ -447,15 +451,11 @@ public:
 		}
 	}
 
-	void selectObject()
+	bool checkForUi()
 	{
 		double mouseX, mouseY;
 		glfwGetCursorPos(m_window, &mouseX, &mouseY);
 
-		double distance = glm::length(glm::abs(glm::vec2(mouseX, mouseY) - glm::vec2(m_lastXClick, m_lastYClick)));
-		if (distance > 2) return;
-
-		glm::vec3 worldCoords = screenToWorld(mouseX, mouseY);
 		ImGuiContext& g = *GImGui;
 
 		// check if imgui is on top 
@@ -464,9 +464,24 @@ public:
 			auto& window = g.Windows[i];
 			if (window->Active && mouseX > window->Pos.x && mouseX < window->Pos.x + window->Size.x && mouseY > window->Pos.y && mouseY < window->Pos.y + window->Size.y)
 			{
-				return;
+				return true;
 			}
 		}
+
+		return false;
+	}
+
+	void selectObject()
+	{
+		if (checkForUi()) return;
+
+		double mouseX, mouseY;
+		glfwGetCursorPos(m_window, &mouseX, &mouseY);
+
+		double distance = glm::length(glm::abs(glm::vec2(mouseX, mouseY) - glm::vec2(m_lastXClick, m_lastYClick)));
+		if (distance > 2) return;
+
+		glm::vec3 worldCoords = screenToWorld(mouseX, mouseY);
 
 		// check for object
 		for (auto& object : Renderer::getInstance().getActiveScene()->getObjects())

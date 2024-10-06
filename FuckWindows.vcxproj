@@ -196,6 +196,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="src\Renderer\Object\Object.hpp" />
     <ClInclude Include="src\Renderer\PostProcess\PostProcess.hpp" />
     <ClInclude Include="src\Renderer\Renderer.hpp" />
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor.hpp" />
     <ClInclude Include="src\Renderer\UI\UserInterface.hpp" />
     <ClInclude Include="src\Scene\Lights\DirectionalLight.hpp" />
     <ClInclude Include="src\Scene\Lights\Light.hpp" />
@@ -208,6 +209,8 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="src\Scene\Objects\Skybox.hpp" />
     <ClInclude Include="src\Scene\Scene.hpp" />
     <ClInclude Include="src\ThirdParty\IconsFontAwesome5.h" />
+    <ClInclude Include="src\ThirdParty\ImNodes\imnodes.h" />
+    <ClInclude Include="src\ThirdParty\ImNodes\imnodes_internal.h" />
     <ClInclude Include="src\ThirdParty\PerlinNoise.hpp" />
     <ClInclude Include="src\ThirdParty\stb_image.h" />
     <ClInclude Include="src\ThirdParty\stb_image_write.h" />
@@ -230,6 +233,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClCompile Include="src\Scene\Objects\GameObjectCollisions.cpp" />
     <ClCompile Include="src\Scene\Objects\GameObjectPhysics.cpp" />
     <ClCompile Include="src\ThirdParty\glad.c" />
+    <ClCompile Include="src\ThirdParty\ImNodes\imnodes.cpp" />
     <ClCompile Include="src\Utils\ShaderLib.cpp" />
     <ClCompile Include="src\Window\AppWindow.cpp" />
   </ItemGroup>

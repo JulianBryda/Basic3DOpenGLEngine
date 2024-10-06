@@ -200,6 +200,17 @@ void UserInterface::renderMenuBar()
 
 			ImGui::EndMenu();
 		}
+		if (ImGui::BeginMenu("Tools"))
+		{
+			ColoredText("Shader", IM_COL32(130, 130, 130, 255));
+
+			if (ImGui::RadioButton("Node Editor", m_nodeEditor == true))
+			{
+				m_nodeEditor = !m_nodeEditor;
+			}
+
+			ImGui::EndMenu();
+		}
 		if (ImGui::BeginMenu("Viewport"))
 		{
 			ColoredText("Camera", IM_COL32(130, 130, 130, 255));

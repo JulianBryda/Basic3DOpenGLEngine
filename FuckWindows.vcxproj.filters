@@ -136,6 +136,9 @@
     <Filter Include="Shader\Geometry">
       <UniqueIdentifier>{8f5f4cb3-19c8-441d-afd8-f2a2f5402a79}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ThirdParty\ImNodes">
+      <UniqueIdentifier>{b2e8373c-a946-422e-a29b-c5cde860fdee}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Collider.hpp">
@@ -246,6 +249,15 @@
     <ClInclude Include="src\ThirdParty\PerlinNoise.hpp">
       <Filter>src\ThirdParty</Filter>
     </ClInclude>
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor.hpp">
+      <Filter>src\Renderer\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ThirdParty\ImNodes\imnodes.h">
+      <Filter>src\ThirdParty\ImNodes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ThirdParty\ImNodes\imnodes_internal.h">
+      <Filter>src\ThirdParty\ImNodes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\FuckWindows.cpp">
@@ -283,6 +295,9 @@
     </ClCompile>
     <ClCompile Include="src\Utils\ShaderLib.cpp">
       <Filter>src\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ThirdParty\ImNodes\imnodes.cpp">
+      <Filter>src\ThirdParty\ImNodes</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

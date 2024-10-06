@@ -2,9 +2,9 @@
 #include <format>
 #include <filesystem>
 
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
 #include "implot.h"
 
@@ -19,6 +19,8 @@
 #include "../../Scene/Scene.hpp"	
 
 #include "../../Window/AppWindow.hpp"
+
+#include "ShaderNodeEditor.hpp"
 
 class UserInterface
 {
@@ -88,6 +90,10 @@ public:
 		
 		if (m_fpsGraph) renderFpsGraph();
 		if (m_sceneStats) renderSceneStats();
+
+		static ShaderNodeEditor nodeEditor;
+
+		if (m_nodeEditor) nodeEditor.render();
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -270,7 +276,8 @@ private:
 		m_lightManager = false,
 		m_assetManager = false,
 		m_fpsGraph = false,
-		m_sceneStats = false;
+		m_sceneStats = false,
+		m_nodeEditor = false;
 
 	Light* m_selectedLight;
 
