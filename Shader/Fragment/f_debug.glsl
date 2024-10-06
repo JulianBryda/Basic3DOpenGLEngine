@@ -16,8 +16,6 @@ in vec3 fragPos;
 in vec3 objPos;
 in vec3 fragNorm;
 
-
-
 void main()
 {
 	vec3 norm = normalize(fragNorm);

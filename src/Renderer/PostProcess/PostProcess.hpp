@@ -12,6 +12,8 @@ public:
 
 	PostProcess()
 	{
+		visualizeNormals = false;
+
 		Vertex vertex = Vertex(glm::vec3(0.f), glm::vec3(0.f), glm::vec2(0.f));
 
 		glGenVertexArrays(1, &m_vao);
@@ -45,24 +47,39 @@ public:
 	{
 		for (auto& object : activeScene->getObjects())
 		{
-			if (!object->getIsOutline()) continue;
+			if (visualizeNormals)
+			{
+				Shader* shader = ShaderLib::get("visualizeNormals.glsl");
+				shader->use();
 
-			Shader* shader = ShaderLib::get("color.glsl");
-			shader->use();
+				shader->setMat4("projectionMatrix", activeScene->getActiveCamera()->getProjectionMatrix());
+				shader->setMat4("viewMatrix", activeScene->getActiveCamera()->getViewMatrix());
+				shader->setMat4("modelMatrix", object->getModelMatrix());
 
-			shader->setMat4("projectionMatrix", activeScene->getActiveCamera()->getProjectionMatrix());
-			shader->setMat4("viewMatrix", activeScene->getActiveCamera()->getViewMatrix());
-			shader->setMat4("modelMatrix", object->getModelMatrix());
+				object->draw();
+			}
 
-			shader->setFloat4("color", glm::vec4(1.f, 0.6f, 0.f, 1.f));
+			if (object->getIsOutline())
+			{
+				Shader* shader = ShaderLib::get("color.glsl");
+				shader->use();
 
-			createOutline(object);
+				shader->setMat4("projectionMatrix", activeScene->getActiveCamera()->getProjectionMatrix());
+				shader->setMat4("viewMatrix", activeScene->getActiveCamera()->getViewMatrix());
+				shader->setMat4("modelMatrix", object->getModelMatrix());
 
-			renderOutline(object, activeScene, shader);
+				shader->setFloat4("color", glm::vec4(1.f, 0.6f, 0.f, 1.f));
 
-			renderOrigin();
+				createOutline(object);
+
+				renderOutline(object, activeScene, shader);
+
+				renderOrigin();
+			}
 		}
 	}
+
+	bool visualizeNormals;
 
 private:
 

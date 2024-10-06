@@ -8,6 +8,7 @@ namespace Config
 		Triangles,
 		Wireframe,
 		Overdraw,
+		Normals,
 		None
 	};
 

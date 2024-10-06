@@ -9,6 +9,8 @@
 #include "../Renderer.hpp"
 #include "../../Landscape.hpp"
 
+#include "../PostProcess/PostProcess.hpp"
+
 #include <iostream>
 
 
@@ -172,7 +174,25 @@ void UserInterface::renderMenuBar()
 						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 						Config::g_settings->debugMode = Config::DebugMode::None;
 					}
+				}
 
+				bool normalDebug = Config::g_settings->debugMode == Config::DebugMode::Normals;
+				if (ImGui::RadioButton("Normal View", normalDebug))
+				{
+					Renderer::getInstance().setDebugShader(ShaderLib::get("debug.glsl"));
+
+					if (!normalDebug)
+					{
+						PostProcess::getInstance().visualizeNormals = true;
+						Config::g_settings->debugMode = Config::DebugMode::Normals;
+					}
+					else
+					{
+						PostProcess::getInstance().visualizeNormals = false;
+						Config::g_settings->debugMode = Config::DebugMode::None;
+					}
+
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				}
 
 				ImGui::EndMenu();
@@ -322,7 +342,19 @@ void UserInterface::renderObjectManager()
 
 				if (ImGui::TreeNode("Material"))
 				{
-					ImGui::Text("Shader: %s", object->getShaderPtr()->getName().c_str());
+					if (ImGui::BeginCombo("Shader", object->getShaderPtr()->getName().c_str()))
+					{
+						for (auto& shader : ShaderLib::g_shaders)
+						{
+							bool isSelected = object->getShaderPtr() == shader.second;
+							if (ImGui::Selectable(shader.second->getName().c_str(), isSelected))
+								object->setShader(shader.second);
+							if (isSelected)
+								ImGui::SetItemDefaultFocus();
+						}
+
+						ImGui::EndCombo();
+					}
 
 					ImGui::ColorEdit3("Ambient", *ambient, ImGuiColorEditFlags_NoInputs);
 					ImGui::SameLine();

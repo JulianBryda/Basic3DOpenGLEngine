@@ -327,17 +327,7 @@ private:
 		try
 		{
 			// open files
-			switch (shaderType)
-			{
-			case GL_VERTEX_SHADER:
-				shaderFile.open(std::format(".\\Shader\\{}", shaderPath).c_str());
-				break;
-			case GL_FRAGMENT_SHADER:
-				shaderFile.open(std::format(".\\Shader\\{}", shaderPath).c_str());
-				break;
-			default:
-				return;
-			}
+			shaderFile.open(std::format(".\\Shader\\{}", shaderPath).c_str());
 
 			std::stringstream shaderStream;
 			// read file's buffer contents into streams

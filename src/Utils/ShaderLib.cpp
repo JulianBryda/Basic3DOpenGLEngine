@@ -11,6 +11,7 @@ void ShaderLib::precompileShaders()
 	addShader(new Shader(".\\Vertex\\v_debugWireframe.glsl", ".\\Fragment\\f_debugWireframe.glsl"));
 	addShader(new Shader(".\\Vertex\\v_debugOverdraw.glsl", ".\\Fragment\\f_debugOverdraw.glsl"));
 	addShader(new Shader(".\\Vertex\\v_terrain.glsl", ".\\Fragment\\f_terrain.glsl"));
+	addShader(new Shader(".\\Vertex\\v_visualizeNormals.glsl", ".\\Fragment\\f_visualizeNormals.glsl", ".\\Geometry\\g_visualizeNormals.glsl"));
 }
 
 void ShaderLib::addShader(Shader* shader)

@@ -243,7 +243,6 @@ void GameObject::setIsOutline(bool isOutline) { this->m_outline = isOutline; }
 
 void GameObject::setShader(Shader* shader)
 {
-	if (this->m_pShader != nullptr) delete this->m_pShader;
 	this->m_pShader = shader;
 }
 
