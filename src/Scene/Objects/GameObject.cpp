@@ -2,7 +2,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-GameObject::GameObject(std::string name, Mesh mesh, Shader* shader, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
+GameObject::GameObject(std::string name, Mesh mesh, ShaderOLD* shader, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
 {
 	this->m_name = name;
 	this->position = glm::vec3(0.0f);
@@ -21,7 +21,7 @@ GameObject::GameObject(std::string name, Mesh mesh, Shader* shader, ColliderType
 	initParameterAtlas();
 }
 
-GameObject::GameObject(std::string name, std::string path, Shader* shader, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
+GameObject::GameObject(std::string name, std::string path, ShaderOLD* shader, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
 {
 	this->m_name = name;
 	this->position = glm::vec3(0.0f);
@@ -227,7 +227,7 @@ glm::mat4 GameObject::getModelMatrix()
 GLuint GameObject::getTexture() const { return this->m_texture; }
 GLenum GameObject::getTextureType() const { return this->m_textureType; }
 
-Shader* GameObject::getShaderPtr() const { return m_pShader; }
+ShaderOLD* GameObject::getShaderPtr() const { return m_pShader; }
 
 Material* GameObject::getMaterialPtr() { return &m_material; }
 
@@ -241,7 +241,7 @@ void GameObject::setScale(glm::vec3 scale) { this->scale = scale; }
 void GameObject::setIsHidden(bool isHidden) { this->m_hidden = isHidden; }
 void GameObject::setIsOutline(bool isOutline) { this->m_outline = isOutline; }
 
-void GameObject::setShader(Shader* shader)
+void GameObject::setShader(ShaderOLD* shader)
 {
 	this->m_pShader = shader;
 }

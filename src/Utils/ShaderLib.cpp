@@ -2,33 +2,33 @@
 
 void ShaderLib::precompileShaders()
 {
-	addShader(new Shader(".\\Vertex\\v_color.glsl", ".\\Fragment\\f_color.glsl"));
-	addShader(new Shader(".\\Vertex\\v_debug.glsl", ".\\Fragment\\f_debug.glsl"));
-	addShader(new Shader(".\\Vertex\\v_render.glsl", ".\\Fragment\\f_render.glsl"));
-	addShader(new Shader(".\\Vertex\\v_skybox.glsl", ".\\Fragment\\f_skybox.glsl"));
-	addShader(new Shader(".\\Vertex\\v_depth.glsl", ".\\Fragment\\f_depth.glsl"));
-	addShader(new Shader(".\\Vertex\\v_debugTriangle.glsl", ".\\Fragment\\f_debugTriangle.glsl"));
-	addShader(new Shader(".\\Vertex\\v_debugWireframe.glsl", ".\\Fragment\\f_debugWireframe.glsl"));
-	addShader(new Shader(".\\Vertex\\v_debugOverdraw.glsl", ".\\Fragment\\f_debugOverdraw.glsl"));
-	addShader(new Shader(".\\Vertex\\v_terrain.glsl", ".\\Fragment\\f_terrain.glsl"));
-	addShader(new Shader(".\\Vertex\\v_visualizeNormals.glsl", ".\\Fragment\\f_visualizeNormals.glsl", ".\\Geometry\\g_visualizeNormals.glsl"));
+	addShader(new ShaderOLD(".\\Vertex\\v_color.glsl", ".\\Fragment\\f_color.glsl"));
+	addShader(new ShaderOLD(".\\Vertex\\v_debug.glsl", ".\\Fragment\\f_debug.glsl"));
+	addShader(new ShaderOLD(".\\Vertex\\v_render.glsl", ".\\Fragment\\f_render.glsl"));
+	addShader(new ShaderOLD(".\\Vertex\\v_skybox.glsl", ".\\Fragment\\f_skybox.glsl"));
+	addShader(new ShaderOLD(".\\Vertex\\v_depth.glsl", ".\\Fragment\\f_depth.glsl"));
+	addShader(new ShaderOLD(".\\Vertex\\v_debugTriangle.glsl", ".\\Fragment\\f_debugTriangle.glsl"));
+	addShader(new ShaderOLD(".\\Vertex\\v_debugWireframe.glsl", ".\\Fragment\\f_debugWireframe.glsl"));
+	addShader(new ShaderOLD(".\\Vertex\\v_debugOverdraw.glsl", ".\\Fragment\\f_debugOverdraw.glsl"));
+	addShader(new ShaderOLD(".\\Vertex\\v_terrain.glsl", ".\\Fragment\\f_terrain.glsl"));
+	addShader(new ShaderOLD(".\\Vertex\\v_visualizeNormals.glsl", ".\\Fragment\\f_visualizeNormals.glsl", ".\\Geometry\\g_visualizeNormals.glsl"));
 }
 
-void ShaderLib::addShader(Shader* shader)
+void ShaderLib::addShader(ShaderOLD* shader)
 {
 	assert(shader);
 
 	g_shaders.insert({ std::hash<std::string>()(shader->getName()), shader });
 }
 
-void ShaderLib::removeShader(Shader* shader)
+void ShaderLib::removeShader(ShaderOLD* shader)
 {
 	assert(shader);
 
 	g_shaders.erase(std::hash<std::string>()(shader->getName()));
 }
 
-void ShaderLib::deleteShader(Shader* shader)
+void ShaderLib::deleteShader(ShaderOLD* shader)
 {
 	assert(shader);
 
@@ -36,7 +36,7 @@ void ShaderLib::deleteShader(Shader* shader)
 	delete shader;
 }
 
-Shader* ShaderLib::get(std::string name)
+ShaderOLD* ShaderLib::get(std::string name)
 {
 	auto result = g_shaders[std::hash<std::string>()(name)];
 	assert(result);

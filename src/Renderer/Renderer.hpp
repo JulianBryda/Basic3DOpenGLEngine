@@ -35,14 +35,14 @@ public:
 		return m_activeScene;
 	}
 
-	Shader* getDebugShader() const
+	ShaderOLD* getDebugShader() const
 	{
 		return m_pDebugShader;
 	}
 
 	// setter
 
-	void setDebugShader(Shader* shader)
+	void setDebugShader(ShaderOLD* shader)
 	{
 		m_pDebugShader = shader;
 	}
@@ -89,5 +89,5 @@ private:
 	std::vector<Scene*> m_scenes;
 	Scene* m_activeScene;
 
-	Shader* m_pDebugShader;
+	ShaderOLD* m_pDebugShader;
 };

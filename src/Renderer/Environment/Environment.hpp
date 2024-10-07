@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "../../Scene/Scene.hpp"
-#include "../Graphics/Shader.hpp"
+#include "../Graphics/ShaderOLD.hpp"
 
 namespace Environment
 {
@@ -17,7 +17,7 @@ namespace Environment
 		{
 			if (object->getHidden()) continue;
 
-			Shader* shader = object->getShaderPtr();
+			ShaderOLD* shader = object->getShaderPtr();
 			shader->use();
 
 			shader->setMat4("projectionMatrix", activeScene->getActiveCamera()->getProjectionMatrix());

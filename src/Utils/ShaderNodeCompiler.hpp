@@ -36,12 +36,12 @@ namespace ShaderNodeCompiler
 		return base;
 	}
 
-	Shader createFragmentShader()
+	ShaderOLD createFragmentShader()
 	{
 
 	}
 
-	Shader createGeometryShader()
+	ShaderOLD createGeometryShader()
 	{
 
 	}

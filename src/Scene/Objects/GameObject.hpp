@@ -18,8 +18,8 @@ class GameObject : public GameObjectPhysics, public GameObjectCollisions
 
 public:
 
-	GameObject(std::string name, std::string path, Shader* pShader, ColliderType colliderType);
-	GameObject(std::string name, Mesh mesh, Shader* pShader, ColliderType colliderType);
+	GameObject(std::string name, std::string path, ShaderOLD* pShader, ColliderType colliderType);
+	GameObject(std::string name, Mesh mesh, ShaderOLD* pShader, ColliderType colliderType);
 
 	GameObject(const GameObject& other);
 
@@ -30,12 +30,12 @@ public:
 
 	virtual void initParameterAtlas()
 	{
-		parameterAtlas.insert({ std::hash<std::string>()("modelMatrix"), Shader::Parameter<glm::mat4>("modelMatrix", 1, &modelMatrix) });
+		parameterAtlas.insert({ std::hash<std::string>()("modelMatrix"), ShaderOLD::Parameter<glm::mat4>("modelMatrix", 1, &modelMatrix) });
 
-		parameterAtlas.insert({ std::hash<std::string>()("material.ambient"), Shader::Parameter<glm::vec3>("material.ambient", 1, m_material.getAmbientPtr()) });
-		parameterAtlas.insert({ std::hash<std::string>()("material.diffuse"), Shader::Parameter<glm::vec3>("material.diffuse", 1, m_material.getDiffusePtr()) });
-		parameterAtlas.insert({ std::hash<std::string>()("material.specular"), Shader::Parameter<glm::vec3>("material.specular", 1, m_material.getSpecularPtr()) });
-		parameterAtlas.insert({ std::hash<std::string>()("material.shininess"), Shader::Parameter<float>("material.shininess", 1, m_material.getShininessPtr()) });
+		parameterAtlas.insert({ std::hash<std::string>()("material.ambient"), ShaderOLD::Parameter<glm::vec3>("material.ambient", 1, m_material.getAmbientPtr()) });
+		parameterAtlas.insert({ std::hash<std::string>()("material.diffuse"), ShaderOLD::Parameter<glm::vec3>("material.diffuse", 1, m_material.getDiffusePtr()) });
+		parameterAtlas.insert({ std::hash<std::string>()("material.specular"), ShaderOLD::Parameter<glm::vec3>("material.specular", 1, m_material.getSpecularPtr()) });
+		parameterAtlas.insert({ std::hash<std::string>()("material.shininess"), ShaderOLD::Parameter<float>("material.shininess", 1, m_material.getShininessPtr()) });
 	}
 
 	void draw();
@@ -63,21 +63,21 @@ public:
 	GLuint getTexture() const;
 	GLenum getTextureType() const;
 
-	Shader* getShaderPtr() const;
+	ShaderOLD* getShaderPtr() const;
 
 	Material* getMaterialPtr();
 
 	Mesh& getMesh();
 	Mesh* getMeshPtr();
 
-	std::unordered_map<size_t, Shader::UniformType>& getParameterAtlas() { return parameterAtlas; }
+	std::unordered_map<size_t, ShaderOLD::UniformType>& getParameterAtlas() { return parameterAtlas; }
 
 	// setter
 	void setPosition(glm::vec3 position);
 	void setRotation(glm::vec3 rotation);
 	void setScale(glm::vec3 scale);
 	void setIsHidden(bool isHidden);
-	void setShader(Shader* shader);
+	void setShader(ShaderOLD* shader);
 	void setIsOutline(bool isOutline);
 	void setName(std::string name);
 
@@ -96,7 +96,7 @@ protected:
 
 	glm::mat4 modelMatrix;
 
-	std::unordered_map<size_t, Shader::UniformType> parameterAtlas;
+	std::unordered_map<size_t, ShaderOLD::UniformType> parameterAtlas;
 
 private:
 
@@ -105,7 +105,7 @@ private:
 	GLuint m_vbo, m_ebo, m_texture;
 	GLenum m_textureType;
 
-	Shader* m_pShader;
+	ShaderOLD* m_pShader;
 
 	Material m_material;
 

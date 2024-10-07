@@ -139,6 +139,9 @@
     <Filter Include="src\ThirdParty\ImNodes">
       <UniqueIdentifier>{b2e8373c-a946-422e-a29b-c5cde860fdee}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Renderer\UI\ShaderNodeEditor">
+      <UniqueIdentifier>{9d54f23e-7dcf-40b5-96d5-e435741eee67}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Collider.hpp">
@@ -165,7 +168,7 @@
     <ClInclude Include="src\Renderer\Graphics\Material.hpp">
       <Filter>src\Renderer\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="src\Renderer\Graphics\Shader.hpp">
+    <ClInclude Include="src\Renderer\Graphics\ShaderOLD.hpp">
       <Filter>src\Renderer\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\UI\UserInterface.hpp">
@@ -257,6 +260,18 @@
     </ClInclude>
     <ClInclude Include="src\ThirdParty\ImNodes\imnodes_internal.h">
       <Filter>src\ThirdParty\ImNodes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utils\ShaderNodeCompiler.hpp">
+      <Filter>src\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Data\Node.hpp">
+      <Filter>src\Renderer\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderUniform.hpp">
+      <Filter>src\Renderer\UI\ShaderNodeEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Graphics\Shader.hpp">
+      <Filter>src\Renderer\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "../../Scene/Scene.hpp"
-#include "../Graphics/Shader.hpp"
+#include "../Graphics/ShaderOLD.hpp"
 
 namespace Lighting
 {
@@ -14,7 +14,7 @@ namespace Lighting
 
 		for (auto& light : activeScene->getLights())
 		{
-			Shader* shader = ShaderLib::get("depth.glsl");
+			ShaderOLD* shader = ShaderLib::get("depth.glsl");
 			shader->use();
 
 			if (light->getLightType() == Directional)

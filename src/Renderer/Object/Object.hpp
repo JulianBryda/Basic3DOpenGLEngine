@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "../../Scene/Scene.hpp"
-#include "../Graphics/Shader.hpp"
+#include "../Graphics/ShaderOLD.hpp"
 #include "../../Globals/GlobalTextures.hpp"
 
 #include "../../Landscape.hpp"
@@ -12,7 +12,7 @@ namespace Object
 {
 	void renderDebug(GameObject* object, Scene* activeScene)
 	{
-		Shader* shader = Renderer::getInstance().getDebugShader();
+		ShaderOLD* shader = Renderer::getInstance().getDebugShader();
 		shader->use();
 
 		auto& objectAtlas = object->getParameterAtlas();
@@ -28,7 +28,7 @@ namespace Object
 		{
 			if (finalAtlas.contains(name))
 			{
-				Shader::UniformType uniformType = finalAtlas[name];
+				ShaderOLD::UniformType uniformType = finalAtlas[name];
 
 				shader->setUniform(uniformType);
 			}
@@ -51,7 +51,7 @@ namespace Object
 
 	void renderNormal(GameObject* object, Scene* activeScene)
 	{
-		Shader* shader = object->getShaderPtr();
+		ShaderOLD* shader = object->getShaderPtr();
 		shader->use();
 
 		auto& objectAtlas = object->getParameterAtlas();
@@ -67,7 +67,7 @@ namespace Object
 		{
 			if (finalAtlas.contains(name))
 			{
-				Shader::UniformType uniformType = finalAtlas[name];
+				ShaderOLD::UniformType uniformType = finalAtlas[name];
 
 				shader->setUniform(uniformType);
 			}

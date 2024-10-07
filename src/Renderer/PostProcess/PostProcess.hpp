@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "../../Scene/Scene.hpp"
-#include "../Graphics/Shader.hpp"
+#include "../Graphics/ShaderOLD.hpp"
 
 class PostProcess
 {
@@ -49,7 +49,7 @@ public:
 		{
 			if (visualizeNormals)
 			{
-				Shader* shader = ShaderLib::get("visualizeNormals.glsl");
+				ShaderOLD* shader = ShaderLib::get("visualizeNormals.glsl");
 				shader->use();
 
 				shader->setMat4("projectionMatrix", activeScene->getActiveCamera()->getProjectionMatrix());
@@ -61,7 +61,7 @@ public:
 
 			if (object->getIsOutline())
 			{
-				Shader* shader = ShaderLib::get("color.glsl");
+				ShaderOLD* shader = ShaderLib::get("color.glsl");
 				shader->use();
 
 				shader->setMat4("projectionMatrix", activeScene->getActiveCamera()->getProjectionMatrix());
@@ -105,7 +105,7 @@ private:
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	}
 
-	void renderOutline(GameObject* object, Scene* activeScene, Shader* shader)
+	void renderOutline(GameObject* object, Scene* activeScene, ShaderOLD* shader)
 	{
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 
