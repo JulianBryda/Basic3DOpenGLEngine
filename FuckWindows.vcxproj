@@ -198,6 +198,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="src\Renderer\PostProcess\PostProcess.hpp" />
     <ClInclude Include="src\Renderer\Renderer.hpp" />
     <ClInclude Include="src\Renderer\UI\ShaderNodeEditor.hpp" />
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderUniform.hpp" />
     <ClInclude Include="src\Renderer\UI\UserInterface.hpp" />
     <ClInclude Include="src\Scene\Lights\DirectionalLight.hpp" />
     <ClInclude Include="src\Scene\Lights\Light.hpp" />
