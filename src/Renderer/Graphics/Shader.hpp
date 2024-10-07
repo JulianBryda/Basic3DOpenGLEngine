@@ -29,24 +29,33 @@ public:
 	using UniformType = std::variant<Parameter<bool>, Parameter<float>, Parameter<int>, Parameter<glm::vec2>, Parameter<glm::vec3>, Parameter<glm::mat4>>;
 
 
-	Shader(std::string_view vShaderPath, std::string_view fShaderPath, std::string_view gShaderPath = "")
+	Shader(std::string vShader, std::string fShader, std::string gShader = "", bool readFromFile = true)
 	{
-		this->m_name = vShaderPath.substr(vShaderPath.find_last_of("\\") + 3);
+		m_name = vShader.substr(vShader.find_last_of("\\") + 3);
 
 		GLuint vertex, fragment, geometry;
 		int success;
 		char infoLog[512];
 
 		// compile shader
-		this->compile_shader(vShaderPath, vertex, GL_VERTEX_SHADER);
-		this->compile_shader(fShaderPath, fragment, GL_FRAGMENT_SHADER);
-		if (gShaderPath != "") this->compile_shader(gShaderPath, geometry, GL_GEOMETRY_SHADER);
+		if (readFromFile)
+		{
+			compile_shader(vShader, vertex, GL_VERTEX_SHADER);
+			compile_shader(fShader, fragment, GL_FRAGMENT_SHADER);
+			if (gShader != "") compile_shader(gShader, geometry, GL_GEOMETRY_SHADER);
+		}
+		else
+		{
+			create_shader(vertex, vShader.c_str(), GL_VERTEX_SHADER);
+			create_shader(fragment, fShader.c_str(), GL_FRAGMENT_SHADER);
+			if (gShader != "") create_shader(geometry, gShader.c_str(), GL_GEOMETRY_SHADER);
+		}
 
 		// shader Program
 		this->m_id = glCreateProgram();
 		glAttachShader(this->m_id, vertex);
 		glAttachShader(this->m_id, fragment);
-		if (gShaderPath != "") glAttachShader(this->m_id, geometry);
+		if (gShader != "") glAttachShader(this->m_id, geometry);
 
 		glLinkProgram(this->m_id);
 		// print linking errors if any
@@ -63,7 +72,7 @@ public:
 		// delete the shaders as they're linked into program and are no longer necessary
 		glDeleteShader(vertex);
 		glDeleteShader(fragment);
-		if (gShaderPath != "") glDeleteShader(geometry);
+		if (gShader != "") glDeleteShader(geometry);
 	}
 
 	~Shader() { glDeleteProgram(this->m_id); }

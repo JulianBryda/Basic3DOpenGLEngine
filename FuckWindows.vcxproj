@@ -188,6 +188,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="src\Globals\GlobalTextures.hpp" />
     <ClInclude Include="src\Landscape.hpp" />
     <ClInclude Include="src\Renderer\Data\Mesh.hpp" />
+    <ClInclude Include="src\Renderer\Data\Node.hpp" />
     <ClInclude Include="src\Renderer\Data\Vertex.hpp" />
     <ClInclude Include="src\Renderer\Environment\Environment.hpp" />
     <ClInclude Include="src\Renderer\Graphics\Material.hpp" />
@@ -218,6 +219,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="src\Utils\GameObjectConstructor.hpp" />
     <ClInclude Include="src\Utils\ObjectLoader.hpp" />
     <ClInclude Include="src\Utils\ShaderLib.hpp" />
+    <ClInclude Include="src\Utils\ShaderNodeCompiler.hpp" />
     <ClInclude Include="src\Utils\StatTracker.hpp" />
     <ClInclude Include="src\Window\AppWindow.hpp" />
     <ClInclude Include="src\Window\InputHandler.hpp" />

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <GLFW/glfw3.h>
 #include <ctime>
+#include <functional>
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
@@ -25,6 +26,10 @@ private:
 
 public:
 
+	void subscribe(std::function<void(int keyCode)> listener)
+	{
+		listeners.push_back(listener);
+	}
 
 	InputHandler()
 	{
@@ -221,22 +226,11 @@ public:
 
 	void HandleKeyInput(int key, int action)
 	{
+		// pressed
 		if (action == 1)
 		{
-			// pressed
-			switch (key)
-			{
-			case GLFW_KEY_F2:
-				// screenshot
-				//saveScreenShot();
-				break;
-			default:
-				break;
-			}
-		}
-		else if (action == 0)
-		{
-			// released
+			NotifyListeners(key);
+
 			switch (key)
 			{
 			case GLFW_KEY_W:
@@ -696,6 +690,16 @@ private:
 		m_deltaTime = currentFrameTime - m_lastFrameTime;
 		m_lastFrameTime = currentFrameTime;
 	}
+
+	void NotifyListeners(int keyCode)
+	{
+		for (auto& listener : listeners)
+		{
+			listener(keyCode);
+		}
+	}
+
+	std::vector<std::function<void(int keyCode)>> listeners;
 
 
 	InputHandler(const InputHandler&) = delete;

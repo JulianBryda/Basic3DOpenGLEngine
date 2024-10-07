@@ -1,6 +1,7 @@
 #pragma once
-#include "imgui.h"
-#include "../../ThirdParty/ImNodes/imnodes.h"
+#include <algorithm>
+
+#include "../Data/Node.hpp"
 
 class ShaderNodeEditor
 {
@@ -27,7 +28,7 @@ public:
 		{
 			ImNodes::BeginNodeEditor();
 			{
-				addNodePopup();
+				renderNodePopup();
 
 				renderNodes();
 				renderLinks();
@@ -35,26 +36,47 @@ public:
 			ImNodes::EndNodeEditor();
 		}
 		ImGui::End();
+
+		static int startAttribute, endAttribute;
+		if (ImNodes::IsLinkCreated(&startAttribute, &endAttribute))
+		{
+			if (checkLink(endAttribute))
+			{
+				links.push_back({ startAttribute, endAttribute });
+			}
+		}
+
+		if (ImGui::IsKeyPressed(ImGuiKey_Delete))
+		{
+			int numNodes = ImNodes::NumSelectedNodes();
+			int numLinks = ImNodes::NumSelectedLinks();
+			int* nodeIds = new int[numNodes];
+			int* linkIds = new int[numLinks];
+
+			ImNodes::GetSelectedNodes(nodeIds);
+			ImNodes::GetSelectedLinks(linkIds);
+
+			for (int i = numNodes - 1; i >= 0; i--)
+			{
+				int id = nodeIds[i];
+				nodes.erase(nodes.begin() + id);
+			}
+			for (int i = numLinks - 1; i >= 0; i--)
+			{
+				int id = linkIds[i];
+				links.erase(links.begin() + id);
+			}
+
+			ImNodes::ClearNodeSelection();
+			ImNodes::ClearLinkSelection();
+
+			delete[] nodeIds;
+			delete[] linkIds;
+		}
 	}
 
 
 private:
-
-	struct Node
-	{
-		Node(const char* name, unsigned int color)
-		{
-			this->name = name;
-			this->color = color;
-		}
-
-		const char* name;
-		unsigned int color;
-
-		std::vector<std::pair<GLint, const char*>> inputs;
-		std::optional<std::pair<GLint, const char*>> output;
-
-	};
 
 	void renderLinks()
 	{
@@ -68,59 +90,15 @@ private:
 
 	void renderNodes()
 	{
-		for (int i = 0; i < nodes.size(); i++)
+		for (auto& node : nodes)
 		{
-			auto& node = nodes[i];
-
-			renderSingleNode(node, i);
+			node.render();
 		}
 	}
 
-	void renderSingleNode(Node& node, int index)
+	void renderNodePopup()
 	{
-		ImNodes::PushColorStyle(ImNodesCol_TitleBar, node.color);
-		ImNodes::PushColorStyle(ImNodesCol_TitleBarHovered, node.color - IM_COL32(20, 20, 20, 0));
-		ImNodes::PushColorStyle(ImNodesCol_TitleBarSelected, node.color - IM_COL32(20, 20, 20, 0));
-		if (ImNodes::IsNodeSelected(index)) ImNodes::PushColorStyle(ImNodesCol_NodeOutline, IM_COL32(150, 150, 150, 255));
-
-		ImNodes::BeginNode(index);
-		{
-			ImNodes::BeginNodeTitleBar();
-			{
-				ImGui::TextUnformatted(node.name);
-			}
-			ImNodes::EndNodeTitleBar();
-
-			for (int i = 0; i < node.inputs.size(); i++)
-			{
-				auto& input = node.inputs[i];
-				ImNodes::BeginInputAttribute(i + index * 50);
-				{
-					ImGui::TextUnformatted(input.second);
-				}
-				ImNodes::EndInputAttribute();
-			}
-
-			if (node.output.has_value())
-			{
-				ImNodes::BeginOutputAttribute(0);
-				{
-					ImGui::TextUnformatted(node.output.value().second);
-				}
-				ImNodes::EndOutputAttribute();
-			}
-		}
-		ImNodes::EndNode();
-
-		ImNodes::PopColorStyle();
-		ImNodes::PopColorStyle();
-		ImNodes::PopColorStyle();
-		if (ImNodes::IsNodeSelected(index)) ImNodes::PopColorStyle();
-	}
-
-	void addNodePopup()
-	{
-		if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+		if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) && ImGui::IsWindowHovered())
 		{
 			ImGui::OpenPopup("AddNodePopup");
 		}
@@ -136,6 +114,93 @@ private:
 
 			if (ImGui::BeginMenu("Input"))
 			{
+				if (ImGui::MenuItem("Int"))
+				{
+					Node node(nodes.size(), "Int", Node::NodeCategory::Input, Node::NodeType::Int);
+					node.output = { GL_INT, "Value" };
+					node.value = 0;
+					node.body = [](Node* n) {
+						if (int* val = std::get_if<int>(&n->value))
+						{
+							ImGui::SetNextItemWidth(80.f);
+							ImGui::DragInt(std::format("##0{}{}", n->name, n->id).c_str(), val);
+						}
+						};
+
+					nodes.push_back(node);
+				}
+				if (ImGui::MenuItem("Float"))
+				{
+					Node node(nodes.size(), "Float", Node::NodeCategory::Input, Node::NodeType::Float);
+					node.output = { GL_FLOAT, "Value" };
+					node.value = 0.f;
+					node.body = [](Node* n) {
+						if (float* val = std::get_if<float>(&n->value))
+						{
+							ImGui::SetNextItemWidth(80.f);
+							ImGui::DragFloat(std::format("##0{}{}", n->name, n->id).c_str(), val, 0.1f);
+						}
+						};
+
+					nodes.push_back(node);
+				}
+				if (ImGui::MenuItem("Vec2"))
+				{
+					Node node(nodes.size(), "Vec2", Node::NodeCategory::Input, Node::NodeType::Vec2);
+					node.output = { GL_FLOAT_VEC2, "Value" };
+					node.value = glm::vec2();
+					node.body = [](Node* n) {
+						if (glm::vec2* val = std::get_if<glm::vec2>(&n->value))
+						{
+							ImGui::SetNextItemWidth(80.f);
+							ImGui::DragFloat(std::format("##0{}{}", n->name, n->id).c_str(), &val->x, 0.1f);
+							ImGui::SetNextItemWidth(80.f);
+							ImGui::DragFloat(std::format("##1{}{}", n->name, n->id).c_str(), &val->y, 0.1f);
+						}
+						};
+
+					nodes.push_back(node);
+				}
+				if (ImGui::MenuItem("Vec3"))
+				{
+					Node node(nodes.size(), "Vec3", Node::NodeCategory::Input, Node::NodeType::Vec3);
+					node.output = { GL_FLOAT_VEC3, "Value" };
+					node.value = glm::vec3();
+					node.body = [](Node* n) {
+						if (glm::vec3* val = std::get_if<glm::vec3>(&n->value))
+						{
+							ImGui::SetNextItemWidth(80.f);
+							ImGui::DragFloat(std::format("##0{}{}", n->name, n->id).c_str(), &val->x, 0.1f);
+							ImGui::SetNextItemWidth(80.f);
+							ImGui::DragFloat(std::format("##1{}{}", n->name, n->id).c_str(), &val->y, 0.1f);
+							ImGui::SetNextItemWidth(80.f);
+							ImGui::DragFloat(std::format("##2{}{}", n->name, n->id).c_str(), &val->z, 0.1f);
+						}
+						};
+
+					nodes.push_back(node);
+				}
+				if (ImGui::MenuItem("Vec4"))
+				{
+					Node node(nodes.size(), "Vec4", Node::NodeCategory::Input, Node::NodeType::Vec4);
+					node.output = { GL_FLOAT_VEC4, "Value" };
+					node.value = glm::vec4();
+					node.body = [](Node* n) {
+						if (glm::vec4* val = std::get_if<glm::vec4>(&n->value))
+						{
+							ImGui::SetNextItemWidth(80.f);
+							ImGui::DragFloat(std::format("##0{}{}", n->name, n->id).c_str(), &val->x, 0.1f);
+							ImGui::SetNextItemWidth(80.f);
+							ImGui::DragFloat(std::format("##1{}{}", n->name, n->id).c_str(), &val->y, 0.1f);
+							ImGui::SetNextItemWidth(80.f);
+							ImGui::DragFloat(std::format("##2{}{}", n->name, n->id).c_str(), &val->z, 0.1f);
+							ImGui::SetNextItemWidth(80.f);
+							ImGui::DragFloat(std::format("##3{}{}", n->name, n->id).c_str(), &val->a, 0.1f);
+						}
+						};
+
+					nodes.push_back(node);
+				}
 
 				ImGui::EndMenu();
 			}
@@ -143,7 +208,7 @@ private:
 			{
 				if (ImGui::MenuItem("Material Output"))
 				{
-					Node node("Material Output", IM_COL32(100, 30, 30, 255));
+					Node node(nodes.size(), "Material Output", Node::NodeCategory::Output, Node::NodeType::MaterialOutput);
 					node.inputs.push_back({ 0, "Output" });
 
 					nodes.push_back(node);
@@ -156,6 +221,21 @@ private:
 
 			if (ImGui::BeginMenu("Color"))
 			{
+				if (ImGui::MenuItem("Mix Color"))
+				{
+					Node node(nodes.size(), "Mix Color", Node::NodeCategory::Color, Node::NodeType::MixColor);
+					node.inputs.push_back({ GL_FLOAT_VEC3 | GL_FLOAT_VEC4, "Color" });
+
+					nodes.push_back(node);
+				}
+
+				if (ImGui::MenuItem("Invert Color"))
+				{
+					Node node(nodes.size(), "Invert Color", Node::NodeCategory::Color, Node::NodeType::InvertColor);
+					node.inputs.push_back({ GL_FLOAT_VEC3 | GL_FLOAT_VEC4, "Color" });
+
+					nodes.push_back(node);
+				}
 
 				ImGui::EndMenu();
 			}
@@ -183,6 +263,16 @@ private:
 		ImGui::PopStyleColor();
 	}
 
+	bool checkLink(int endAttribute)
+	{
+		for (auto& link : links)
+		{
+			if (link.second == endAttribute) return false;
+		}
+
+		return true;
+	}
+
 	void ColoredText(const char* text, ImU32 color)
 	{
 		ImGui::PushStyleColor(ImGuiCol_Text, color);
@@ -192,4 +282,5 @@ private:
 
 	std::vector<Node> nodes;
 	std::vector<std::pair<int, int>> links;
+
 };
