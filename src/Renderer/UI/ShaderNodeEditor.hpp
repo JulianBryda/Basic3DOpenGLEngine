@@ -1,7 +1,10 @@
 #pragma once
 #include <algorithm>
 
-#include "../Data/Node.hpp"
+#include "../../ThirdParty/ImNodes/imnodes.h"
+#include "../UI/ShaderNodeEditor/ShaderVarNode.hpp"
+#include "../UI/ShaderNodeEditor/ShaderUniformNode.hpp"
+#include "../UI/ShaderNodeEditor/ShaderFunctionNode.hpp"
 
 class ShaderNodeEditor
 {
@@ -24,8 +27,17 @@ public:
 
 	void render()
 	{
-		ImGui::Begin("Node Editor", nullptr);
+		ImGui::Begin("Node Editor", nullptr, ImGuiWindowFlags_MenuBar);
 		{
+			ImGui::BeginMenuBar();
+			{
+				if (ImGui::Button("Compile"))
+				{
+					compileNodeTree();
+				}
+			}
+			ImGui::EndMenuBar();
+
 			ImNodes::BeginNodeEditor();
 			{
 				renderNodePopup();
@@ -92,7 +104,9 @@ private:
 	{
 		for (auto& node : nodes)
 		{
-			node.render();
+			std::visit([](auto& shaderNode) {
+				shaderNode->render();
+				}, node);
 		}
 	}
 
@@ -116,88 +130,47 @@ private:
 			{
 				if (ImGui::MenuItem("Int"))
 				{
-					Node node(nodes.size(), "Int", Node::NodeCategory::Input, Node::NodeType::Int);
-					node.output = { GL_INT, "Value" };
-					node.value = 0;
-					node.body = [](Node* n) {
-						if (int* val = std::get_if<int>(&n->value))
-						{
-							ImGui::SetNextItemWidth(80.f);
-							ImGui::DragInt(std::format("##0{}{}", n->name, n->id).c_str(), val);
-						}
-						};
+					static int test = 235;
+					ShaderVarNode<int>* node = new ShaderVarNode<int>(nodes.size(), "Int", &test, ShaderNodeCategory::Input);
+					node->output = { GL_INT, "Value" };
 
 					nodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Float"))
 				{
-					Node node(nodes.size(), "Float", Node::NodeCategory::Input, Node::NodeType::Float);
-					node.output = { GL_FLOAT, "Value" };
-					node.value = 0.f;
-					node.body = [](Node* n) {
-						if (float* val = std::get_if<float>(&n->value))
-						{
-							ImGui::SetNextItemWidth(80.f);
-							ImGui::DragFloat(std::format("##0{}{}", n->name, n->id).c_str(), val, 0.1f);
-						}
-						};
+					ShaderVarNode<float>* node = new ShaderVarNode<float>(nodes.size(), "Float", nullptr, ShaderNodeCategory::Input);
+					node->output = { GL_FLOAT, "Value" };
 
 					nodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Vec2"))
 				{
-					Node node(nodes.size(), "Vec2", Node::NodeCategory::Input, Node::NodeType::Vec2);
-					node.output = { GL_FLOAT_VEC2, "Value" };
-					node.value = glm::vec2();
-					node.body = [](Node* n) {
-						if (glm::vec2* val = std::get_if<glm::vec2>(&n->value))
-						{
-							ImGui::SetNextItemWidth(80.f);
-							ImGui::DragFloat(std::format("##0{}{}", n->name, n->id).c_str(), &val->x, 0.1f);
-							ImGui::SetNextItemWidth(80.f);
-							ImGui::DragFloat(std::format("##1{}{}", n->name, n->id).c_str(), &val->y, 0.1f);
-						}
-						};
+					ShaderVarNode<glm::vec2>* node = new ShaderVarNode<glm::vec2>(nodes.size(), "Vec2", nullptr, ShaderNodeCategory::Input);
+					node->output = { GL_FLOAT_VEC2, "Value" };
 
 					nodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Vec3"))
 				{
-					Node node(nodes.size(), "Vec3", Node::NodeCategory::Input, Node::NodeType::Vec3);
-					node.output = { GL_FLOAT_VEC3, "Value" };
-					node.value = glm::vec3();
-					node.body = [](Node* n) {
-						if (glm::vec3* val = std::get_if<glm::vec3>(&n->value))
-						{
-							ImGui::SetNextItemWidth(80.f);
-							ImGui::DragFloat(std::format("##0{}{}", n->name, n->id).c_str(), &val->x, 0.1f);
-							ImGui::SetNextItemWidth(80.f);
-							ImGui::DragFloat(std::format("##1{}{}", n->name, n->id).c_str(), &val->y, 0.1f);
-							ImGui::SetNextItemWidth(80.f);
-							ImGui::DragFloat(std::format("##2{}{}", n->name, n->id).c_str(), &val->z, 0.1f);
-						}
-						};
+					ShaderVarNode<glm::vec3>* node = new ShaderVarNode<glm::vec3>(nodes.size(), "Vec3", nullptr, ShaderNodeCategory::Input);
+					node->output = { GL_FLOAT_VEC3, "Value" };
 
 					nodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Vec4"))
 				{
-					Node node(nodes.size(), "Vec4", Node::NodeCategory::Input, Node::NodeType::Vec4);
-					node.output = { GL_FLOAT_VEC4, "Value" };
-					node.value = glm::vec4();
-					node.body = [](Node* n) {
-						if (glm::vec4* val = std::get_if<glm::vec4>(&n->value))
-						{
-							ImGui::SetNextItemWidth(80.f);
-							ImGui::DragFloat(std::format("##0{}{}", n->name, n->id).c_str(), &val->x, 0.1f);
-							ImGui::SetNextItemWidth(80.f);
-							ImGui::DragFloat(std::format("##1{}{}", n->name, n->id).c_str(), &val->y, 0.1f);
-							ImGui::SetNextItemWidth(80.f);
-							ImGui::DragFloat(std::format("##2{}{}", n->name, n->id).c_str(), &val->z, 0.1f);
-							ImGui::SetNextItemWidth(80.f);
-							ImGui::DragFloat(std::format("##3{}{}", n->name, n->id).c_str(), &val->a, 0.1f);
-						}
-						};
+					ShaderVarNode<glm::vec4>* node = new ShaderVarNode<glm::vec4>(nodes.size(), "Vec4", nullptr, ShaderNodeCategory::Input);
+					node->output = { GL_FLOAT_VEC4, "Value" };
+
+					nodes.push_back(node);
+				}
+
+				ImGui::Separator();
+
+				if (ImGui::MenuItem("Time"))
+				{
+					ShaderUniformNode<float>* node = new ShaderUniformNode<float>(nodes.size(), "Time", ShaderNodeCategory::Input, 1);
+					node->inputs.push_back({ GL_FLOAT, "Value" });
 
 					nodes.push_back(node);
 				}
@@ -206,10 +179,10 @@ private:
 			}
 			if (ImGui::BeginMenu("Output"))
 			{
-				if (ImGui::MenuItem("Material Output"))
+				if (ImGui::MenuItem("Output"))
 				{
-					Node node(nodes.size(), "Material Output", Node::NodeCategory::Output, Node::NodeType::MaterialOutput);
-					node.inputs.push_back({ 0, "Output" });
+					ShaderVarNode<int>* node = new ShaderVarNode<int>(nodes.size(), "Output", nullptr, ShaderNodeCategory::Output);
+					node->inputs.push_back({ 0, "Output" });
 
 					nodes.push_back(node);
 				}
@@ -223,16 +196,8 @@ private:
 			{
 				if (ImGui::MenuItem("Mix Color"))
 				{
-					Node node(nodes.size(), "Mix Color", Node::NodeCategory::Color, Node::NodeType::MixColor);
-					node.inputs.push_back({ GL_FLOAT_VEC3 | GL_FLOAT_VEC4, "Color" });
-
-					nodes.push_back(node);
-				}
-
-				if (ImGui::MenuItem("Invert Color"))
-				{
-					Node node(nodes.size(), "Invert Color", Node::NodeCategory::Color, Node::NodeType::InvertColor);
-					node.inputs.push_back({ GL_FLOAT_VEC3 | GL_FLOAT_VEC4, "Color" });
+					ShaderFunctionNode<glm::vec3>* node = new ShaderFunctionNode<glm::vec3>(nodes.size(), "Mix Color", "mix", ShaderNodeCategory::Color);
+					node->inputs.push_back({ GL_FLOAT_VEC3 | GL_FLOAT_VEC4, "Color" });
 
 					nodes.push_back(node);
 				}
@@ -280,7 +245,37 @@ private:
 		ImGui::PopStyleColor();
 	}
 
-	std::vector<Node> nodes;
+	void compileNodeTree()
+	{
+		std::string uniforms;
+		std::string functions;
+		std::string vars;
+		std::string mainBody;
+
+		for (auto& node : nodes)
+		{
+			std::visit([&](auto& shaderNode) {
+				if (shaderNode->getType() == ShaderVarNodeType::Var)
+				{
+					vars += shaderNode->getShaderCode();
+				}
+				else if (shaderNode->getType() == ShaderVarNodeType::Uniform)
+				{
+					uniforms += shaderNode->getShaderCode();
+				}
+				else if (shaderNode->getType() == ShaderVarNodeType::Function)
+				{
+					functions += shaderNode->getShaderCode();
+				}
+				}, node);
+		}
+
+		auto test = 0;
+	}
+
+	using ShaderNode = std::variant<ShaderVarNode<int>*, ShaderVarNode<float>*, ShaderVarNode<glm::vec2>*, ShaderVarNode<glm::vec3>*, ShaderVarNode<glm::vec4>*, ShaderVarNode<glm::mat4>*>;
+
+	std::vector<ShaderNode> nodes;
 	std::vector<std::pair<int, int>> links;
 
 };

@@ -142,6 +142,9 @@
     <Filter Include="src\Renderer\UI\ShaderNodeEditor">
       <UniqueIdentifier>{9d54f23e-7dcf-40b5-96d5-e435741eee67}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Renderer\Data\ShaderNode">
+      <UniqueIdentifier>{9c616862-88fa-43a8-b93b-811910b4dcf0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Collider.hpp">
@@ -264,14 +267,26 @@
     <ClInclude Include="src\Utils\ShaderNodeCompiler.hpp">
       <Filter>src\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="src\Renderer\Data\Node.hpp">
-      <Filter>src\Renderer\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderUniform.hpp">
-      <Filter>src\Renderer\UI\ShaderNodeEditor</Filter>
-    </ClInclude>
     <ClInclude Include="src\Renderer\Graphics\Shader.hpp">
       <Filter>src\Renderer\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderFunctionNode.hpp">
+      <Filter>src\Renderer\UI\ShaderNodeEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderVarNode.hpp">
+      <Filter>src\Renderer\UI\ShaderNodeEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderUniformNode.hpp">
+      <Filter>src\Renderer\UI\ShaderNodeEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Data\ShaderNode\ShaderFunction.hpp">
+      <Filter>src\Renderer\Data\ShaderNode</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Data\ShaderNode\ShaderUniform.hpp">
+      <Filter>src\Renderer\Data\ShaderNode</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Data\ShaderNode\ShaderVar.hpp">
+      <Filter>src\Renderer\Data\ShaderNode</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -188,7 +188,9 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="src\Globals\GlobalTextures.hpp" />
     <ClInclude Include="src\Landscape.hpp" />
     <ClInclude Include="src\Renderer\Data\Mesh.hpp" />
-    <ClInclude Include="src\Renderer\Data\Node.hpp" />
+    <ClInclude Include="src\Renderer\Data\ShaderNode\ShaderFunction.hpp" />
+    <ClInclude Include="src\Renderer\Data\ShaderNode\ShaderUniform.hpp" />
+    <ClInclude Include="src\Renderer\Data\ShaderNode\ShaderVar.hpp" />
     <ClInclude Include="src\Renderer\Data\Vertex.hpp" />
     <ClInclude Include="src\Renderer\Environment\Environment.hpp" />
     <ClInclude Include="src\Renderer\Graphics\Material.hpp" />
@@ -199,7 +201,9 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="src\Renderer\PostProcess\PostProcess.hpp" />
     <ClInclude Include="src\Renderer\Renderer.hpp" />
     <ClInclude Include="src\Renderer\UI\ShaderNodeEditor.hpp" />
-    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderUniform.hpp" />
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderFunctionNode.hpp" />
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderVarNode.hpp" />
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderUniformNode.hpp" />
     <ClInclude Include="src\Renderer\UI\UserInterface.hpp" />
     <ClInclude Include="src\Scene\Lights\DirectionalLight.hpp" />
     <ClInclude Include="src\Scene\Lights\Light.hpp" />

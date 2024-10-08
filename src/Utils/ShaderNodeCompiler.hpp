@@ -4,7 +4,7 @@
 #include <variant>
 #include <glm/glm.hpp>
 
-#include "../Renderer/Data/Node.hpp"
+#include "../Renderer/Data/ShaderNode.hpp"
 #include "../Renderer/Graphics/Shader.hpp"
 
 
@@ -12,7 +12,7 @@
 namespace ShaderNodeCompiler
 {
 
-	std::string createVertexShader(Node node)
+	std::string createVertexShader(ShaderNode node)
 	{
 		std::string base = std::string("#version 460 core\n")
 			+ "layout(location = 0) in vec4 position;\n"
