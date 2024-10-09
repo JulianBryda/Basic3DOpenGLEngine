@@ -27,10 +27,11 @@ public:
 
 	~ShaderVar()
 	{
-
+		if (value)
+			delete value;
 	}
 
-	virtual std::string getShaderCode()
+	virtual std::string getShaderCode(std::vector<std::string>* inputNames)
 	{
 		if (typeid(T) == typeid(glm::vec2))
 		{

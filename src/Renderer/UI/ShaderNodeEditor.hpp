@@ -130,40 +130,35 @@ private:
 			{
 				if (ImGui::MenuItem("Int"))
 				{
-					static int test = 0;
-					IntVarNode* node = new IntVarNode(nodes.size(), "Int", &test, ShaderVarNodeEnums::ShaderNodeCategory::Input);
+					IntVarNode* node = new IntVarNode(nodes.size(), "Int", new int(), ShaderVarNodeEnums::ShaderNodeCategory::Input);
 					node->output = { GL_INT, "Value" };
 
 					nodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Float"))
 				{
-					static float test = 1;
-					FloatVarNode* node = new FloatVarNode(nodes.size(), "Float", &test, ShaderVarNodeEnums::ShaderNodeCategory::Input);
+					FloatVarNode* node = new FloatVarNode(nodes.size(), "Float", new float(), ShaderVarNodeEnums::ShaderNodeCategory::Input);
 					node->output = { GL_FLOAT, "Value" };
 
 					nodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Vec2"))
 				{
-					static glm::vec2 test = glm::vec2();
-					ShaderVarNode<glm::vec2>* node = new Vec2VarNode(nodes.size(), "Vec2", &test, ShaderVarNodeEnums::ShaderNodeCategory::Input);
+					ShaderVarNode<glm::vec2>* node = new Vec2VarNode(nodes.size(), "Vec2", new glm::vec2(), ShaderVarNodeEnums::ShaderNodeCategory::Input);
 					node->output = { GL_FLOAT_VEC2, "Value" };
 
 					nodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Vec3"))
 				{
-					static glm::vec3 test = glm::vec3();
-					Vec3VarNode* node = new Vec3VarNode(nodes.size(), "Vec3", &test, ShaderVarNodeEnums::ShaderNodeCategory::Input);
+					Vec3VarNode* node = new Vec3VarNode(nodes.size(), "Vec3", new glm::vec3(), ShaderVarNodeEnums::ShaderNodeCategory::Input);
 					node->output = { GL_FLOAT_VEC3, "Value" };
 
 					nodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Vec4"))
 				{
-					static glm::vec4 test = glm::vec4();
-					Vec4VarNode* node = new Vec4VarNode(nodes.size(), "Vec4", &test, ShaderVarNodeEnums::ShaderNodeCategory::Input);
+					Vec4VarNode* node = new Vec4VarNode(nodes.size(), "Vec4", new glm::vec4(), ShaderVarNodeEnums::ShaderNodeCategory::Input);
 					node->output = { GL_FLOAT_VEC4, "Value" };
 
 					nodes.push_back(node);
@@ -217,6 +212,28 @@ private:
 					inputs.push_back({ GL_FLOAT_VEC4, "Value 1" });
 					inputs.push_back({ GL_FLOAT_VEC4, "Value 2" });
 					ShaderFunctionNode<glm::vec4>* node = new ShaderFunctionNode<glm::vec4>(nodes.size(), "Add", "+", &inputs, ShaderVarNodeEnums::ShaderNodeCategory::Color, ShaderFunctionEnums::ShaderFunctionOperation::Operation);
+					node->output = { GL_FLOAT_VEC4, "Result" };
+
+					nodes.push_back(node);
+				}
+
+				if (ImGui::MenuItem("Subtract"))
+				{
+					std::vector<std::pair<GLint, std::string>> inputs;
+					inputs.push_back({ GL_FLOAT_VEC4, "Value 1" });
+					inputs.push_back({ GL_FLOAT_VEC4, "Value 2" });
+					ShaderFunctionNode<glm::vec4>* node = new ShaderFunctionNode<glm::vec4>(nodes.size(), "Subtract", "-", &inputs, ShaderVarNodeEnums::ShaderNodeCategory::Color, ShaderFunctionEnums::ShaderFunctionOperation::Operation);
+					node->output = { GL_FLOAT_VEC4, "Result" };
+
+					nodes.push_back(node);
+				}
+
+				if (ImGui::MenuItem("Multiply"))
+				{
+					std::vector<std::pair<GLint, std::string>> inputs;
+					inputs.push_back({ GL_FLOAT_VEC4, "Value 1" });
+					inputs.push_back({ GL_FLOAT_VEC4, "Value 2" });
+					ShaderFunctionNode<glm::vec4>* node = new ShaderFunctionNode<glm::vec4>(nodes.size(), "Multiply", "*", &inputs, ShaderVarNodeEnums::ShaderNodeCategory::Color, ShaderFunctionEnums::ShaderFunctionOperation::Operation);
 					node->output = { GL_FLOAT_VEC4, "Result" };
 
 					nodes.push_back(node);
@@ -280,7 +297,8 @@ private:
 				}
 				else if (shaderNode->getType() == ShaderVarNodeEnums::ShaderVarNodeType::Function)
 				{
-					functions += shaderNode->getShaderCode();
+					std::vector<std::string> inputNames = getOutputVariableNames(shaderNode->getId());
+					functions += shaderNode->getShaderCode(&inputNames);
 				}
 				}, node);
 		}
@@ -293,12 +311,16 @@ private:
 
 			std::visit([&](auto& valueFirst, auto& valueSecond) {
 
-				mainBody += std::format("{}{} = {}{};", valueSecond->getTypeName(), valueSecond->getId(), valueFirst->getTypeName(), valueFirst->getId());
+				if (valueSecond->getCategory() == ShaderVarNodeEnums::ShaderNodeCategory::Output && valueSecond->getName() == "Output")
+				{
+					mainBody += std::format("{}{} = {}{};", valueSecond->getTypeName(), valueSecond->getId(), valueFirst->getTypeName(), valueFirst->getId());
+					i = links.size();
+				}
 
 				}, nodeFirst, nodeSecond);
 		}
 
-		std::string shaderCode = std::string("out vec4 FragColor;\n\n")
+		std::string shaderCode = std::string("#version 460 core\n")
 			+ uniforms
 			+ "\n"
 			+ vars
@@ -310,6 +332,8 @@ private:
 			+ mainBody
 			+ "\n"
 			+ "}";
+
+		std::cout << shaderCode << std::endl;
 
 		Material* material = new Material("test-material", new Shader(".\\Vertex\\v_debug.glsl", GL_VERTEX_SHADER), new Shader(shaderCode, GL_FRAGMENT_SHADER, false));
 		MaterialLib::addMaterial(material);
@@ -335,6 +359,31 @@ private:
 		}
 
 		return shaderNode;
+	}
+
+	std::vector<std::string> getOutputVariableNames(int nodeId)
+	{
+		std::vector<std::string> varNames;
+
+		for (auto& link : links)
+		{
+			if (link.second / 500 == nodeId)
+			{
+				for (auto& node : nodes)
+				{
+					std::visit([&](auto& value)
+						{
+							if (link.first / 500 == value->getId())
+							{
+								varNames.push_back(std::format("{}{}", value->getTypeName(), value->getId()));
+							}
+
+						}, node);
+				}
+			}
+		}
+
+		return varNames;
 	}
 
 	std::vector<ShaderNode> nodes;

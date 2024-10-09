@@ -21,7 +21,7 @@ public:
 
 	}
 
-	std::string getShaderCode() override
+	std::string getShaderCode(std::vector<std::string>* inputNames) override
 	{
 		if (typeid(T) == typeid(glm::vec2))
 		{

@@ -152,10 +152,11 @@ public:
 	int getId() { return id; }
 	std::string getName() { return name; }
 	std::vector<std::pair<GLint, std::string>>& getInputs() { return inputs; }
+	ShaderVarNodeEnums::ShaderNodeCategory getCategory() { return category; }
 
-	std::string getShaderCode()
+	std::string getShaderCode(std::vector<std::string>* inputNames = nullptr)
 	{
-		return this->shaderVar->getShaderCode();
+		return this->shaderVar->getShaderCode(inputNames);
 	}
 
 	ShaderVarNodeEnums::ShaderVarNodeType getType()
