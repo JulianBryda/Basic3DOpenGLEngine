@@ -9,7 +9,7 @@ class ShaderUniformNode : public ShaderVarNode<T>
 
 public:
 
-	ShaderUniformNode(int id, std::string name, ShaderVarNodeEnums::ShaderNodeCategory category, int arraySize) : ShaderVarNode<T>(id, name, category)
+	ShaderUniformNode(int id, std::string name, std::vector<std::pair<GLint, std::string>>* inputs, ShaderVarNodeEnums::ShaderNodeCategory category, int arraySize) : ShaderVarNode<T>(id, name, inputs, category)
 	{
 		this->type = ShaderVarNodeEnums::ShaderVarNodeType::Uniform;
 

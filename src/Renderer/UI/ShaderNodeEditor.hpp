@@ -173,8 +173,8 @@ private:
 
 				if (ImGui::MenuItem("Time"))
 				{
-					ShaderUniformNode<float>* node = new ShaderUniformNode<float>(nodes.size(), "Time", ShaderVarNodeEnums::ShaderNodeCategory::Input, 1);
-					node->inputs.push_back({ GL_FLOAT, "Value" });
+					ShaderUniformNode<float>* node = new ShaderUniformNode<float>(nodes.size(), "Time", nullptr, ShaderVarNodeEnums::ShaderNodeCategory::Input, 1);
+					node->output = { GL_FLOAT, "Time" };
 
 					nodes.push_back(node);
 				}
@@ -185,7 +185,7 @@ private:
 			{
 				if (ImGui::MenuItem("Output"))
 				{
-					ShaderVarNode<int>* node = new ShaderVarNode<int>(nodes.size(), "Output", nullptr, ShaderVarNodeEnums::ShaderNodeCategory::Output, ShaderVarPrefix::Out);
+					ShaderVarNode<glm::vec4>* node = new Vec4VarNode(nodes.size(), "Output", nullptr, ShaderVarNodeEnums::ShaderNodeCategory::Output, ShaderVarPrefix::Out);
 					node->inputs.push_back({ 0, "Output" });
 
 					nodes.push_back(node);
@@ -200,8 +200,9 @@ private:
 			{
 				if (ImGui::MenuItem("Mix Color"))
 				{
-					ShaderFunctionNode<glm::vec3>* node = new ShaderFunctionNode<glm::vec3>(nodes.size(), "Mix Color", "mix", ShaderVarNodeEnums::ShaderNodeCategory::Color);
-					node->inputs.push_back({ GL_FLOAT_VEC3 | GL_FLOAT_VEC4, "Color" });
+					std::vector<std::pair<GLint, std::string>> inputs;
+					inputs.push_back({ GL_FLOAT_VEC3 | GL_FLOAT_VEC4, "Color" });
+					ShaderFunctionNode<glm::vec3>* node = new ShaderFunctionNode<glm::vec3>(nodes.size(), "Mix Color", "mix", &inputs, ShaderVarNodeEnums::ShaderNodeCategory::Color, ShaderFunctionEnums::ShaderFunctionOperation::FunctionCall);
 
 					nodes.push_back(node);
 				}
@@ -210,6 +211,16 @@ private:
 			}
 			if (ImGui::BeginMenu("Converter"))
 			{
+				if (ImGui::MenuItem("Add"))
+				{
+					std::vector<std::pair<GLint, std::string>> inputs;
+					inputs.push_back({ GL_FLOAT_VEC4, "Value 1" });
+					inputs.push_back({ GL_FLOAT_VEC4, "Value 2" });
+					ShaderFunctionNode<glm::vec4>* node = new ShaderFunctionNode<glm::vec4>(nodes.size(), "Add", "+", &inputs, ShaderVarNodeEnums::ShaderNodeCategory::Color, ShaderFunctionEnums::ShaderFunctionOperation::Operation);
+					node->output = { GL_FLOAT_VEC4, "Result" };
+
+					nodes.push_back(node);
+				}
 
 				ImGui::EndMenu();
 			}
@@ -282,15 +293,12 @@ private:
 
 			std::visit([&](auto& valueFirst, auto& valueSecond) {
 
-				if (valueSecond->getType() == ShaderVarNodeEnums::ShaderVarNodeType::Var)
-				{
-					mainBody += std::format("{}{} = {}{};", valueSecond->getTypeName(), valueSecond->getId(), valueFirst->getTypeName(), valueFirst->getId());
-				}
+				mainBody += std::format("{}{} = {}{};", valueSecond->getTypeName(), valueSecond->getId(), valueFirst->getTypeName(), valueFirst->getId());
 
 				}, nodeFirst, nodeSecond);
 		}
 
-		std::string shader = std::string("out vec4 FragColor;\n\n")
+		std::string shaderCode = std::string("out vec4 FragColor;\n\n")
 			+ uniforms
 			+ "\n"
 			+ vars
@@ -303,7 +311,8 @@ private:
 			+ "\n"
 			+ "}";
 
-
+		Material* material = new Material("test-material", new Shader(".\\Vertex\\v_debug.glsl", GL_VERTEX_SHADER), new Shader(shaderCode, GL_FRAGMENT_SHADER, false));
+		MaterialLib::addMaterial(material);
 	}
 
 	using ShaderNode = std::variant<ShaderVarNode<int>*, ShaderVarNode<float>*, ShaderVarNode<glm::vec2>*, ShaderVarNode<glm::vec3>*, ShaderVarNode<glm::vec4>*, ShaderVarNode<glm::mat4>*>;

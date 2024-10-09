@@ -5,16 +5,32 @@
 
 #include "ShaderVar.hpp"
 
+namespace ShaderFunctionEnums
+{
+	enum ShaderFunctionOperation
+	{
+		Operation,
+		FunctionCall
+	};
+}
+
 template <typename T>
 class ShaderFunction : public ShaderVar<T>
 {
 
 public:
 
-	ShaderFunction(int id, std::string functionName, std::vector<std::string> inputNames) : ShaderVar<T>(id, nullptr)
+	// inputNames not working, getting names of Node Attributes and not shader variables
+	ShaderFunction(int id, std::string functionName, std::vector<std::string> inputNames, ShaderFunctionEnums::ShaderFunctionOperation operation) : ShaderVar<T>(id, nullptr)
 	{
+		if (operation == ShaderFunctionEnums::ShaderFunctionOperation::Operation)
+		{
+			assert(inputNames.size() >= 2); // when using operations inputNames must be at least 2
+		}
+
 		this->functionName = functionName;
 		this->inputNames = inputNames;
+		this->operation = operation;
 	}
 
 	~ShaderFunction()
@@ -24,27 +40,25 @@ public:
 
 	std::string getShaderCode() override
 	{
-		std::string inputList = join(inputNames, ", ");
-
 		if (typeid(T) == typeid(glm::vec2))
 		{
-			return getFunctionCode("vec2", inputList);
+			return getFunctionCode("vec2");
 		}
 		else if (typeid(T) == typeid(glm::vec3))
 		{
-			return getFunctionCode("vec3", inputList);
+			return getFunctionCode("vec3");
 		}
 		else if (typeid(T) == typeid(glm::vec4))
 		{
-			return getFunctionCode("vec4", inputList);
+			return getFunctionCode("vec4");
 		}
 		else if (typeid(T) == typeid(glm::mat4))
 		{
-			return getFunctionCode("mat4", inputList);
+			return getFunctionCode("mat4");
 		}
 		else
 		{
-			return getFunctionCode(typeid(T).name(), inputList);
+			return getFunctionCode(typeid(T).name());
 		}
 	}
 
@@ -52,9 +66,23 @@ public:
 
 private:
 
-	std::string getFunctionCode(const char* type, std::string& inputList)
+	std::string getFunctionCode(const char* type)
 	{
-		return std::format("{} {}{} = {}({});\n", type, "func", this->id, this->functionName, inputList);
+		switch (operation)
+		{
+		case ShaderFunctionEnums::Operation:
+		{
+			std::string inputList = join(inputNames, std::format(" {} ", functionName));
+			return std::format("{} {}{} = {};\n", type, "func", this->id, inputList);
+		}
+		case ShaderFunctionEnums::FunctionCall:
+		{
+			std::string inputList = join(inputNames, ", ");
+			return std::format("{} {}{} = {}({});\n", type, "func", this->id, this->functionName, inputList);
+		}
+		default:
+			break;
+		}
 	}
 
 	std::string join(const std::vector<std::string>& strings, const std::string& delimiter) const
@@ -73,4 +101,5 @@ private:
 
 	std::string functionName;
 	std::vector<std::string> inputNames;
+	ShaderFunctionEnums::ShaderFunctionOperation operation;
 };

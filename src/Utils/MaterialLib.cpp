@@ -18,7 +18,7 @@ void MaterialLib::addMaterial(Material* pMaterial)
 {
 	assert(pMaterial);
 
-	g_materials.insert({ std::hash<std::string>()(pMaterial->getName()), pMaterial });
+	g_materials.insert_or_assign(std::hash<std::string>()(pMaterial->getName()), pMaterial);
 }
 
 void MaterialLib::removeMaterial(Material* pMaterial)

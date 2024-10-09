@@ -189,11 +189,14 @@ public:
 
 protected:
 
-	ShaderVarNode(int id, std::string name, ShaderVarNodeEnums::ShaderNodeCategory category)
+	ShaderVarNode(int id, std::string name, std::vector<std::pair<GLint, std::string>>* inputs, ShaderVarNodeEnums::ShaderNodeCategory category)
 	{
 		this->id = id;
 		this->name = name;
 		this->category = category;
+
+		if (inputs)
+			this->inputs = *inputs;
 	}
 
 	ShaderVarNodeEnums::ShaderVarNodeType type;
