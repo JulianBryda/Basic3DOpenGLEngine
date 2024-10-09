@@ -14,7 +14,7 @@ namespace GameObjectConstructor
 
 		for (int i = 0; i < objectCount; i++)
 		{
-			GameObject* obj = new GameObject(objectData[i].name, objectData[i].mesh, ShaderLib::get("render.glsl"), BoundingBox);
+			GameObject* obj = new GameObject(objectData[i].name, objectData[i].mesh, MaterialLib::get("render"), BoundingBox);
 			objects.push_back(obj);
 		}
 

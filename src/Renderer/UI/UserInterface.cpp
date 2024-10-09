@@ -41,14 +41,14 @@ void UserInterface::renderMenuBar()
 
 			if (ImGui::MenuItem("Plane"))
 			{
-				GameObject* obj = new GameObject(std::format("Plane{}", Renderer::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Plane.obj", ShaderLib::get("render.glsl"), ColliderType::BoundingBox);
+				GameObject* obj = new GameObject(std::format("Plane{}", Renderer::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Plane.obj", MaterialLib::get("render"), ColliderType::BoundingBox);
 				obj->setIsPhysicsEnabled(true);
 
 				Renderer::getInstance().addObject(obj);
 			}
 			if (ImGui::MenuItem("Cube"))
 			{
-				GameObject* obj = new GameObject(std::format("Cube{}", Renderer::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Cube.obj", ShaderLib::get("render.glsl"), ColliderType::BoundingBox);
+				GameObject* obj = new GameObject(std::format("Cube{}", Renderer::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Cube.obj", MaterialLib::get("render"), ColliderType::BoundingBox);
 				obj->setIsPhysicsEnabled(true);
 
 				Renderer::getInstance().addObject(obj);
@@ -56,7 +56,7 @@ void UserInterface::renderMenuBar()
 			}
 			if (ImGui::MenuItem("Sphere"))
 			{
-				GameObject* obj = new GameObject(std::format("Sphere{}", Renderer::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Sphere.obj", ShaderLib::get("render.glsl"), ColliderType::Circular);
+				GameObject* obj = new GameObject(std::format("Sphere{}", Renderer::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Sphere.obj", MaterialLib::get("render"), ColliderType::Circular);
 				obj->setIsPhysicsEnabled(true);
 
 				Renderer::getInstance().addObject(obj);
@@ -130,12 +130,12 @@ void UserInterface::renderMenuBar()
 				{
 					if (!triangleDebug)
 					{
-						Renderer::getInstance().setDebugShader(ShaderLib::get("debugTriangle.glsl"));
+						Renderer::getInstance().setDebugMaterial(MaterialLib::get("debugTriangle"));
 						Config::g_settings->debugMode = Config::DebugMode::Triangles;
 					}
 					else
 					{
-						Renderer::getInstance().setDebugShader(ShaderLib::get("debug.glsl"));
+						Renderer::getInstance().setDebugMaterial(MaterialLib::get("debug"));
 						Config::g_settings->debugMode = Config::DebugMode::None;
 					}
 
@@ -147,12 +147,12 @@ void UserInterface::renderMenuBar()
 				{
 					if (!overdrawDebug)
 					{
-						Renderer::getInstance().setDebugShader(ShaderLib::get("debugOverdraw.glsl"));
+						Renderer::getInstance().setDebugMaterial(MaterialLib::get("debugOverdraw"));
 						Config::g_settings->debugMode = Config::DebugMode::Overdraw;
 					}
 					else
 					{
-						Renderer::getInstance().setDebugShader(ShaderLib::get("debug.glsl"));
+						Renderer::getInstance().setDebugMaterial(MaterialLib::get("debug"));
 						Config::g_settings->debugMode = Config::DebugMode::None;
 					}
 
@@ -164,13 +164,13 @@ void UserInterface::renderMenuBar()
 				{
 					if (!wireframeDebug)
 					{
-						Renderer::getInstance().setDebugShader(ShaderLib::get("debugWireframe.glsl"));
+						Renderer::getInstance().setDebugMaterial(MaterialLib::get("debugWireframe"));
 						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 						Config::g_settings->debugMode = Config::DebugMode::Wireframe;
 					}
 					else
 					{
-						Renderer::getInstance().setDebugShader(ShaderLib::get("debug.glsl"));
+						Renderer::getInstance().setDebugMaterial(MaterialLib::get("debug"));
 						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 						Config::g_settings->debugMode = Config::DebugMode::None;
 					}
@@ -179,7 +179,7 @@ void UserInterface::renderMenuBar()
 				bool normalDebug = Config::g_settings->debugMode == Config::DebugMode::Normals;
 				if (ImGui::RadioButton("Normal View", normalDebug))
 				{
-					Renderer::getInstance().setDebugShader(ShaderLib::get("debug.glsl"));
+					Renderer::getInstance().setDebugMaterial(MaterialLib::get("debug"));
 
 					if (!normalDebug)
 					{
@@ -257,7 +257,7 @@ void UserInterface::renderMenuBar()
 
 			if (ImGui::RadioButton("Debug", Config::g_settings->renderMode == Config::RenderMode::Debug))
 			{
-				Renderer::getInstance().setDebugShader(ShaderLib::get("debug.glsl"));
+				Renderer::getInstance().setDebugMaterial(MaterialLib::get("debug"));
 				Config::g_settings->renderMode = Config::RenderMode::Debug;
 			}
 
@@ -324,9 +324,6 @@ void UserInterface::renderObjectManager()
 
 				float* pos[3] = { &object->getPositionPtr()->x, &object->getPositionPtr()->y, &object->getPositionPtr()->z };
 				float* scale[3] = { &object->getScalePtr()->x, &object->getScalePtr()->y, &object->getScalePtr()->z };
-				float* ambient[3] = { &object->getMaterialPtr()->getAmbientPtr()->x, &object->getMaterialPtr()->getAmbientPtr()->y, &object->getMaterialPtr()->getAmbientPtr()->z };
-				float* diffuse[3] = { &object->getMaterialPtr()->getDiffusePtr()->x, &object->getMaterialPtr()->getDiffusePtr()->y, &object->getMaterialPtr()->getDiffusePtr()->z };
-				float* specular[3] = { &object->getMaterialPtr()->getSpecularPtr()->x, &object->getMaterialPtr()->getSpecularPtr()->y, &object->getMaterialPtr()->getSpecularPtr()->z };
 
 				ImGui::Text("Selected Object: %s", object->getName().c_str());
 				ImGui::Separator();
@@ -353,28 +350,19 @@ void UserInterface::renderObjectManager()
 
 				if (ImGui::TreeNode("Material"))
 				{
-					if (ImGui::BeginCombo("Shader", object->getShaderPtr()->getName().c_str()))
+					if (ImGui::BeginCombo("Shader", object->getMaterialPtr()->getName().c_str()))
 					{
-						for (auto& shader : ShaderLib::g_shaders)
+						for (auto& shader : MaterialLib::g_materials)
 						{
-							bool isSelected = object->getShaderPtr() == shader.second;
+							bool isSelected = object->getMaterialPtr() == shader.second;
 							if (ImGui::Selectable(shader.second->getName().c_str(), isSelected))
-								object->setShader(shader.second);
+								object->setMaterial(shader.second);
 							if (isSelected)
 								ImGui::SetItemDefaultFocus();
 						}
 
 						ImGui::EndCombo();
 					}
-
-					ImGui::ColorEdit3("Ambient", *ambient, ImGuiColorEditFlags_NoInputs);
-					ImGui::SameLine();
-					ImGui::ColorEdit3("Diffuse", *diffuse, ImGuiColorEditFlags_NoInputs);
-					ImGui::SameLine();
-					ImGui::ColorEdit3("Specular", *specular, ImGuiColorEditFlags_NoInputs);
-
-					ImGui::SetNextItemWidth(80.f);
-					ImGui::InputFloat("Shininess", object->getMaterialPtr()->getShininessPtr());
 
 					ImGui::Image((void*)(intptr_t)object->getTexture(), ImVec2(150, 150));
 					ImGui::SameLine();

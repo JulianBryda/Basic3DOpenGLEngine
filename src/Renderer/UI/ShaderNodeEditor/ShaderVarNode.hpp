@@ -9,36 +9,39 @@
 #include "../../../ThirdParty/ImNodes/imnodes.h"
 #include "../../Data/ShaderNode/ShaderVar.hpp"
 
-enum ShaderNodeCategory
+namespace ShaderVarNodeEnums
 {
-	Input,
-	Output,
-	Color,
-	Converter,
-	Shader,
-	Texture
-};
+	enum ShaderNodeCategory
+	{
+		Input,
+		Output,
+		Color,
+		Converter,
+		Shader,
+		Texture
+	};
 
-enum ShaderVarNodeType
-{
-	Var,
-	Function,
-	Uniform
-};
+	enum ShaderVarNodeType
+	{
+		Var,
+		Function,
+		Uniform
+	};
+}
 
 template <typename T>
 class ShaderVarNode
 {
 public:
 
-	ShaderVarNode(int id, std::string name, T* value, ShaderNodeCategory category)
+	ShaderVarNode(int id, std::string name, T* value, ShaderVarNodeEnums::ShaderNodeCategory category, ShaderVarPrefix prefix = None)
 	{
 		this->id = id;
 		this->name = name;
 		this->category = category;
-		this->type = ShaderVarNodeType::Var;
+		this->type = ShaderVarNodeEnums::ShaderVarNodeType::Var;
 
-		this->shaderVar = new ShaderVar(id, value);
+		this->shaderVar = new ShaderVar(id, value, prefix);
 	}
 
 	~ShaderVarNode()
@@ -61,12 +64,15 @@ public:
 			}
 			ImNodes::EndNodeTitleBar();
 
-			renderBody(shaderVar->value);
+			if (shaderVar && shaderVar->value)
+			{
+				renderBody(shaderVar->value);
+			}
 
 			for (int i = 0; i < inputs.size(); i++)
 			{
 				auto& input = inputs[i];
-				ImNodes::BeginInputAttribute(i + 1 + id * 50);
+				ImNodes::BeginInputAttribute(id * 500 + i + 2);
 				{
 					ImGui::TextUnformatted(input.second.c_str());
 				}
@@ -75,7 +81,7 @@ public:
 
 			if (output.has_value())
 			{
-				ImNodes::BeginOutputAttribute(id * 50);
+				ImNodes::BeginOutputAttribute(id * 500 + 1);
 				{
 					ImGui::TextUnformatted(output.value().second.c_str());
 				}
@@ -93,31 +99,88 @@ public:
 	template <typename V>
 	void renderBody(V* value)
 	{
-		throw std::runtime_error("Type unknown!");
+		throw std::runtime_error("No render function for type!");
 	}
 
-	// TODO EXTEN THIS FUCKING renderBody TO SUPPORT MORE TYPES!!
-
-	template <>
+	template<>
 	void renderBody(int* value)
 	{
 		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragInt(std::format("##{}", id * 50).c_str(), value);
+		ImGui::DragInt(std::format("##{}{}", name, id).c_str(), value);
 	}
+
+	template<>
+	void renderBody(float* value)
+	{
+		ImGui::SetNextItemWidth(80.f);
+		ImGui::DragFloat(std::format("##{}{}", name, id).c_str(), value, 0.1f);
+	}
+
+	template<>
+	void renderBody(glm::vec2* value)
+	{
+		ImGui::SetNextItemWidth(80.f);
+		ImGui::DragFloat(std::format("##{}{}", name, id).c_str(), &value->x, 0.1f);
+		ImGui::SetNextItemWidth(80.f);
+		ImGui::DragFloat(std::format("##{}{}", name, id + 1).c_str(), &value->y, 0.1f);
+	}
+
+	template<>
+	void renderBody(glm::vec3* value)
+	{
+		ImGui::SetNextItemWidth(80.f);
+		ImGui::DragFloat(std::format("##{}{}", name, id).c_str(), &value->x, 0.1f);
+		ImGui::SetNextItemWidth(80.f);
+		ImGui::DragFloat(std::format("##{}{}", name, id + 1).c_str(), &value->y, 0.1f);
+		ImGui::SetNextItemWidth(80.f);
+		ImGui::DragFloat(std::format("##{}{}", name, id + 2).c_str(), &value->z, 0.1f);
+	}
+
+	template<>
+	void renderBody(glm::vec4* value)
+	{
+		ImGui::SetNextItemWidth(80.f);
+		ImGui::DragFloat(std::format("##{}{}", name, id).c_str(), &value->x, 0.1f);
+		ImGui::SetNextItemWidth(80.f);
+		ImGui::DragFloat(std::format("##{}{}", name, id + 1).c_str(), &value->y, 0.1f);
+		ImGui::SetNextItemWidth(80.f);
+		ImGui::DragFloat(std::format("##{}{}", name, id + 2).c_str(), &value->z, 0.1f);
+		ImGui::SetNextItemWidth(80.f);
+		ImGui::DragFloat(std::format("##{}{}", name, id + 3).c_str(), &value->a, 0.1f);
+	}
+
+	int getId() { return id; }
+	std::string getName() { return name; }
+	std::vector<std::pair<GLint, std::string>>& getInputs() { return inputs; }
 
 	std::string getShaderCode()
 	{
 		return this->shaderVar->getShaderCode();
 	}
 
-	ShaderVarNodeType getType()
+	ShaderVarNodeEnums::ShaderVarNodeType getType()
 	{
 		return type;
 	}
 
+	std::string getTypeName()
+	{
+		switch (type)
+		{
+		case ShaderVarNodeEnums::ShaderVarNodeType::Var:
+			return "var";
+		case ShaderVarNodeEnums::ShaderVarNodeType::Uniform:
+			return "uniform";
+		case ShaderVarNodeEnums::ShaderVarNodeType::Function:
+			return "func";
+		default:
+			return "Unknown";
+		}
+	}
+
 	int id;
 	std::string name;
-	ShaderNodeCategory category;
+	ShaderVarNodeEnums::ShaderNodeCategory category;
 
 	std::vector<std::pair<GLint, std::string>> inputs;
 	std::optional<std::pair<GLint, std::string>> output;
@@ -126,35 +189,42 @@ public:
 
 protected:
 
-	ShaderVarNode(int id, std::string name, ShaderNodeCategory category)
+	ShaderVarNode(int id, std::string name, ShaderVarNodeEnums::ShaderNodeCategory category)
 	{
 		this->id = id;
 		this->name = name;
 		this->category = category;
 	}
 
-	ShaderVarNodeType type;
+	ShaderVarNodeEnums::ShaderVarNodeType type;
 
 private:
 
-	unsigned int getNodeColor(ShaderNodeCategory category) const
+	unsigned int getNodeColor(ShaderVarNodeEnums::ShaderNodeCategory category) const
 	{
 		switch (category)
 		{
-		case ShaderNodeCategory::Input:
+		case ShaderVarNodeEnums::ShaderNodeCategory::Input:
 			return IM_COL32(80, 80, 80, 255);
-		case ShaderNodeCategory::Output:
+		case ShaderVarNodeEnums::ShaderNodeCategory::Output:
 			return IM_COL32(100, 30, 30, 255);
-		case ShaderNodeCategory::Color:
+		case ShaderVarNodeEnums::ShaderNodeCategory::Color:
 			return IM_COL32(110, 110, 30, 255);
-		case ShaderNodeCategory::Converter:
+		case ShaderVarNodeEnums::ShaderNodeCategory::Converter:
 			return IM_COL32(35, 100, 130, 255);
-		case ShaderNodeCategory::Shader:
+		case ShaderVarNodeEnums::ShaderNodeCategory::Shader:
 			return IM_COL32(40, 100, 40, 255);
-		case ShaderNodeCategory::Texture:
+		case ShaderVarNodeEnums::ShaderNodeCategory::Texture:
 			return IM_COL32(120, 70, 30, 255);
 		default:
 			return IM_COL32(0, 0, 0, 255);
 		}
 	}
 };
+
+
+typedef ShaderVarNode<int> IntVarNode;
+typedef ShaderVarNode<float> FloatVarNode;
+typedef ShaderVarNode<glm::vec2> Vec2VarNode;
+typedef ShaderVarNode<glm::vec3> Vec3VarNode;
+typedef ShaderVarNode<glm::vec4> Vec4VarNode;

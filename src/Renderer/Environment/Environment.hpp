@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "../../Scene/Scene.hpp"
-#include "../Graphics/ShaderOLD.hpp"
+#include "../Graphics/Material.hpp"
 
 namespace Environment
 {
@@ -17,14 +17,14 @@ namespace Environment
 		{
 			if (object->getHidden()) continue;
 
-			ShaderOLD* shader = object->getShaderPtr();
-			shader->use();
+			Material* material = object->getMaterialPtr();
+			material->use();
 
-			shader->setMat4("projectionMatrix", activeScene->getActiveCamera()->getProjectionMatrix());
-			shader->setMat4("viewMatrix", activeScene->getActiveCamera()->getViewMatrix());
-			shader->setMat4("modelMatrix", object->getModelMatrix());
+			material->setMat4("projectionMatrix", activeScene->getActiveCamera()->getProjectionMatrix());
+			material->setMat4("viewMatrix", activeScene->getActiveCamera()->getViewMatrix());
+			material->setMat4("modelMatrix", object->getModelMatrix());
 
-			shader->setTexture(object->getTextureType(), object->getTexture(), GL_TEXTURE0);
+			material->setTexture(object->getTextureType(), object->getTexture(), GL_TEXTURE0);
 
 			object->draw();
 		}

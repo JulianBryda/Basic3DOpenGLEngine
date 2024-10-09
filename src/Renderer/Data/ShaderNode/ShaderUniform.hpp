@@ -58,11 +58,11 @@ private:
 	{
 		if (this->arraySize > 1)
 		{
-			return std::format("uniform {} {}[{}];", name, "unif" + this->id, this->arraySize);
+			return std::format("uniform {} {}[{}];\n", name, "unif" + this->id, this->arraySize);
 		}
 		else
 		{
-			return std::format("uniform {} {};", name, "unif" + this->id);
+			return std::format("uniform {} {};\n", name, "unif" + this->id);
 		}
 	}
 

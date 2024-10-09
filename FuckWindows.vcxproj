@@ -195,7 +195,6 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="src\Renderer\Environment\Environment.hpp" />
     <ClInclude Include="src\Renderer\Graphics\Material.hpp" />
     <ClInclude Include="src\Renderer\Graphics\Shader.hpp" />
-    <ClInclude Include="src\Renderer\Graphics\ShaderOLD.hpp" />
     <ClInclude Include="src\Renderer\Lighting\Lighting.hpp" />
     <ClInclude Include="src\Renderer\Object\Object.hpp" />
     <ClInclude Include="src\Renderer\PostProcess\PostProcess.hpp" />
@@ -224,7 +223,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="src\Utils\AssetManager.hpp" />
     <ClInclude Include="src\Utils\GameObjectConstructor.hpp" />
     <ClInclude Include="src\Utils\ObjectLoader.hpp" />
-    <ClInclude Include="src\Utils\ShaderLib.hpp" />
+    <ClInclude Include="src\Utils\MaterialLib.hpp" />
     <ClInclude Include="src\Utils\ShaderNodeCompiler.hpp" />
     <ClInclude Include="src\Utils\StatTracker.hpp" />
     <ClInclude Include="src\Window\AppWindow.hpp" />
@@ -242,7 +241,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClCompile Include="src\Scene\Objects\GameObjectPhysics.cpp" />
     <ClCompile Include="src\ThirdParty\glad.c" />
     <ClCompile Include="src\ThirdParty\ImNodes\imnodes.cpp" />
-    <ClCompile Include="src\Utils\ShaderLib.cpp" />
+    <ClCompile Include="src\Utils\MaterialLib.cpp" />
     <ClCompile Include="src\Window\AppWindow.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

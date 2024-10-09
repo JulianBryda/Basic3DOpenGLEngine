@@ -5,7 +5,7 @@
 #include "../Globals/GlobalConfig.hpp"
 #include "../Globals/GlobalTextures.hpp"
 
-#include "../Utils/ShaderLib.hpp"
+#include "../Utils/MaterialLib.hpp"
 
 #include "../Window/InputHandler.hpp"
 
@@ -69,7 +69,7 @@ int main()
 	glPointSize(10.f);
 
 	// load shader
-	ShaderLib::precompileShaders();
+	MaterialLib::precompileMaterials();
 
 	// init InputHandler
 	InputHandler::getInstance().setWindow(window);

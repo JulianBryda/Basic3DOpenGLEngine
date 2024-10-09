@@ -8,9 +8,9 @@ class ShaderFunctionNode : public ShaderVarNode<T>
 
 public:
 
-	ShaderFunctionNode(int id, std::string name, std::string functionName, ShaderNodeCategory category) : ShaderVarNode<T>(id, name, category)
+	ShaderFunctionNode(int id, std::string name, std::string functionName, ShaderVarNodeEnums::ShaderNodeCategory category) : ShaderVarNode<T>(id, name, category)
 	{
-		this->type = ShaderVarNodeType::Function;
+		this->type = ShaderVarNodeEnums::ShaderVarNodeType::Function;
 
 		this->shaderVar = new ShaderFunction<T>(id, functionName, getNameList(this->inputs));
 	}

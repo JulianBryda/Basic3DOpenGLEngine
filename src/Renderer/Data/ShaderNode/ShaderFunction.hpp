@@ -54,7 +54,7 @@ private:
 
 	std::string getFunctionCode(const char* type, std::string& inputList)
 	{
-		return std::format("{} {}{} = {}({});", type, "func", this->id, this->functionName, inputList);
+		return std::format("{} {}{} = {}({});\n", type, "func", this->id, this->functionName, inputList);
 	}
 
 	std::string join(const std::vector<std::string>& strings, const std::string& delimiter) const

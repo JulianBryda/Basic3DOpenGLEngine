@@ -7,7 +7,7 @@ class Camera : public GameObject
 
 public:
 
-	Camera(std::string name, bool isOrtho) : GameObject(name, ".\\Assets\\Objects\\Camera.obj", ShaderLib::get("color.glsl"), ColliderType::NONE)
+	Camera(std::string name, bool isOrtho) : GameObject(name, ".\\Assets\\Objects\\Camera.obj", MaterialLib::get("color"), ColliderType::NONE)
 	{
 		this->m_anchor = glm::vec3(0.0f);
 		this->m_view = glm::lookAt(this->position, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -35,10 +35,10 @@ public:
 
 	void initParameterAtlas() override
 	{
-		parameterAtlas.insert({ std::hash<std::string>()("viewPos"), ShaderOLD::Parameter<glm::vec3>("viewPos", 1, &position) });
+		parameterAtlas.insert({ std::hash<std::string>()("viewPos"), Material::Parameter<glm::vec3>("viewPos", 1, &position) });
 
-		parameterAtlas.insert({ std::hash<std::string>()("projectionMatrix"), ShaderOLD::Parameter<glm::mat4>("projectionMatrix", 1, &m_projection) });
-		parameterAtlas.insert({ std::hash<std::string>()("viewMatrix"), ShaderOLD::Parameter<glm::mat4>("viewMatrix", 1, &m_view) });
+		parameterAtlas.insert({ std::hash<std::string>()("projectionMatrix"), Material::Parameter<glm::mat4>("projectionMatrix", 1, &m_projection) });
+		parameterAtlas.insert({ std::hash<std::string>()("viewMatrix"), Material::Parameter<glm::mat4>("viewMatrix", 1, &m_view) });
 	}
 
 	// getter

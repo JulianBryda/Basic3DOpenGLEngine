@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "../../Scene/Scene.hpp"
-#include "../Graphics/ShaderOLD.hpp"
+#include "../Graphics/Material.hpp"
 
 namespace Lighting
 {
@@ -14,21 +14,21 @@ namespace Lighting
 
 		for (auto& light : activeScene->getLights())
 		{
-			ShaderOLD* shader = ShaderLib::get("depth.glsl");
-			shader->use();
+			Material* material = MaterialLib::get("depth");
+			material->use();
 
 			if (light->getLightType() == Directional)
 			{
 				glm::vec3 max = glm::vec3(0.f);
 				glm::vec3 min = activeScene->getWorldBBMinMax(max);
 
-				shader->setMat4("projectionMatrix", light->getProjectionMatrix(min, max));
+				material->setMat4("projectionMatrix", light->getProjectionMatrix(min, max));
 			}
 			else
 			{
-				shader->setMat4("projectionMatrix", light->getProjectionMatrix());
+				material->setMat4("projectionMatrix", light->getProjectionMatrix());
 			}
-			shader->setMat4("viewMatrix", light->getViewMatrix());
+			material->setMat4("viewMatrix", light->getViewMatrix());
 
 			glViewport(0, 0, light->getShadowWidth(), light->getShadowHeight());
 			glBindFramebuffer(GL_FRAMEBUFFER, light->getDepthMapFBO());
@@ -36,7 +36,7 @@ namespace Lighting
 
 			for (auto& object : activeScene->getObjects())
 			{
-				shader->setMat4("modelMatrix", object->getModelMatrix());
+				material->setMat4("modelMatrix", object->getModelMatrix());
 
 				object->draw();
 			}

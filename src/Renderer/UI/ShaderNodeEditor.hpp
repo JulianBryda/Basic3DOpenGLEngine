@@ -2,9 +2,9 @@
 #include <algorithm>
 
 #include "../../ThirdParty/ImNodes/imnodes.h"
-#include "../UI/ShaderNodeEditor/ShaderVarNode.hpp"
-#include "../UI/ShaderNodeEditor/ShaderUniformNode.hpp"
-#include "../UI/ShaderNodeEditor/ShaderFunctionNode.hpp"
+#include "ShaderNodeEditor/ShaderVarNode.hpp"
+#include "ShaderNodeEditor/ShaderUniformNode.hpp"
+#include "ShaderNodeEditor/ShaderFunctionNode.hpp"
 
 class ShaderNodeEditor
 {
@@ -130,36 +130,40 @@ private:
 			{
 				if (ImGui::MenuItem("Int"))
 				{
-					static int test = 235;
-					ShaderVarNode<int>* node = new ShaderVarNode<int>(nodes.size(), "Int", &test, ShaderNodeCategory::Input);
+					static int test = 0;
+					IntVarNode* node = new IntVarNode(nodes.size(), "Int", &test, ShaderVarNodeEnums::ShaderNodeCategory::Input);
 					node->output = { GL_INT, "Value" };
 
 					nodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Float"))
 				{
-					ShaderVarNode<float>* node = new ShaderVarNode<float>(nodes.size(), "Float", nullptr, ShaderNodeCategory::Input);
+					static float test = 1;
+					FloatVarNode* node = new FloatVarNode(nodes.size(), "Float", &test, ShaderVarNodeEnums::ShaderNodeCategory::Input);
 					node->output = { GL_FLOAT, "Value" };
 
 					nodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Vec2"))
 				{
-					ShaderVarNode<glm::vec2>* node = new ShaderVarNode<glm::vec2>(nodes.size(), "Vec2", nullptr, ShaderNodeCategory::Input);
+					static glm::vec2 test = glm::vec2();
+					ShaderVarNode<glm::vec2>* node = new Vec2VarNode(nodes.size(), "Vec2", &test, ShaderVarNodeEnums::ShaderNodeCategory::Input);
 					node->output = { GL_FLOAT_VEC2, "Value" };
 
 					nodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Vec3"))
 				{
-					ShaderVarNode<glm::vec3>* node = new ShaderVarNode<glm::vec3>(nodes.size(), "Vec3", nullptr, ShaderNodeCategory::Input);
+					static glm::vec3 test = glm::vec3();
+					Vec3VarNode* node = new Vec3VarNode(nodes.size(), "Vec3", &test, ShaderVarNodeEnums::ShaderNodeCategory::Input);
 					node->output = { GL_FLOAT_VEC3, "Value" };
 
 					nodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Vec4"))
 				{
-					ShaderVarNode<glm::vec4>* node = new ShaderVarNode<glm::vec4>(nodes.size(), "Vec4", nullptr, ShaderNodeCategory::Input);
+					static glm::vec4 test = glm::vec4();
+					Vec4VarNode* node = new Vec4VarNode(nodes.size(), "Vec4", &test, ShaderVarNodeEnums::ShaderNodeCategory::Input);
 					node->output = { GL_FLOAT_VEC4, "Value" };
 
 					nodes.push_back(node);
@@ -169,7 +173,7 @@ private:
 
 				if (ImGui::MenuItem("Time"))
 				{
-					ShaderUniformNode<float>* node = new ShaderUniformNode<float>(nodes.size(), "Time", ShaderNodeCategory::Input, 1);
+					ShaderUniformNode<float>* node = new ShaderUniformNode<float>(nodes.size(), "Time", ShaderVarNodeEnums::ShaderNodeCategory::Input, 1);
 					node->inputs.push_back({ GL_FLOAT, "Value" });
 
 					nodes.push_back(node);
@@ -181,7 +185,7 @@ private:
 			{
 				if (ImGui::MenuItem("Output"))
 				{
-					ShaderVarNode<int>* node = new ShaderVarNode<int>(nodes.size(), "Output", nullptr, ShaderNodeCategory::Output);
+					ShaderVarNode<int>* node = new ShaderVarNode<int>(nodes.size(), "Output", nullptr, ShaderVarNodeEnums::ShaderNodeCategory::Output, ShaderVarPrefix::Out);
 					node->inputs.push_back({ 0, "Output" });
 
 					nodes.push_back(node);
@@ -196,7 +200,7 @@ private:
 			{
 				if (ImGui::MenuItem("Mix Color"))
 				{
-					ShaderFunctionNode<glm::vec3>* node = new ShaderFunctionNode<glm::vec3>(nodes.size(), "Mix Color", "mix", ShaderNodeCategory::Color);
+					ShaderFunctionNode<glm::vec3>* node = new ShaderFunctionNode<glm::vec3>(nodes.size(), "Mix Color", "mix", ShaderVarNodeEnums::ShaderNodeCategory::Color);
 					node->inputs.push_back({ GL_FLOAT_VEC3 | GL_FLOAT_VEC4, "Color" });
 
 					nodes.push_back(node);
@@ -255,27 +259,76 @@ private:
 		for (auto& node : nodes)
 		{
 			std::visit([&](auto& shaderNode) {
-				if (shaderNode->getType() == ShaderVarNodeType::Var)
+				if (shaderNode->getType() == ShaderVarNodeEnums::ShaderVarNodeType::Var)
 				{
 					vars += shaderNode->getShaderCode();
 				}
-				else if (shaderNode->getType() == ShaderVarNodeType::Uniform)
+				else if (shaderNode->getType() == ShaderVarNodeEnums::ShaderVarNodeType::Uniform)
 				{
 					uniforms += shaderNode->getShaderCode();
 				}
-				else if (shaderNode->getType() == ShaderVarNodeType::Function)
+				else if (shaderNode->getType() == ShaderVarNodeEnums::ShaderVarNodeType::Function)
 				{
 					functions += shaderNode->getShaderCode();
 				}
 				}, node);
 		}
 
-		auto test = 0;
+		for (int i = 0; i < links.size(); i++)
+		{
+			auto& link = links[i];
+			auto nodeFirst = findNodeByAttribId(link.first);
+			auto nodeSecond = findNodeByAttribId(link.second);
+
+			std::visit([&](auto& valueFirst, auto& valueSecond) {
+
+				if (valueSecond->getType() == ShaderVarNodeEnums::ShaderVarNodeType::Var)
+				{
+					mainBody += std::format("{}{} = {}{};", valueSecond->getTypeName(), valueSecond->getId(), valueFirst->getTypeName(), valueFirst->getId());
+				}
+
+				}, nodeFirst, nodeSecond);
+		}
+
+		std::string shader = std::string("out vec4 FragColor;\n\n")
+			+ uniforms
+			+ "\n"
+			+ vars
+			+ "\n"
+			+ functions
+			+ "\n"
+			+ "void main()\n"
+			+ "{\n"
+			+ mainBody
+			+ "\n"
+			+ "}";
+
+
 	}
 
 	using ShaderNode = std::variant<ShaderVarNode<int>*, ShaderVarNode<float>*, ShaderVarNode<glm::vec2>*, ShaderVarNode<glm::vec3>*, ShaderVarNode<glm::vec4>*, ShaderVarNode<glm::mat4>*>;
 
+	ShaderNode findNodeByAttribId(int attribId)
+	{
+		ShaderNode shaderNode;
+
+		for (auto& node : nodes)
+		{
+			std::visit([&](auto& value)
+				{
+					int nodeId = attribId / 500;
+					if (nodeId == value->getId())
+					{
+						shaderNode = value;
+					}
+
+				}, node);
+		}
+
+		return shaderNode;
+	}
+
 	std::vector<ShaderNode> nodes;
-	std::vector<std::pair<int, int>> links;
+	std::vector<std::pair<int, int>> links;	// std::pair<startId, endId>
 
 };

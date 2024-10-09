@@ -15,7 +15,7 @@ public:
 
 	Renderer()
 	{
-		m_pDebugShader = ShaderLib::get("debug.glsl");
+		m_pDebugMaterial = MaterialLib::get("debug");
 		m_activeScene = new Scene();
 		addScene(m_activeScene);
 	}
@@ -35,16 +35,16 @@ public:
 		return m_activeScene;
 	}
 
-	ShaderOLD* getDebugShader() const
+	Material* getDebugMaterial() const
 	{
-		return m_pDebugShader;
+		return m_pDebugMaterial;
 	}
 
 	// setter
 
-	void setDebugShader(ShaderOLD* shader)
+	void setDebugMaterial(Material* shader)
 	{
-		m_pDebugShader = shader;
+		m_pDebugMaterial = shader;
 	}
 
 	void setActiveScene(Scene* scene)
@@ -89,5 +89,5 @@ private:
 	std::vector<Scene*> m_scenes;
 	Scene* m_activeScene;
 
-	ShaderOLD* m_pDebugShader;
+	Material* m_pDebugMaterial;
 };

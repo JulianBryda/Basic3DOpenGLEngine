@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 
 #include "../../Collider.hpp"
-#include "../../Utils/ShaderLib.hpp"
+#include "../../Utils/MaterialLib.hpp"
 #include "../../Renderer/Data/Mesh.hpp"
 
 class GameObject;

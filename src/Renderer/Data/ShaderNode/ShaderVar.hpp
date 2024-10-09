@@ -5,16 +5,24 @@
 
 #include <glm/glm.hpp>
 
+enum ShaderVarPrefix
+{
+	None,
+	In,
+	Out
+};
+
 template <typename T>
 class ShaderVar
 {
 
 public:
 
-	ShaderVar(int id, T* value)
+	ShaderVar(int id, T* value, ShaderVarPrefix prefix = None)
 	{
 		this->id = id;
 		this->value = value;
+		this->prefix = prefix;
 	}
 
 	~ShaderVar()
@@ -53,6 +61,7 @@ public:
 
 	int id;
 	T* value;
+	ShaderVarPrefix prefix;
 
 protected:
 
@@ -60,11 +69,24 @@ protected:
 	{
 		if (value)
 		{
-			return std::format("{} {}{} = {};", type, "var", this->id, getValue<T>(*value));
+			return std::format("{}{} {}{} = {};\n", getPrefix(), type, "var", this->id, getValue<T>(*value));
 		}
 		else
 		{
-			return std::format("{} {}{};", type, "var", this->id);
+			return std::format("{}{} {}{};\n", getPrefix(), type, "var", this->id);
+		}
+	}
+
+	std::string getPrefix()
+	{
+		switch (prefix)
+		{
+		case In:
+			return "in ";
+		case Out:
+			return "out ";
+		default:
+			return "";
 		}
 	}
 
@@ -85,7 +107,7 @@ protected:
 	{
 		return std::to_string(value);
 	}
-	
+
 	template<>
 	std::string getValue(const glm::vec2& value)
 	{

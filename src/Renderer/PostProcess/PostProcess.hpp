@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "../../Scene/Scene.hpp"
-#include "../Graphics/ShaderOLD.hpp"
+#include "../Graphics/Material.hpp"
 
 class PostProcess
 {
@@ -49,30 +49,30 @@ public:
 		{
 			if (visualizeNormals)
 			{
-				ShaderOLD* shader = ShaderLib::get("visualizeNormals.glsl");
-				shader->use();
+				Material* material = MaterialLib::get("visualizeNormals");
+				material->use();
 
-				shader->setMat4("projectionMatrix", activeScene->getActiveCamera()->getProjectionMatrix());
-				shader->setMat4("viewMatrix", activeScene->getActiveCamera()->getViewMatrix());
-				shader->setMat4("modelMatrix", object->getModelMatrix());
+				material->setMat4("projectionMatrix", activeScene->getActiveCamera()->getProjectionMatrix());
+				material->setMat4("viewMatrix", activeScene->getActiveCamera()->getViewMatrix());
+				material->setMat4("modelMatrix", object->getModelMatrix());
 
 				object->draw();
 			}
 
 			if (object->getIsOutline())
 			{
-				ShaderOLD* shader = ShaderLib::get("color.glsl");
-				shader->use();
+				Material* material = MaterialLib::get("color");
+				material->use();
 
-				shader->setMat4("projectionMatrix", activeScene->getActiveCamera()->getProjectionMatrix());
-				shader->setMat4("viewMatrix", activeScene->getActiveCamera()->getViewMatrix());
-				shader->setMat4("modelMatrix", object->getModelMatrix());
+				material->setMat4("projectionMatrix", activeScene->getActiveCamera()->getProjectionMatrix());
+				material->setMat4("viewMatrix", activeScene->getActiveCamera()->getViewMatrix());
+				material->setMat4("modelMatrix", object->getModelMatrix());
 
-				shader->setFloat4("color", glm::vec4(1.f, 0.6f, 0.f, 1.f));
+				material->setFloat4("color", glm::vec4(1.f, 0.6f, 0.f, 1.f));
 
 				createOutline(object);
 
-				renderOutline(object, activeScene, shader);
+				renderOutline(object, activeScene, material);
 
 				renderOrigin();
 			}
@@ -105,7 +105,7 @@ private:
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	}
 
-	void renderOutline(GameObject* object, Scene* activeScene, ShaderOLD* shader)
+	void renderOutline(GameObject* object, Scene* activeScene, Material* material)
 	{
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 
@@ -121,7 +121,7 @@ private:
 				glm::radians(object->getRotation().y), glm::vec3(0.f, 1.f, 0.f)),
 			glm::radians(object->getRotation().z), glm::vec3(0.f, 0.f, 1.f));
 
-		shader->setMat4("modelMatrix", outlineModelMatrix);
+		material->setMat4("modelMatrix", outlineModelMatrix);
 
 		object->draw();
 

@@ -171,7 +171,7 @@
     <ClInclude Include="src\Renderer\Graphics\Material.hpp">
       <Filter>src\Renderer\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="src\Renderer\Graphics\ShaderOLD.hpp">
+    <ClInclude Include="src\Renderer\Graphics\Shader.hpp">
       <Filter>src\Renderer\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\UI\UserInterface.hpp">
@@ -234,7 +234,7 @@
     <ClInclude Include="src\Utils\ObjectLoader.hpp">
       <Filter>src\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils\ShaderLib.hpp">
+    <ClInclude Include="src\Utils\MaterialLib.hpp">
       <Filter>src\Utils</Filter>
     </ClInclude>
     <ClInclude Include="src\Utils\StatTracker.hpp">
@@ -266,9 +266,6 @@
     </ClInclude>
     <ClInclude Include="src\Utils\ShaderNodeCompiler.hpp">
       <Filter>src\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Renderer\Graphics\Shader.hpp">
-      <Filter>src\Renderer\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderFunctionNode.hpp">
       <Filter>src\Renderer\UI\ShaderNodeEditor</Filter>
@@ -323,7 +320,7 @@
     <ClCompile Include="src\Landscape.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Utils\ShaderLib.cpp">
+    <ClCompile Include="src\Utils\MaterialLib.cpp">
       <Filter>src\Utils</Filter>
     </ClCompile>
     <ClCompile Include="src\ThirdParty\ImNodes\imnodes.cpp">

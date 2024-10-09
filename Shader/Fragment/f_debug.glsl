@@ -1,15 +1,7 @@
 #version 460 core
-struct Material
-{
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
-	float shininess;
-};
 
 out vec4 FragColor;
 
-uniform Material material;
 uniform vec3 viewPos;
 
 in vec3 fragPos;
@@ -24,5 +16,5 @@ void main()
 	float dotProd = dot(norm, viewDir);
 	float diff = max(dotProd, 0.0);
 	
-	FragColor = vec4(diff * material.diffuse, 1.0);
+	FragColor = vec4(diff * vec3(1.0), 1.0);
 } 

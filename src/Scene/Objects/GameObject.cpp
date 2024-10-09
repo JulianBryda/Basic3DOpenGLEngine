@@ -2,7 +2,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-GameObject::GameObject(std::string name, Mesh mesh, ShaderOLD* shader, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
+GameObject::GameObject(std::string name, Mesh mesh, Material* pMaterial, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
 {
 	this->m_name = name;
 	this->position = glm::vec3(0.0f);
@@ -11,8 +11,7 @@ GameObject::GameObject(std::string name, Mesh mesh, ShaderOLD* shader, ColliderT
 	this->m_hidden = false;
 	this->m_outline = false;
 
-	this->m_material = Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 64.0f);
-	this->m_pShader = shader;
+	this->m_pMaterial = pMaterial;
 	this->mesh = mesh;
 
 	genBuffers();
@@ -21,7 +20,7 @@ GameObject::GameObject(std::string name, Mesh mesh, ShaderOLD* shader, ColliderT
 	initParameterAtlas();
 }
 
-GameObject::GameObject(std::string name, std::string path, ShaderOLD* shader, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
+GameObject::GameObject(std::string name, std::string path, Material* pMaterial, ColliderType colliderType) : GameObjectCollisions(this, colliderType), GameObjectPhysics(this)
 {
 	this->m_name = name;
 	this->position = glm::vec3(0.0f);
@@ -30,8 +29,7 @@ GameObject::GameObject(std::string name, std::string path, ShaderOLD* shader, Co
 	this->m_hidden = false;
 	this->m_outline = false;
 
-	this->m_material = Material(glm::vec4(0.1f), glm::vec3(1.0f), glm::vec3(1.0f), 64.0f);
-	this->m_pShader = shader;
+	this->m_pMaterial = pMaterial;
 
 	ObjectLoader::load_model_mesh_assimp(path.c_str(), mesh);
 
@@ -50,8 +48,7 @@ GameObject::GameObject(const GameObject& other) : GameObjectCollisions(this, oth
 	this->m_hidden = other.m_hidden;
 	this->m_outline = other.m_outline;
 
-	this->m_material = Material(other.m_material);
-	this->m_pShader = other.m_pShader;
+	this->m_pMaterial = other.m_pMaterial;
 	this->mesh = Mesh(other.mesh);
 
 	this->m_texture = other.m_texture;
@@ -227,9 +224,7 @@ glm::mat4 GameObject::getModelMatrix()
 GLuint GameObject::getTexture() const { return this->m_texture; }
 GLenum GameObject::getTextureType() const { return this->m_textureType; }
 
-ShaderOLD* GameObject::getShaderPtr() const { return m_pShader; }
-
-Material* GameObject::getMaterialPtr() { return &m_material; }
+Material* GameObject::getMaterialPtr() { return m_pMaterial; }
 
 Mesh& GameObject::getMesh() { return this->mesh; }
 Mesh* GameObject::getMeshPtr() { return &this->mesh; }
@@ -241,13 +236,9 @@ void GameObject::setScale(glm::vec3 scale) { this->scale = scale; }
 void GameObject::setIsHidden(bool isHidden) { this->m_hidden = isHidden; }
 void GameObject::setIsOutline(bool isOutline) { this->m_outline = isOutline; }
 
-void GameObject::setShader(ShaderOLD* shader)
-{
-	this->m_pShader = shader;
-}
-
 std::string GameObject::getName() const { return m_name; }
 void GameObject::setName(std::string name) { m_name = name; }
+void GameObject::setMaterial(Material* pMaterial) { m_pMaterial = pMaterial; };
 
 // imgui ptr functions
 
