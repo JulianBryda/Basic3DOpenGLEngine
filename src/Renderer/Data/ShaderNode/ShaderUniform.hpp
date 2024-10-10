@@ -4,13 +4,12 @@
 
 #include "ShaderVar.hpp"
 
-template <typename T>
-class ShaderUniform : public ShaderVar<T>
+class ShaderUniform : public ShaderVar
 {
 
 public:
 
-	ShaderUniform(int id, std::string uniformName, int arraySize) : ShaderVar<T>(id, nullptr)
+	ShaderUniform(int id, std::string uniformName, GLint outputType, int arraySize) : ShaderVar(id, nullptr, outputType)
 	{
 		this->uniformName = uniformName;
 		this->arraySize = arraySize;
@@ -23,26 +22,7 @@ public:
 
 	std::string getShaderCode(std::vector<std::string>* inputNames) override
 	{
-		if (typeid(T) == typeid(glm::vec2))
-		{
-			return getUniformCode("vec2");
-		}
-		else if (typeid(T) == typeid(glm::vec3))
-		{
-			return getUniformCode("vec3");
-		}
-		else if (typeid(T) == typeid(glm::vec4))
-		{
-			return getUniformCode("vec4");
-		}
-		else if (typeid(T) == typeid(glm::mat4))
-		{
-			return getUniformCode("mat4");
-		}
-		else
-		{
-			return getUniformCode(typeid(T).name());
-		}
+		return getUniformCode(getTypeName());
 	}
 
 
@@ -54,15 +34,15 @@ public:
 
 private:
 
-	std::string getUniformCode(const char* name)
+	std::string getUniformCode(std::string varName)
 	{
 		if (this->arraySize > 1)
 		{
-			return std::format("uniform {} {}[{}];\n", name, "unif" + this->id, this->arraySize);
+			return std::format("uniform {} {}[{}];\n", varName, uniformName, this->arraySize);
 		}
 		else
 		{
-			return std::format("uniform {} {};\n", name, "unif" + this->id);
+			return std::format("uniform {} {};\n", varName, uniformName);
 		}
 	}
 

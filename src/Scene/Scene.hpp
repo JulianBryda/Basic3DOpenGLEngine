@@ -178,4 +178,5 @@ private:
 
 	std::vector<GameObject*> m_objects;
 	std::vector<GameObject*> m_envObjects;
+
 };

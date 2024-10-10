@@ -3,18 +3,18 @@
 #include "ShaderVarNode.hpp"
 #include "../../Data/ShaderNode/ShaderUniform.hpp"
 
-template <typename T>
-class ShaderUniformNode : public ShaderVarNode<T>
+class ShaderUniformNode : public ShaderVarNode
 {
 
 public:
 
-	ShaderUniformNode(int id, std::string name, std::vector<std::pair<GLint, std::string>>* inputs, ShaderVarNodeEnums::ShaderNodeCategory category, int arraySize) : ShaderVarNode<T>(id, name, inputs, category)
+	ShaderUniformNode(int id, std::string name, GLint outputType, ShaderNodeCategory category, int arraySize) : ShaderVarNode(id, name, category)
 	{
-		this->type = ShaderVarNodeEnums::ShaderVarNodeType::Uniform;
+		this->type = ShaderVarNodeType::Uniform;
 
 		std::transform(name.begin(), name.end(), name.begin(), [](unsigned char c) {return std::tolower(c); });
-		this->shaderVar = new ShaderUniform<T>(id, name, arraySize);
+
+		this->shaderVar = new ShaderUniform(id, name, outputType, arraySize);
 	}
 
 	~ShaderUniformNode()

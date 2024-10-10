@@ -9,8 +9,26 @@
 #include "../../../ThirdParty/ImNodes/imnodes.h"
 #include "../../Data/ShaderNode/ShaderVar.hpp"
 
-namespace ShaderVarNodeEnums
+struct ShaderNodeAttribute
 {
+	ShaderNodeAttribute(GLint type, const char* name)
+	{
+		this->id = 0;
+		this->type = type;
+		this->name = name;
+		this->immutable = type != 0;
+	}
+
+	int id;
+	GLint type;
+	const char* name;
+	bool immutable;
+};
+
+class ShaderVarNode
+{
+public:
+
 	enum ShaderNodeCategory
 	{
 		Input,
@@ -27,26 +45,21 @@ namespace ShaderVarNodeEnums
 		Function,
 		Uniform
 	};
-}
 
-template <typename T>
-class ShaderVarNode
-{
-public:
-
-	ShaderVarNode(int id, std::string name, T* value, ShaderVarNodeEnums::ShaderNodeCategory category, ShaderVarPrefix prefix = None)
+	ShaderVarNode(int id, std::string name, void* value, GLint outputType, ShaderNodeCategory category, ShaderVar::ShaderVarPrefix prefix = ShaderVar::None)
 	{
 		this->id = id;
 		this->name = name;
 		this->category = category;
-		this->type = ShaderVarNodeEnums::ShaderVarNodeType::Var;
+		this->type = ShaderVarNodeType::Var;
 
-		this->shaderVar = new ShaderVar(id, value, prefix);
+		this->shaderVar = new ShaderVar(id, value, outputType, prefix);
 	}
 
 	~ShaderVarNode()
 	{
 		delete shaderVar;
+		delete output;
 	}
 
 	void render()
@@ -66,24 +79,23 @@ public:
 
 			if (shaderVar && shaderVar->value)
 			{
-				renderBody(shaderVar->value);
+				renderBody();
 			}
 
-			for (int i = 0; i < inputs.size(); i++)
+			for (auto& input : inputs)
 			{
-				auto& input = inputs[i];
-				ImNodes::BeginInputAttribute(id * 500 + i + 2);
+				ImNodes::BeginInputAttribute(input.id);
 				{
-					ImGui::TextUnformatted(input.second.c_str());
+					ImGui::TextUnformatted(input.name);
 				}
 				ImNodes::EndInputAttribute();
 			}
 
-			if (output.has_value())
+			if (output != nullptr)
 			{
-				ImNodes::BeginOutputAttribute(id * 500 + 1);
+				ImNodes::BeginOutputAttribute(output->id);
 				{
-					ImGui::TextUnformatted(output.value().second.c_str());
+					ImGui::TextUnformatted(output->name);
 				}
 				ImNodes::EndOutputAttribute();
 			}
@@ -96,139 +108,194 @@ public:
 		if (ImNodes::IsNodeSelected(id)) ImNodes::PopColorStyle();
 	}
 
-	template <typename V>
-	void renderBody(V* value)
+	void renderBody()
 	{
-		throw std::runtime_error("No render function for type!");
+		switch (shaderVar->outputType)
+		{
+		case GL_INT:
+			renderIntBody();
+			break;
+		case GL_FLOAT:
+			renderFloatBody();
+			break;
+		case GL_FLOAT_VEC2:
+			renderVec2Body();
+			break;
+		case GL_FLOAT_VEC3:
+			renderVec3Body();
+			break;
+		case GL_FLOAT_VEC4:
+			renderVec4Body();
+			break;
+		default:
+			throw std::runtime_error("No body to render!");
+		}
 	}
 
-	template<>
-	void renderBody(int* value)
+	void renderIntBody()
 	{
 		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragInt(std::format("##{}{}", name, id).c_str(), value);
+		ImGui::DragInt(std::format("##{}{}", name, id).c_str(), static_cast<int*>(shaderVar->value));
 	}
 
-	template<>
-	void renderBody(float* value)
+	void renderFloatBody()
 	{
 		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat(std::format("##{}{}", name, id).c_str(), value, 0.1f);
+		ImGui::DragFloat(std::format("##{}{}", name, id).c_str(), static_cast<float*>(shaderVar->value), 0.1f);
 	}
 
-	template<>
-	void renderBody(glm::vec2* value)
+	void renderVec2Body()
 	{
 		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat(std::format("##{}{}", name, id).c_str(), &value->x, 0.1f);
+		ImGui::DragFloat(std::format("##{}{}", name, id).c_str(), &static_cast<glm::vec2*>(shaderVar->value)->x, 0.1f);
 		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat(std::format("##{}{}", name, id + 1).c_str(), &value->y, 0.1f);
+		ImGui::DragFloat(std::format("##{}{}", name, id + 1).c_str(), &static_cast<glm::vec2*>(shaderVar->value)->y, 0.1f);
 	}
 
-	template<>
-	void renderBody(glm::vec3* value)
+	void renderVec3Body()
 	{
 		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat(std::format("##{}{}", name, id).c_str(), &value->x, 0.1f);
+		ImGui::DragFloat(std::format("##{}{}", name, id).c_str(), &static_cast<glm::vec3*>(shaderVar->value)->x, 0.1f);
 		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat(std::format("##{}{}", name, id + 1).c_str(), &value->y, 0.1f);
+		ImGui::DragFloat(std::format("##{}{}", name, id + 1).c_str(), &static_cast<glm::vec3*>(shaderVar->value)->y, 0.1f);
 		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat(std::format("##{}{}", name, id + 2).c_str(), &value->z, 0.1f);
+		ImGui::DragFloat(std::format("##{}{}", name, id + 2).c_str(), &static_cast<glm::vec3*>(shaderVar->value)->z, 0.1f);
 	}
 
-	template<>
-	void renderBody(glm::vec4* value)
+	void renderVec4Body()
 	{
 		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat(std::format("##{}{}", name, id).c_str(), &value->x, 0.1f);
+		ImGui::DragFloat(std::format("##{}{}", name, id).c_str(), &static_cast<glm::vec4*>(shaderVar->value)->x, 0.1f);
 		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat(std::format("##{}{}", name, id + 1).c_str(), &value->y, 0.1f);
+		ImGui::DragFloat(std::format("##{}{}", name, id + 1).c_str(), &static_cast<glm::vec4*>(shaderVar->value)->y, 0.1f);
 		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat(std::format("##{}{}", name, id + 2).c_str(), &value->z, 0.1f);
+		ImGui::DragFloat(std::format("##{}{}", name, id + 2).c_str(), &static_cast<glm::vec4*>(shaderVar->value)->z, 0.1f);
 		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat(std::format("##{}{}", name, id + 3).c_str(), &value->a, 0.1f);
+		ImGui::DragFloat(std::format("##{}{}", name, id + 3).c_str(), &static_cast<glm::vec4*>(shaderVar->value)->a, 0.1f);
 	}
 
-	int getId() { return id; }
-	std::string getName() { return name; }
-	std::vector<std::pair<GLint, std::string>>& getInputs() { return inputs; }
-	ShaderVarNodeEnums::ShaderNodeCategory getCategory() { return category; }
+	int getId() const
+	{
+		return id;
+	}
+
+	std::string getName() const
+	{
+		return name;
+	}
+
+	ShaderNodeCategory getCategory() const
+	{
+		return category;
+	}
+
+	ShaderVarNodeType getType() const
+	{
+		return type;
+	}
+
+	ShaderNodeAttribute* getAttributeById(int id)
+	{
+		if (output && output->id == id)
+		{
+			return output;
+		}
+
+		for (auto& input : inputs)
+		{
+			if (input.id == id)
+			{
+				return &input;
+			}
+		}
+
+		return nullptr;
+	}
 
 	std::string getShaderCode(std::vector<std::string>* inputNames = nullptr)
 	{
 		return this->shaderVar->getShaderCode(inputNames);
 	}
 
-	ShaderVarNodeEnums::ShaderVarNodeType getType()
-	{
-		return type;
-	}
-
 	std::string getTypeName()
 	{
 		switch (type)
 		{
-		case ShaderVarNodeEnums::ShaderVarNodeType::Var:
+		case ShaderVarNodeType::Var:
 			return "var";
-		case ShaderVarNodeEnums::ShaderVarNodeType::Uniform:
+		case ShaderVarNodeType::Uniform:
 			return "uniform";
-		case ShaderVarNodeEnums::ShaderVarNodeType::Function:
+		case ShaderVarNodeType::Function:
 			return "func";
 		default:
 			return "Unknown";
 		}
 	}
 
+	void addInput(ShaderNodeAttribute attribute)
+	{
+		attribute.id = id * 500 + inputs.size() + 2;
+		inputs.push_back(attribute);
+	}
+
+	void setOutput(ShaderNodeAttribute* attribute)
+	{
+		assert(attribute != nullptr);
+
+		output = attribute;
+		output->id = id * 500 + 1;
+	}
+
+	ShaderNodeAttribute* getOutput() const
+	{
+		return output;
+	}
+
+	std::vector<ShaderNodeAttribute>& getInputs()
+	{
+		return inputs;
+	}
+
 	int id;
 	std::string name;
-	ShaderVarNodeEnums::ShaderNodeCategory category;
+	ShaderNodeCategory category;
 
-	std::vector<std::pair<GLint, std::string>> inputs;
-	std::optional<std::pair<GLint, std::string>> output;
-
-	ShaderVar<T>* shaderVar;
+	ShaderVar* shaderVar;
 
 protected:
 
-	ShaderVarNode(int id, std::string name, std::vector<std::pair<GLint, std::string>>* inputs, ShaderVarNodeEnums::ShaderNodeCategory category)
+	ShaderVarNode(int id, std::string name, ShaderNodeCategory category)
 	{
 		this->id = id;
 		this->name = name;
 		this->category = category;
-
-		if (inputs)
-			this->inputs = *inputs;
 	}
 
-	ShaderVarNodeEnums::ShaderVarNodeType type;
+	ShaderVarNodeType type;
+
+	std::vector<ShaderNodeAttribute> inputs;
+	ShaderNodeAttribute* output;
 
 private:
 
-	unsigned int getNodeColor(ShaderVarNodeEnums::ShaderNodeCategory category) const
+	unsigned int getNodeColor(ShaderNodeCategory category) const
 	{
 		switch (category)
 		{
-		case ShaderVarNodeEnums::ShaderNodeCategory::Input:
+		case ShaderNodeCategory::Input:
 			return IM_COL32(80, 80, 80, 255);
-		case ShaderVarNodeEnums::ShaderNodeCategory::Output:
+		case ShaderNodeCategory::Output:
 			return IM_COL32(100, 30, 30, 255);
-		case ShaderVarNodeEnums::ShaderNodeCategory::Color:
+		case ShaderNodeCategory::Color:
 			return IM_COL32(110, 110, 30, 255);
-		case ShaderVarNodeEnums::ShaderNodeCategory::Converter:
+		case ShaderNodeCategory::Converter:
 			return IM_COL32(35, 100, 130, 255);
-		case ShaderVarNodeEnums::ShaderNodeCategory::Shader:
+		case ShaderNodeCategory::Shader:
 			return IM_COL32(40, 100, 40, 255);
-		case ShaderVarNodeEnums::ShaderNodeCategory::Texture:
+		case ShaderNodeCategory::Texture:
 			return IM_COL32(120, 70, 30, 255);
 		default:
 			return IM_COL32(0, 0, 0, 255);
 		}
 	}
 };
-
-
-typedef ShaderVarNode<int> IntVarNode;
-typedef ShaderVarNode<float> FloatVarNode;
-typedef ShaderVarNode<glm::vec2> Vec2VarNode;
-typedef ShaderVarNode<glm::vec3> Vec3VarNode;
-typedef ShaderVarNode<glm::vec4> Vec4VarNode;

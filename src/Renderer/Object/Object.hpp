@@ -34,6 +34,7 @@ namespace Object
 			}
 		}
 
+		material->setFloat("time", glfwGetTime());
 		material->setTexture(GL_TEXTURE_2D, Textures::g_textures->overdrawTexture, GL_TEXTURE0);
 		material->setUInt("atomicImage", 0);
 

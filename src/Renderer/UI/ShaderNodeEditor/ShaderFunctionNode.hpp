@@ -2,17 +2,16 @@
 #include "ShaderVarNode.hpp"
 #include "../../Data/ShaderNode/ShaderFunction.hpp"
 
-template <typename T>
-class ShaderFunctionNode : public ShaderVarNode<T>
+class ShaderFunctionNode : public ShaderVarNode
 {
 
 public:
 
-	ShaderFunctionNode(int id, std::string name, std::string functionName, std::vector<std::pair<GLint, std::string>>* inputs, ShaderVarNodeEnums::ShaderNodeCategory category, ShaderFunctionEnums::ShaderFunctionOperation operation) : ShaderVarNode<T>(id, name, inputs, category)
+	ShaderFunctionNode(int id, std::string name, std::string functionName, ShaderNodeCategory category, ShaderFunction::ShaderFunctionOperation operation) : ShaderVarNode(id, name, category)
 	{
-		this->type = ShaderVarNodeEnums::ShaderVarNodeType::Function;
+		this->type = ShaderVarNodeType::Function;
 
-		this->shaderVar = new ShaderFunction<T>(id, functionName, operation);
+		this->shaderVar = new ShaderFunction(id, functionName, 0, operation);
 	}
 
 	~ShaderFunctionNode()
@@ -20,6 +19,31 @@ public:
 
 	}
 
+	void setFunctionType(GLint type)
+	{
+		if (!output->immutable)
+		{
+			output->type = type;
+			shaderVar->outputType = type;
+		}
+
+		for (auto& input : inputs)
+		{
+			if (!input.immutable)
+			{
+				input.type = type;
+			}
+		}
+	}
+
 private:
+
+	void initIdsOfShaderNodeAttributes(std::vector<ShaderNodeAttribute>& inputs)
+	{
+		for (int i = 0; i < inputs.size(); i++)
+		{
+			inputs[i].id = this->id * 500 + i + 2;
+		}
+	}
 
 };

@@ -52,7 +52,7 @@ public:
 		static int startAttribute, endAttribute;
 		if (ImNodes::IsLinkCreated(&startAttribute, &endAttribute))
 		{
-			if (checkLink(endAttribute))
+			if (checkLink(startAttribute, endAttribute))
 			{
 				links.push_back({ startAttribute, endAttribute });
 			}
@@ -71,12 +71,12 @@ public:
 			for (int i = numNodes - 1; i >= 0; i--)
 			{
 				int id = nodeIds[i];
-				nodes.erase(nodes.begin() + id);
+				deleteNodeById(id);
 			}
 			for (int i = numLinks - 1; i >= 0; i--)
 			{
 				int id = linkIds[i];
-				links.erase(links.begin() + id);
+				deleteLinkById(id);
 			}
 
 			ImNodes::ClearNodeSelection();
@@ -102,11 +102,19 @@ private:
 
 	void renderNodes()
 	{
-		for (auto& node : nodes)
+		for (auto& node : uniformNodes)
 		{
-			std::visit([](auto& shaderNode) {
-				shaderNode->render();
-				}, node);
+			node->render();
+		}
+
+		for (auto& node : varNodes)
+		{
+			node->render();
+		}
+
+		for (auto& node : functionNodes)
+		{
+			node->render();
 		}
 	}
 
@@ -130,48 +138,48 @@ private:
 			{
 				if (ImGui::MenuItem("Int"))
 				{
-					IntVarNode* node = new IntVarNode(nodes.size(), "Int", new int(), ShaderVarNodeEnums::ShaderNodeCategory::Input);
-					node->output = { GL_INT, "Value" };
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Int", new int(), GL_INT, ShaderVarNode::ShaderNodeCategory::Input);
+					node->setOutput(new ShaderNodeAttribute(GL_INT, "Value"));
 
-					nodes.push_back(node);
+					varNodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Float"))
 				{
-					FloatVarNode* node = new FloatVarNode(nodes.size(), "Float", new float(), ShaderVarNodeEnums::ShaderNodeCategory::Input);
-					node->output = { GL_FLOAT, "Value" };
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Float", new float(), GL_FLOAT, ShaderVarNode::ShaderNodeCategory::Input);
+					node->setOutput(new ShaderNodeAttribute(GL_FLOAT, "Value"));
 
-					nodes.push_back(node);
+					varNodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Vec2"))
 				{
-					ShaderVarNode<glm::vec2>* node = new Vec2VarNode(nodes.size(), "Vec2", new glm::vec2(), ShaderVarNodeEnums::ShaderNodeCategory::Input);
-					node->output = { GL_FLOAT_VEC2, "Value" };
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Vec2", new glm::vec2(), GL_FLOAT_VEC2, ShaderVarNode::ShaderNodeCategory::Input);
+					node->setOutput(new ShaderNodeAttribute(GL_FLOAT_VEC2, "Value"));
 
-					nodes.push_back(node);
+					varNodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Vec3"))
 				{
-					Vec3VarNode* node = new Vec3VarNode(nodes.size(), "Vec3", new glm::vec3(), ShaderVarNodeEnums::ShaderNodeCategory::Input);
-					node->output = { GL_FLOAT_VEC3, "Value" };
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Vec3", new glm::vec3(), GL_FLOAT_VEC3, ShaderVarNode::ShaderNodeCategory::Input);
+					node->setOutput(new ShaderNodeAttribute(GL_FLOAT_VEC3, "Value"));
 
-					nodes.push_back(node);
+					varNodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Vec4"))
 				{
-					Vec4VarNode* node = new Vec4VarNode(nodes.size(), "Vec4", new glm::vec4(), ShaderVarNodeEnums::ShaderNodeCategory::Input);
-					node->output = { GL_FLOAT_VEC4, "Value" };
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Vec4", new glm::vec4(), GL_FLOAT_VEC4, ShaderVarNode::ShaderNodeCategory::Input);
+					node->setOutput(new ShaderNodeAttribute(GL_FLOAT_VEC4, "Value"));
 
-					nodes.push_back(node);
+					varNodes.push_back(node);
 				}
 
 				ImGui::Separator();
 
 				if (ImGui::MenuItem("Time"))
 				{
-					ShaderUniformNode<float>* node = new ShaderUniformNode<float>(nodes.size(), "Time", nullptr, ShaderVarNodeEnums::ShaderNodeCategory::Input, 1);
-					node->output = { GL_FLOAT, "Time" };
+					ShaderUniformNode* node = new ShaderUniformNode(getNextNodeId(), "Time", GL_FLOAT, ShaderVarNode::ShaderNodeCategory::Input, 1);
+					node->setOutput(new ShaderNodeAttribute(GL_FLOAT, "Time"));
 
-					nodes.push_back(node);
+					uniformNodes.push_back(node);
 				}
 
 				ImGui::EndMenu();
@@ -180,10 +188,10 @@ private:
 			{
 				if (ImGui::MenuItem("Output"))
 				{
-					ShaderVarNode<glm::vec4>* node = new Vec4VarNode(nodes.size(), "Output", nullptr, ShaderVarNodeEnums::ShaderNodeCategory::Output, ShaderVarPrefix::Out);
-					node->inputs.push_back({ 0, "Output" });
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Output", nullptr, GL_FLOAT_VEC4, ShaderVarNode::ShaderNodeCategory::Output, ShaderVar::Out);
+					node->addInput({ GL_FLOAT_VEC4, "Output" });
 
-					nodes.push_back(node);
+					varNodes.push_back(node);
 				}
 
 				ImGui::EndMenu();
@@ -195,11 +203,10 @@ private:
 			{
 				if (ImGui::MenuItem("Mix Color"))
 				{
-					std::vector<std::pair<GLint, std::string>> inputs;
-					inputs.push_back({ GL_FLOAT_VEC3 | GL_FLOAT_VEC4, "Color" });
-					ShaderFunctionNode<glm::vec3>* node = new ShaderFunctionNode<glm::vec3>(nodes.size(), "Mix Color", "mix", &inputs, ShaderVarNodeEnums::ShaderNodeCategory::Color, ShaderFunctionEnums::ShaderFunctionOperation::FunctionCall);
+					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Mix Color", "mix", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::FunctionCall);
+					node->addInput({ GL_FLOAT_VEC4, "Color" });
 
-					nodes.push_back(node);
+					functionNodes.push_back(node);
 				}
 
 				ImGui::EndMenu();
@@ -208,35 +215,32 @@ private:
 			{
 				if (ImGui::MenuItem("Add"))
 				{
-					std::vector<std::pair<GLint, std::string>> inputs;
-					inputs.push_back({ GL_FLOAT_VEC4, "Value 1" });
-					inputs.push_back({ GL_FLOAT_VEC4, "Value 2" });
-					ShaderFunctionNode<glm::vec4>* node = new ShaderFunctionNode<glm::vec4>(nodes.size(), "Add", "+", &inputs, ShaderVarNodeEnums::ShaderNodeCategory::Color, ShaderFunctionEnums::ShaderFunctionOperation::Operation);
-					node->output = { GL_FLOAT_VEC4, "Result" };
+					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Add", "+", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::Operation);
+					node->addInput({ 0, "Value 1" });
+					node->addInput({ 0, "Value 2" });
+					node->setOutput(new ShaderNodeAttribute(0, "Result"));
 
-					nodes.push_back(node);
+					functionNodes.push_back(node);
 				}
 
 				if (ImGui::MenuItem("Subtract"))
 				{
-					std::vector<std::pair<GLint, std::string>> inputs;
-					inputs.push_back({ GL_FLOAT_VEC4, "Value 1" });
-					inputs.push_back({ GL_FLOAT_VEC4, "Value 2" });
-					ShaderFunctionNode<glm::vec4>* node = new ShaderFunctionNode<glm::vec4>(nodes.size(), "Subtract", "-", &inputs, ShaderVarNodeEnums::ShaderNodeCategory::Color, ShaderFunctionEnums::ShaderFunctionOperation::Operation);
-					node->output = { GL_FLOAT_VEC4, "Result" };
+					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Subtract", "-", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::Operation);
+					node->addInput({ 0, "Value 1" });
+					node->addInput({ 0, "Value 2" });
+					node->setOutput(new ShaderNodeAttribute(0, "Result"));
 
-					nodes.push_back(node);
+					functionNodes.push_back(node);
 				}
 
 				if (ImGui::MenuItem("Multiply"))
 				{
-					std::vector<std::pair<GLint, std::string>> inputs;
-					inputs.push_back({ GL_FLOAT_VEC4, "Value 1" });
-					inputs.push_back({ GL_FLOAT_VEC4, "Value 2" });
-					ShaderFunctionNode<glm::vec4>* node = new ShaderFunctionNode<glm::vec4>(nodes.size(), "Multiply", "*", &inputs, ShaderVarNodeEnums::ShaderNodeCategory::Color, ShaderFunctionEnums::ShaderFunctionOperation::Operation);
-					node->output = { GL_FLOAT_VEC4, "Result" };
+					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Multiply", "*", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::Operation);
+					node->addInput({ 0, "Value 1" });
+					node->addInput({ 0, "Value 2" });
+					node->setOutput(new ShaderNodeAttribute(0, "Result"));
 
-					nodes.push_back(node);
+					functionNodes.push_back(node);
 				}
 
 				ImGui::EndMenu();
@@ -260,14 +264,27 @@ private:
 		ImGui::PopStyleColor();
 	}
 
-	bool checkLink(int endAttribute)
+	bool checkLink(int startAttributeId, int endAttributeId)
 	{
 		for (auto& link : links)
 		{
-			if (link.second == endAttribute) return false;
+			if (link.second == endAttributeId) return false;
 		}
 
-		return true;
+		auto startNode = getNodeByAttribId(startAttributeId);
+		auto endNode = getNodeByAttribId(endAttributeId);
+
+		auto startAttribute = startNode->getAttributeById(startAttributeId);
+		auto endAttribute = endNode->getAttributeById(endAttributeId);
+
+		bool result = startAttribute && endAttribute && (startAttribute->type == endAttribute->type || endAttribute->type == 0);
+
+		if (result && endNode->getType() == ShaderVarNode::ShaderVarNodeType::Function)
+		{
+			static_cast<ShaderFunctionNode*>(endNode)->setFunctionType(startAttribute->type);
+		}
+
+		return result;
 	}
 
 	void ColoredText(const char* text, ImU32 color)
@@ -284,40 +301,34 @@ private:
 		std::string vars;
 		std::string mainBody;
 
-		for (auto& node : nodes)
+		for (auto& node : uniformNodes)
 		{
-			std::visit([&](auto& shaderNode) {
-				if (shaderNode->getType() == ShaderVarNodeEnums::ShaderVarNodeType::Var)
-				{
-					vars += shaderNode->getShaderCode();
-				}
-				else if (shaderNode->getType() == ShaderVarNodeEnums::ShaderVarNodeType::Uniform)
-				{
-					uniforms += shaderNode->getShaderCode();
-				}
-				else if (shaderNode->getType() == ShaderVarNodeEnums::ShaderVarNodeType::Function)
-				{
-					std::vector<std::string> inputNames = getOutputVariableNames(shaderNode->getId());
-					functions += shaderNode->getShaderCode(&inputNames);
-				}
-				}, node);
+			uniforms += node->getShaderCode();
 		}
+
+		for (auto& node : varNodes)
+		{
+			vars += node->getShaderCode();
+		}
+
+		for (auto& node : functionNodes)
+		{
+			std::vector<std::string> inputNames = getOutputVariableNames(node->getId());
+			functions += node->getShaderCode(&inputNames);
+		}
+
 
 		for (int i = 0; i < links.size(); i++)
 		{
 			auto& link = links[i];
-			auto nodeFirst = findNodeByAttribId(link.first);
-			auto nodeSecond = findNodeByAttribId(link.second);
+			auto nodeFirst = getNodeByAttribId(link.first);
+			auto nodeSecond = getNodeByAttribId(link.second);
 
-			std::visit([&](auto& valueFirst, auto& valueSecond) {
-
-				if (valueSecond->getCategory() == ShaderVarNodeEnums::ShaderNodeCategory::Output && valueSecond->getName() == "Output")
-				{
-					mainBody += std::format("{}{} = {}{};", valueSecond->getTypeName(), valueSecond->getId(), valueFirst->getTypeName(), valueFirst->getId());
-					i = links.size();
-				}
-
-				}, nodeFirst, nodeSecond);
+			if (nodeSecond->getCategory() == ShaderVarNode::ShaderNodeCategory::Output && nodeSecond->getName() == "Output")
+			{
+				mainBody += std::format("{}{} = {}{};", nodeSecond->getTypeName(), nodeSecond->getId(), nodeFirst->getTypeName(), nodeFirst->getId());
+				i = links.size();
+			}
 		}
 
 		std::string shaderCode = std::string("#version 460 core\n")
@@ -339,26 +350,62 @@ private:
 		MaterialLib::addMaterial(material);
 	}
 
-	using ShaderNode = std::variant<ShaderVarNode<int>*, ShaderVarNode<float>*, ShaderVarNode<glm::vec2>*, ShaderVarNode<glm::vec3>*, ShaderVarNode<glm::vec4>*, ShaderVarNode<glm::mat4>*>;
-
-	ShaderNode findNodeByAttribId(int attribId)
+	ShaderVarNode* getNodeByAttribId(int attribId)
 	{
-		ShaderNode shaderNode;
-
-		for (auto& node : nodes)
+		for (auto& node : uniformNodes)
 		{
-			std::visit([&](auto& value)
-				{
-					int nodeId = attribId / 500;
-					if (nodeId == value->getId())
-					{
-						shaderNode = value;
-					}
-
-				}, node);
+			if (attribId / 500 == node->getId())
+			{
+				return node;
+			}
 		}
 
-		return shaderNode;
+		for (auto& node : varNodes)
+		{
+			if (attribId / 500 == node->getId())
+			{
+				return node;
+			}
+		}
+
+		for (auto& node : functionNodes)
+		{
+			if (attribId / 500 == node->getId())
+			{
+				return node;
+			}
+		}
+
+		return nullptr;
+	}
+
+	ShaderVarNode* getNodeById(int nodeId)
+	{
+		for (auto& node : uniformNodes)
+		{
+			if (nodeId == node->getId())
+			{
+				return node;
+			}
+		}
+
+		for (auto& node : varNodes)
+		{
+			if (nodeId == node->getId())
+			{
+				return node;
+			}
+		}
+
+		for (auto& node : functionNodes)
+		{
+			if (nodeId == node->getId())
+			{
+				return node;
+			}
+		}
+
+		return nullptr;
 	}
 
 	std::vector<std::string> getOutputVariableNames(int nodeId)
@@ -367,26 +414,80 @@ private:
 
 		for (auto& link : links)
 		{
-			if (link.second / 500 == nodeId)
-			{
-				for (auto& node : nodes)
-				{
-					std::visit([&](auto& value)
-						{
-							if (link.first / 500 == value->getId())
-							{
-								varNames.push_back(std::format("{}{}", value->getTypeName(), value->getId()));
-							}
+			if (link.second / 500 != nodeId) continue;
 
-						}, node);
-				}
-			}
+			ShaderVarNode* node = getNodeByAttribId(link.first);
+
+			varNames.push_back(std::format("{}{}", node->getTypeName(), node->getId()));
 		}
 
 		return varNames;
 	}
 
-	std::vector<ShaderNode> nodes;
+	void deleteNodeById(int nodeId)
+	{
+		for (int i = 0; i < uniformNodes.size(); i++)
+		{
+			ShaderVarNode* node = uniformNodes[i];
+			if (nodeId == node->getId())
+			{
+				uniformNodes.erase(uniformNodes.begin() + i);
+				delete node;
+				return;
+			}
+		}
+
+		for (int i = 0; i < varNodes.size(); i++)
+		{
+			ShaderVarNode* node = varNodes[i];
+			if (nodeId == node->getId())
+			{
+				varNodes.erase(varNodes.begin() + i);
+				delete node;
+				return;
+			}
+		}
+
+		for (int i = 0; i < functionNodes.size(); i++)
+		{
+			ShaderVarNode* node = functionNodes[i];
+			if (nodeId == node->getId())
+			{
+				functionNodes.erase(functionNodes.begin() + i);
+				delete node;
+				return;
+			}
+		}
+	}
+
+	void deleteLinkById(int id)
+	{
+		std::pair<int, int> link = links[id];
+		links.erase(links.begin() + id);
+
+		for (auto& val : links)
+		{
+			if (val.second / 500 == link.second / 500) // convert attrib id to node id by / 500
+			{
+				return;
+			}
+		}
+
+		auto node = getNodeByAttribId(link.second);
+		for (auto& input : node->getInputs())
+		{
+			input.type = 0;
+		}
+	}
+
+	int getNextNodeId()
+	{
+		return uniformNodes.size() + functionNodes.size() + varNodes.size();
+	}
+
+	std::vector<ShaderUniformNode*> uniformNodes;
+	std::vector<ShaderFunctionNode*> functionNodes;
+	std::vector<ShaderVarNode*> varNodes;
 	std::vector<std::pair<int, int>> links;	// std::pair<startId, endId>
 
 };

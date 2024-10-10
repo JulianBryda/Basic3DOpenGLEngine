@@ -5,23 +5,23 @@
 
 #include <glm/glm.hpp>
 
-enum ShaderVarPrefix
-{
-	None,
-	In,
-	Out
-};
-
-template <typename T>
 class ShaderVar
 {
 
 public:
 
-	ShaderVar(int id, T* value, ShaderVarPrefix prefix = None)
+	enum ShaderVarPrefix
+	{
+		None,
+		In,
+		Out
+	};
+
+	ShaderVar(int id, void* value, GLint outputType, ShaderVarPrefix prefix = None)
 	{
 		this->id = id;
 		this->value = value;
+		this->outputType = outputType;
 		this->prefix = prefix;
 	}
 
@@ -33,44 +33,21 @@ public:
 
 	virtual std::string getShaderCode(std::vector<std::string>* inputNames)
 	{
-		if (typeid(T) == typeid(glm::vec2))
-		{
-			return getVarCode("vec2");
-		}
-		else if (typeid(T) == typeid(glm::vec3))
-		{
-			return getVarCode("vec3");
-		}
-		else if (typeid(T) == typeid(glm::vec4))
-		{
-			return getVarCode("vec4");
-		}
-		else if (typeid(T) == typeid(glm::mat4))
-		{
-			return getVarCode("mat4");
-		}
-		else
-		{
-			return getVarCode(typeid(T).name());
-		}
-	}
-
-	bool operator==(const ShaderVar& other)
-	{
-		return id == other.id && value == other.name;
+		return getVarCode(getTypeName());
 	}
 
 	int id;
-	T* value;
+	void* value;
+	GLint outputType;
 	ShaderVarPrefix prefix;
 
 protected:
 
-	std::string getVarCode(const char* type)
+	std::string getVarCode(std::string type)
 	{
 		if (value)
 		{
-			return std::format("{}{} {}{} = {};\n", getPrefix(), type, "var", this->id, getValue<T>(*value));
+			return std::format("{}{} {}{} = {};\n", getPrefix(), type, "var", this->id, getFormatedValue());
 		}
 		else
 		{
@@ -91,40 +68,46 @@ protected:
 		}
 	}
 
-	template<typename V>
-	std::string getValue(const V& value)
+	std::string getTypeName()
 	{
-		return "";
+		switch (outputType)
+		{
+		case GL_INT:
+			return "int";
+		case GL_FLOAT:
+			return "float";
+		case GL_DOUBLE:
+			return "double";
+		case GL_FLOAT_VEC2:
+			return "vec2";
+		case GL_FLOAT_VEC3:
+			return "vec3";
+		case GL_FLOAT_VEC4:
+			return "vec4";
+		default:
+			throw std::runtime_error("Type not supported!");
+		}
 	}
 
-	template<>
-	std::string getValue(const int& value)
+	std::string getFormatedValue()
 	{
-		return std::to_string(value);
-	}
-
-	template<>
-	std::string getValue(const float& value)
-	{
-		return std::to_string(value);
-	}
-
-	template<>
-	std::string getValue(const glm::vec2& value)
-	{
-		return std::format("vec2({}, {})", value.x, value.y);
-	}
-
-	template<>
-	std::string getValue(const glm::vec3& value)
-	{
-		return std::format("vec3({}, {}, {})", value.x, value.y, value.z);
-	}
-
-	template<>
-	std::string getValue(const glm::vec4& value)
-	{
-		return std::format("vec4({}, {}, {}, {})", value.x, value.y, value.z, value.a);
+		switch (outputType)
+		{
+		case GL_INT:
+			return std::format("{}", *static_cast<int*>(value));
+		case GL_FLOAT:
+			return std::format("{}", *static_cast<float*>(value));
+		case GL_DOUBLE:
+			return std::format("{}", *static_cast<double*>(value));
+		case GL_FLOAT_VEC2:
+			return std::format("vec2({}, {})", static_cast<glm::vec2*>(value)->x, static_cast<glm::vec2*>(value)->y);
+		case GL_FLOAT_VEC3:
+			return std::format("vec3({}, {}, {})", static_cast<glm::vec3*>(value)->x, static_cast<glm::vec3*>(value)->y, static_cast<glm::vec3*>(value)->z);
+		case GL_FLOAT_VEC4:
+			return std::format("vec4({}, {}, {}, {})", static_cast<glm::vec4*>(value)->x, static_cast<glm::vec4*>(value)->y, static_cast<glm::vec4*>(value)->z, static_cast<glm::vec4*>(value)->a);
+		default:
+			throw std::runtime_error("Type not supported!");
+		}
 	}
 
 };
