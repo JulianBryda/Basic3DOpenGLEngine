@@ -52,10 +52,7 @@ public:
 		static int startAttribute, endAttribute;
 		if (ImNodes::IsLinkCreated(&startAttribute, &endAttribute))
 		{
-			if (checkLink(startAttribute, endAttribute))
-			{
-				links.push_back({ startAttribute, endAttribute });
-			}
+			createLink(startAttribute, endAttribute);
 		}
 
 		if (ImGui::IsKeyPressed(ImGuiKey_Delete))
@@ -96,7 +93,7 @@ private:
 		{
 			auto& link = links[i];
 
-			ImNodes::Link(i, link.first, link.second);
+			ImNodes::Link(i, link.first->id, link.second->id);
 		}
 	}
 
@@ -138,36 +135,50 @@ private:
 			{
 				if (ImGui::MenuItem("Int"))
 				{
-					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Int", new int(), GL_INT, ShaderVarNode::ShaderNodeCategory::Input);
-					node->setOutput(new ShaderNodeAttribute(GL_INT, "Value"));
+					int* value = new int();
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Int", value, GL_INT, ShaderVarNode::ShaderNodeCategory::Input);
+					node->setOutput(new ShaderNodeAttribute(GL_INT, "Value", value));
 
 					varNodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Float"))
 				{
-					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Float", new float(), GL_FLOAT, ShaderVarNode::ShaderNodeCategory::Input);
-					node->setOutput(new ShaderNodeAttribute(GL_FLOAT, "Value"));
+					float* value = new float();
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Float", value, GL_FLOAT, ShaderVarNode::ShaderNodeCategory::Input);
+					node->setOutput(new ShaderNodeAttribute(GL_FLOAT, "Value", value));
 
 					varNodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Vec2"))
 				{
-					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Vec2", new glm::vec2(), GL_FLOAT_VEC2, ShaderVarNode::ShaderNodeCategory::Input);
-					node->setOutput(new ShaderNodeAttribute(GL_FLOAT_VEC2, "Value"));
+					glm::vec2* value = new glm::vec2();
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Vec2", value, GL_FLOAT_VEC2, ShaderVarNode::ShaderNodeCategory::Input);
+					node->addInput(ShaderNodeAttribute(GL_FLOAT, "X", &value->x));
+					node->addInput(ShaderNodeAttribute(GL_FLOAT, "Y", &value->y));
+					node->setOutput(new ShaderNodeAttribute(GL_FLOAT_VEC2, "Value", value));
 
 					varNodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Vec3"))
 				{
-					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Vec3", new glm::vec3(), GL_FLOAT_VEC3, ShaderVarNode::ShaderNodeCategory::Input);
-					node->setOutput(new ShaderNodeAttribute(GL_FLOAT_VEC3, "Value"));
+					glm::vec3* value = new glm::vec3();
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Vec3", value, GL_FLOAT_VEC3, ShaderVarNode::ShaderNodeCategory::Input);
+					node->addInput(ShaderNodeAttribute(GL_FLOAT, "X", &value->x));
+					node->addInput(ShaderNodeAttribute(GL_FLOAT, "Y", &value->y));
+					node->addInput(ShaderNodeAttribute(GL_FLOAT, "Z", &value->z));
+					node->setOutput(new ShaderNodeAttribute(GL_FLOAT_VEC3, "Value", value));
 
 					varNodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Vec4"))
 				{
-					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Vec4", new glm::vec4(), GL_FLOAT_VEC4, ShaderVarNode::ShaderNodeCategory::Input);
-					node->setOutput(new ShaderNodeAttribute(GL_FLOAT_VEC4, "Value"));
+					glm::vec4* value = new glm::vec4();
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Vec4", value, GL_FLOAT_VEC4, ShaderVarNode::ShaderNodeCategory::Input);
+					node->addInput(ShaderNodeAttribute(GL_FLOAT, "X", &value->x));
+					node->addInput(ShaderNodeAttribute(GL_FLOAT, "Y", &value->y));
+					node->addInput(ShaderNodeAttribute(GL_FLOAT, "Z", &value->z));
+					node->addInput(ShaderNodeAttribute(GL_FLOAT, "A", &value->a));
+					node->setOutput(new ShaderNodeAttribute(GL_FLOAT_VEC4, "Value", value));
 
 					varNodes.push_back(node);
 				}
@@ -177,7 +188,7 @@ private:
 				if (ImGui::MenuItem("Time"))
 				{
 					ShaderUniformNode* node = new ShaderUniformNode(getNextNodeId(), "Time", GL_FLOAT, ShaderVarNode::ShaderNodeCategory::Input, 1);
-					node->setOutput(new ShaderNodeAttribute(GL_FLOAT, "Time"));
+					node->setOutput(new ShaderNodeAttribute(GL_FLOAT, "Time", nullptr));
 
 					uniformNodes.push_back(node);
 				}
@@ -188,8 +199,9 @@ private:
 			{
 				if (ImGui::MenuItem("Output"))
 				{
+
 					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Output", nullptr, GL_FLOAT_VEC4, ShaderVarNode::ShaderNodeCategory::Output, ShaderVar::Out);
-					node->addInput({ GL_FLOAT_VEC4, "Output" });
+					node->addInput({ GL_FLOAT_VEC4, "Output", nullptr });
 
 					varNodes.push_back(node);
 				}
@@ -201,13 +213,13 @@ private:
 
 			if (ImGui::BeginMenu("Color"))
 			{
-				if (ImGui::MenuItem("Mix Color"))
-				{
-					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Mix Color", "mix", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::FunctionCall);
-					node->addInput({ GL_FLOAT_VEC4, "Color" });
+				//if (ImGui::MenuItem("Mix Color"))
+				//{
+				//	ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Mix Color", "mix", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::FunctionCall);
+				//	node->addInput({ GL_FLOAT_VEC4, "Color" });
 
-					functionNodes.push_back(node);
-				}
+				//	functionNodes.push_back(node);
+				//}
 
 				ImGui::EndMenu();
 			}
@@ -216,9 +228,9 @@ private:
 				if (ImGui::MenuItem("Add"))
 				{
 					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Add", "+", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::Operation);
-					node->addInput({ 0, "Value 1" });
-					node->addInput({ 0, "Value 2" });
-					node->setOutput(new ShaderNodeAttribute(0, "Result"));
+					node->addInput({ 0, "Value 1", nullptr });
+					node->addInput({ 0, "Value 2", nullptr });
+					node->setOutput(new ShaderNodeAttribute(0, "Result", nullptr));
 
 					functionNodes.push_back(node);
 				}
@@ -226,9 +238,9 @@ private:
 				if (ImGui::MenuItem("Subtract"))
 				{
 					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Subtract", "-", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::Operation);
-					node->addInput({ 0, "Value 1" });
-					node->addInput({ 0, "Value 2" });
-					node->setOutput(new ShaderNodeAttribute(0, "Result"));
+					node->addInput({ 0, "Value 1", nullptr });
+					node->addInput({ 0, "Value 2", nullptr });
+					node->setOutput(new ShaderNodeAttribute(0, "Result", nullptr));
 
 					functionNodes.push_back(node);
 				}
@@ -236,9 +248,20 @@ private:
 				if (ImGui::MenuItem("Multiply"))
 				{
 					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Multiply", "*", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::Operation);
-					node->addInput({ 0, "Value 1" });
-					node->addInput({ 0, "Value 2" });
-					node->setOutput(new ShaderNodeAttribute(0, "Result"));
+					node->addInput({ 0, "Value 1", nullptr });
+					node->addInput({ 0, "Value 2", nullptr });
+					node->setOutput(new ShaderNodeAttribute(0, "Result", nullptr));
+
+					functionNodes.push_back(node);
+				}
+
+				ImGui::Separator();
+
+				if (ImGui::MenuItem("Normalize"))
+				{
+					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Normalize", "normalize", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::FunctionCall);
+					node->addInput({ 0, "Value", nullptr });
+					node->setOutput(new ShaderNodeAttribute(0, "Result", nullptr));
 
 					functionNodes.push_back(node);
 				}
@@ -264,12 +287,10 @@ private:
 		ImGui::PopStyleColor();
 	}
 
-	bool checkLink(int startAttributeId, int endAttributeId)
+
+	void createLink(int startAttributeId, int endAttributeId)
 	{
-		for (auto& link : links)
-		{
-			if (link.second == endAttributeId) return false;
-		}
+		if (isInputAttributeLinked(endAttributeId)) return;
 
 		auto startNode = getNodeByAttribId(startAttributeId);
 		auto endNode = getNodeByAttribId(endAttributeId);
@@ -277,22 +298,34 @@ private:
 		auto startAttribute = startNode->getAttributeById(startAttributeId);
 		auto endAttribute = endNode->getAttributeById(endAttributeId);
 
-		bool result = startAttribute && endAttribute && (startAttribute->type == endAttribute->type || endAttribute->type == 0);
+		if (!isLinkValid(startAttribute, endAttribute)) return;
 
-		if (result && endNode->getType() == ShaderVarNode::ShaderVarNodeType::Function)
+		if (endNode->getType() == ShaderVarNode::ShaderVarNodeType::Function)
 		{
 			static_cast<ShaderFunctionNode*>(endNode)->setFunctionType(startAttribute->type);
 		}
 
-		return result;
+		startAttribute->connectedTo = endAttribute;
+		endAttribute->connectedTo = startAttribute;
+
+		links.push_back({ startAttribute, endAttribute });
 	}
 
-	void ColoredText(const char* text, ImU32 color)
+	bool isInputAttributeLinked(int attributeId)
 	{
-		ImGui::PushStyleColor(ImGuiCol_Text, color);
-		ImGui::Text(text);
-		ImGui::PopStyleColor();
+		for (auto& link : links)
+		{
+			if (link.second->id == attributeId) return true;
+		}
+
+		return false;
 	}
+
+	bool isLinkValid(ShaderNodeAttribute* start, ShaderNodeAttribute* end)
+	{
+		return start && end && (start->type == end->type || end->type == 0);
+	}
+
 
 	void compileNodeTree()
 	{
@@ -301,48 +334,68 @@ private:
 		std::string vars;
 		std::string mainBody;
 
-		for (auto& node : uniformNodes)
-		{
-			uniforms += node->getShaderCode();
-		}
+		//for (auto& node : uniformNodes)
+		//{
+		//	uniforms += node->getShaderCode();
+		//}
+
+		//for (auto& node : varNodes)
+		//{
+		//	vars += node->getShaderCode();
+		//}
+
+		//for (auto& node : functionNodes)
+		//{
+		//	std::vector<std::string> inputNames = getOutputVariableNames(node->getId());
+		//	functions += node->getShaderCode(&inputNames);
+		//}
+
+
+		//for (int i = 0; i < links.size(); i++)
+		//{
+		//	auto& link = links[i];
+		//	auto nodeFirst = link.first->node;
+		//	auto nodeSecond = link.second->node;
+
+		//	if (nodeSecond->getCategory() == ShaderVarNode::ShaderNodeCategory::Output && nodeSecond->getName() == "Output")
+		//	{
+		//		mainBody += std::format("{}{} = {}{};", nodeSecond->getTypeName(), nodeSecond->getId(), nodeFirst->getTypeName(), nodeFirst->getId());
+		//		i = links.size();
+		//	}
+		//}
+
+		//std::string shaderCode = std::string("#version 460 core\n")
+		//	+ uniforms
+		//	+ "\n"
+		//	+ vars
+		//	+ "\n"
+		//	+ functions
+		//	+ "\n"
+		//	+ "void main()\n"
+		//	+ "{\n"
+		//	+ mainBody
+		//	+ "\n"
+		//	+ "}";
+
+
+		ShaderVarNode* outputNode;
 
 		for (auto& node : varNodes)
 		{
-			vars += node->getShaderCode();
-		}
-
-		for (auto& node : functionNodes)
-		{
-			std::vector<std::string> inputNames = getOutputVariableNames(node->getId());
-			functions += node->getShaderCode(&inputNames);
-		}
-
-
-		for (int i = 0; i < links.size(); i++)
-		{
-			auto& link = links[i];
-			auto nodeFirst = getNodeByAttribId(link.first);
-			auto nodeSecond = getNodeByAttribId(link.second);
-
-			if (nodeSecond->getCategory() == ShaderVarNode::ShaderNodeCategory::Output && nodeSecond->getName() == "Output")
+			if (node->category == ShaderVarNode::ShaderNodeCategory::Output && node->name == "Output")
 			{
-				mainBody += std::format("{}{} = {}{};", nodeSecond->getTypeName(), nodeSecond->getId(), nodeFirst->getTypeName(), nodeFirst->getId());
-				i = links.size();
+				outputNode = node;
+				break;
 			}
 		}
 
+		assert(outputNode);
+
 		std::string shaderCode = std::string("#version 460 core\n")
-			+ uniforms
-			+ "\n"
-			+ vars
-			+ "\n"
-			+ functions
-			+ "\n"
-			+ "void main()\n"
-			+ "{\n"
-			+ mainBody
+			+ outputNode->getShaderCode()
 			+ "\n"
 			+ "}";
+
 
 		std::cout << shaderCode << std::endl;
 
@@ -379,50 +432,11 @@ private:
 		return nullptr;
 	}
 
-	ShaderVarNode* getNodeById(int nodeId)
+	int getNextNodeId()
 	{
-		for (auto& node : uniformNodes)
-		{
-			if (nodeId == node->getId())
-			{
-				return node;
-			}
-		}
-
-		for (auto& node : varNodes)
-		{
-			if (nodeId == node->getId())
-			{
-				return node;
-			}
-		}
-
-		for (auto& node : functionNodes)
-		{
-			if (nodeId == node->getId())
-			{
-				return node;
-			}
-		}
-
-		return nullptr;
+		return uniformNodes.size() + functionNodes.size() + varNodes.size();
 	}
 
-	std::vector<std::string> getOutputVariableNames(int nodeId)
-	{
-		std::vector<std::string> varNames;
-
-		for (auto& link : links)
-		{
-			if (link.second / 500 != nodeId) continue;
-
-			ShaderVarNode* node = getNodeByAttribId(link.first);
-
-			varNames.push_back(std::format("{}{}", node->getTypeName(), node->getId()));
-		}
-
-		return varNames;
-	}
 
 	void deleteNodeById(int nodeId)
 	{
@@ -462,32 +476,51 @@ private:
 
 	void deleteLinkById(int id)
 	{
-		std::pair<int, int> link = links[id];
+		std::pair<ShaderNodeAttribute*, ShaderNodeAttribute*> link = links[id];
 		links.erase(links.begin() + id);
 
+		link.second->connectedTo = nullptr;
+
+		bool firstAttribConnected = false, secondNodeConnected = false;
 		for (auto& val : links)
 		{
-			if (val.second / 500 == link.second / 500) // convert attrib id to node id by / 500
+			if (link.first->id == val.first->id)
 			{
-				return;
+				firstAttribConnected = true;
+			}
+
+			if (val.second->node->id == link.second->node->id)
+			{
+				secondNodeConnected = true;
 			}
 		}
 
-		auto node = getNodeByAttribId(link.second);
-		for (auto& input : node->getInputs())
+		if (!firstAttribConnected)
 		{
-			input.type = 0;
+			link.first->connectedTo = nullptr;
+		}
+
+		if (!secondNodeConnected && !link.second->immutable)
+		{
+			auto node = link.second->node;
+			for (auto& input : node->getInputs())
+			{
+				input.type = 0;
+			}
 		}
 	}
 
-	int getNextNodeId()
+
+	void ColoredText(const char* text, ImU32 color)
 	{
-		return uniformNodes.size() + functionNodes.size() + varNodes.size();
+		ImGui::PushStyleColor(ImGuiCol_Text, color);
+		ImGui::Text(text);
+		ImGui::PopStyleColor();
 	}
 
 	std::vector<ShaderUniformNode*> uniformNodes;
 	std::vector<ShaderFunctionNode*> functionNodes;
 	std::vector<ShaderVarNode*> varNodes;
-	std::vector<std::pair<int, int>> links;	// std::pair<startId, endId>
+	std::vector<std::pair<ShaderNodeAttribute*, ShaderNodeAttribute*>> links;	// std::pair<startId, endId>
 
 };

@@ -2,8 +2,12 @@
 #include <iostream>
 #include <format>
 #include <string>
-
+#include <vector>
 #include <glm/glm.hpp>
+#include <glad/glad.h>
+
+
+struct ShaderNodeAttribute;
 
 class ShaderVar
 {
@@ -31,10 +35,7 @@ public:
 			delete value;
 	}
 
-	virtual std::string getShaderCode(std::vector<std::string>* inputNames)
-	{
-		return getVarCode(getTypeName());
-	}
+	virtual std::string getShaderCode(std::vector<ShaderNodeAttribute>& inputs);
 
 	int id;
 	void* value;

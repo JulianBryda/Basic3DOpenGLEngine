@@ -20,11 +20,15 @@ public:
 
 	}
 
-	std::string getShaderCode(std::vector<std::string>* inputNames) override
+	std::string getShaderCode(std::vector<ShaderNodeAttribute>& inputs) override
 	{
 		return getUniformCode(getTypeName());
 	}
 
+	std::string getUniformName()
+	{
+		return uniformName;
+	}
 
 	bool operator==(const ShaderUniform& other)
 	{

@@ -9,25 +9,31 @@
 #include "../../../ThirdParty/ImNodes/imnodes.h"
 #include "../../Data/ShaderNode/ShaderVar.hpp"
 
-struct ShaderNodeAttribute
-{
-	ShaderNodeAttribute(GLint type, const char* name)
-	{
-		this->id = 0;
-		this->type = type;
-		this->name = name;
-		this->immutable = type != 0;
-	}
-
-	int id;
-	GLint type;
-	const char* name;
-	bool immutable;
-};
-
 class ShaderVarNode
 {
 public:
+
+	struct ShaderNodeAttribute
+	{
+		ShaderNodeAttribute(GLint type, const char* name, void* value)
+		{
+			this->id = 0;
+			this->type = type;
+			this->name = name;
+			this->immutable = type != 0;
+
+			this->value = value;
+		}
+
+		int id;
+		GLint type;
+		const char* name;
+		bool immutable;
+		void* value;
+
+		ShaderVarNode* node;
+		ShaderNodeAttribute* connectedTo;
+	};
 
 	enum ShaderNodeCategory
 	{
@@ -77,16 +83,13 @@ public:
 			}
 			ImNodes::EndNodeTitleBar();
 
-			if (shaderVar && shaderVar->value)
-			{
-				renderBody();
-			}
-
 			for (auto& input : inputs)
 			{
 				ImNodes::BeginInputAttribute(input.id);
 				{
 					ImGui::TextUnformatted(input.name);
+					ImGui::SameLine();
+					renderInput(input);
 				}
 				ImNodes::EndInputAttribute();
 			}
@@ -108,70 +111,34 @@ public:
 		if (ImNodes::IsNodeSelected(id)) ImNodes::PopColorStyle();
 	}
 
-	void renderBody()
+	void renderInput(ShaderNodeAttribute& input)
 	{
-		switch (shaderVar->outputType)
+		if (input.value == nullptr || input.connectedTo != nullptr) return;
+
+		switch (input.type)
 		{
 		case GL_INT:
-			renderIntBody();
+			renderInt(std::format("##{}{}", input.name, input.id).c_str(), static_cast<int*>(input.value));
 			break;
 		case GL_FLOAT:
-			renderFloatBody();
-			break;
-		case GL_FLOAT_VEC2:
-			renderVec2Body();
-			break;
-		case GL_FLOAT_VEC3:
-			renderVec3Body();
-			break;
-		case GL_FLOAT_VEC4:
-			renderVec4Body();
+			renderFloat(std::format("##{}{}", input.name, input.id).c_str(), static_cast<float*>(input.value));
 			break;
 		default:
-			throw std::runtime_error("No body to render!");
+			break;
 		}
+
 	}
 
-	void renderIntBody()
+	void renderInt(const char* name, int* value)
 	{
 		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragInt(std::format("##{}{}", name, id).c_str(), static_cast<int*>(shaderVar->value));
+		ImGui::DragInt(name, value);
 	}
 
-	void renderFloatBody()
+	void renderFloat(const char* name, float* value)
 	{
 		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat(std::format("##{}{}", name, id).c_str(), static_cast<float*>(shaderVar->value), 0.1f);
-	}
-
-	void renderVec2Body()
-	{
-		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat(std::format("##{}{}", name, id).c_str(), &static_cast<glm::vec2*>(shaderVar->value)->x, 0.1f);
-		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat(std::format("##{}{}", name, id + 1).c_str(), &static_cast<glm::vec2*>(shaderVar->value)->y, 0.1f);
-	}
-
-	void renderVec3Body()
-	{
-		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat(std::format("##{}{}", name, id).c_str(), &static_cast<glm::vec3*>(shaderVar->value)->x, 0.1f);
-		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat(std::format("##{}{}", name, id + 1).c_str(), &static_cast<glm::vec3*>(shaderVar->value)->y, 0.1f);
-		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat(std::format("##{}{}", name, id + 2).c_str(), &static_cast<glm::vec3*>(shaderVar->value)->z, 0.1f);
-	}
-
-	void renderVec4Body()
-	{
-		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat(std::format("##{}{}", name, id).c_str(), &static_cast<glm::vec4*>(shaderVar->value)->x, 0.1f);
-		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat(std::format("##{}{}", name, id + 1).c_str(), &static_cast<glm::vec4*>(shaderVar->value)->y, 0.1f);
-		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat(std::format("##{}{}", name, id + 2).c_str(), &static_cast<glm::vec4*>(shaderVar->value)->z, 0.1f);
-		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat(std::format("##{}{}", name, id + 3).c_str(), &static_cast<glm::vec4*>(shaderVar->value)->a, 0.1f);
+		ImGui::DragFloat(name, value, 0.1f);
 	}
 
 	int getId() const
@@ -212,9 +179,18 @@ public:
 		return nullptr;
 	}
 
-	std::string getShaderCode(std::vector<std::string>* inputNames = nullptr)
+	std::string getShaderCode()
 	{
-		return this->shaderVar->getShaderCode(inputNames);
+		std::string shaderCode;
+		
+		for (auto& input : inputs)
+		{
+			shaderCode += input.connectedTo->node->getShaderCode();
+		}
+
+		shaderCode += this->shaderVar->getShaderCode(inputs);
+
+		return shaderCode;
 	}
 
 	std::string getTypeName()
@@ -235,6 +211,7 @@ public:
 	void addInput(ShaderNodeAttribute attribute)
 	{
 		attribute.id = id * 500 + inputs.size() + 2;
+		attribute.node = this;
 		inputs.push_back(attribute);
 	}
 
@@ -242,8 +219,9 @@ public:
 	{
 		assert(attribute != nullptr);
 
+		attribute->id = id * 500 + 1;
+		attribute->node = this;
 		output = attribute;
-		output->id = id * 500 + 1;
 	}
 
 	ShaderNodeAttribute* getOutput() const
@@ -254,6 +232,11 @@ public:
 	std::vector<ShaderNodeAttribute>& getInputs()
 	{
 		return inputs;
+	}
+
+	ShaderVar* getShaderVar() const
+	{
+		return shaderVar;
 	}
 
 	int id;
@@ -299,3 +282,5 @@ private:
 		}
 	}
 };
+
+typedef ShaderVarNode::ShaderNodeAttribute ShaderNodeAttribute;

@@ -27,12 +27,13 @@ public:
 
 	}
 
-	std::string getShaderCode(std::vector<std::string>* inputNames) override
+	std::string getShaderCode(std::vector<ShaderNodeAttribute>& inputs) override
 	{
-		assert(inputNames);
-		assert(inputNames->size() >= 2);
+		assert(inputs.size() >= 1);
 
-		return getFunctionCode(getTypeName(), *inputNames);
+		std::vector<std::string> inputNames = getOutputVariableNames(inputs);
+
+		return getFunctionCode(getTypeName(), inputNames);
 	}
 
 private:
@@ -68,6 +69,27 @@ private:
 			}
 		}
 		return result;
+	}
+
+	std::vector<std::string> getOutputVariableNames(std::vector<ShaderNodeAttribute>& inputs)
+	{
+		std::vector<std::string> varNames;
+
+		for (auto& input : inputs)
+		{
+			ShaderVarNode* node = input.connectedTo->node;
+
+			if (node->getType() == ShaderVarNode::ShaderVarNodeType::Uniform)
+			{
+				varNames.push_back(std::format("{}", static_cast<ShaderUniform*>(node->getShaderVar())->getUniformName()));
+			}
+			else
+			{
+				varNames.push_back(std::format("{}{}", node->getTypeName(), node->getId()));
+			}
+		}
+
+		return varNames;
 	}
 
 	std::string functionName;
