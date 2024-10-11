@@ -13,28 +13,6 @@ class ShaderVarNode
 {
 public:
 
-	struct ShaderNodeAttribute
-	{
-		ShaderNodeAttribute(GLint type, const char* name, void* value)
-		{
-			this->id = 0;
-			this->type = type;
-			this->name = name;
-			this->immutable = type != 0;
-
-			this->value = value;
-		}
-
-		int id;
-		GLint type;
-		const char* name;
-		bool immutable;
-		void* value;
-
-		ShaderVarNode* node;
-		ShaderNodeAttribute* connectedTo;
-	};
-
 	enum ShaderNodeCategory
 	{
 		Input,
@@ -85,13 +63,13 @@ public:
 
 			for (auto& input : inputs)
 			{
-				ImNodes::BeginInputAttribute(input.id);
+				if (!input.hide) ImNodes::BeginInputAttribute(input.id);
 				{
 					ImGui::TextUnformatted(input.name);
 					ImGui::SameLine();
 					renderInput(input);
 				}
-				ImNodes::EndInputAttribute();
+				if (!input.hide) ImNodes::EndInputAttribute();
 			}
 
 			if (output != nullptr)
@@ -179,18 +157,23 @@ public:
 		return nullptr;
 	}
 
-	std::string getShaderCode()
+	std::vector<std::pair<ShaderVarNodeType, std::string>> getShaderCode()
 	{
-		std::string shaderCode;
-		
+		std::vector<std::pair<ShaderVarNodeType, std::string>> output;
+
 		for (auto& input : inputs)
 		{
-			shaderCode += input.connectedTo->node->getShaderCode();
+			if (input.connectedTo == nullptr) continue;
+
+			for (auto& shaderCode : input.connectedTo->node->getShaderCode())
+			{
+				output.push_back({ shaderCode.first, shaderCode.second });
+			}
 		}
 
-		shaderCode += this->shaderVar->getShaderCode(inputs);
+		output.push_back({ this->type, this->shaderVar->getShaderCode(inputs) });
 
-		return shaderCode;
+		return output;
 	}
 
 	std::string getTypeName()
@@ -282,5 +265,3 @@ private:
 		}
 	}
 };
-
-typedef ShaderVarNode::ShaderNodeAttribute ShaderNodeAttribute;

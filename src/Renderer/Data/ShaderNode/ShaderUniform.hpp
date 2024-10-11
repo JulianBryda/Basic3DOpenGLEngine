@@ -22,10 +22,16 @@ public:
 
 	std::string getShaderCode(std::vector<ShaderNodeAttribute>& inputs) override
 	{
-		return getUniformCode(getTypeName());
+		if (compiled == true) return "";
+
+		std::string result = getUniformCode(getTypeName());
+
+		compiled = true;
+
+		return result;
 	}
 
-	std::string getUniformName()
+	std::string getVariableName() override
 	{
 		return uniformName;
 	}

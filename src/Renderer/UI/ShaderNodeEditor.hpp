@@ -135,16 +135,18 @@ private:
 			{
 				if (ImGui::MenuItem("Int"))
 				{
-					int* value = new int();
+					int* value = new int(0);
 					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Int", value, GL_INT, ShaderVarNode::ShaderNodeCategory::Input);
+					node->addInput(ShaderNodeAttribute(GL_INT, "", value));
 					node->setOutput(new ShaderNodeAttribute(GL_INT, "Value", value));
 
 					varNodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Float"))
 				{
-					float* value = new float();
+					float* value = new float(0);
 					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Float", value, GL_FLOAT, ShaderVarNode::ShaderNodeCategory::Input);
+					node->addInput(ShaderNodeAttribute(GL_FLOAT, "", value));
 					node->setOutput(new ShaderNodeAttribute(GL_FLOAT, "Value", value));
 
 					varNodes.push_back(node);
@@ -223,7 +225,7 @@ private:
 
 				ImGui::EndMenu();
 			}
-			if (ImGui::BeginMenu("Converter"))
+			if (ImGui::BeginMenu("Math"))
 			{
 				if (ImGui::MenuItem("Add"))
 				{
@@ -250,6 +252,17 @@ private:
 					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Multiply", "*", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::Operation);
 					node->addInput({ 0, "Value 1", nullptr });
 					node->addInput({ 0, "Value 2", nullptr });
+					node->setOutput(new ShaderNodeAttribute(0, "Result", nullptr));
+
+					functionNodes.push_back(node);
+				}
+
+				ImGui::Separator();
+
+				if (ImGui::MenuItem("Sin"))
+				{
+					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Sin", "sin", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::FunctionCall);
+					node->addInput({ 0, "Value", nullptr });
 					node->setOutput(new ShaderNodeAttribute(0, "Result", nullptr));
 
 					functionNodes.push_back(node);
@@ -298,6 +311,14 @@ private:
 		auto startAttribute = startNode->getAttributeById(startAttributeId);
 		auto endAttribute = endNode->getAttributeById(endAttributeId);
 
+		if (startNode->getOutput() != startAttribute)
+		{
+			auto temp = endAttribute;
+
+			endAttribute = startAttribute;
+			startAttribute = temp;
+		}
+
 		if (!isLinkValid(startAttribute, endAttribute)) return;
 
 		if (endNode->getType() == ShaderVarNode::ShaderVarNodeType::Function)
@@ -329,56 +350,7 @@ private:
 
 	void compileNodeTree()
 	{
-		std::string uniforms;
-		std::string functions;
-		std::string vars;
-		std::string mainBody;
-
-		//for (auto& node : uniformNodes)
-		//{
-		//	uniforms += node->getShaderCode();
-		//}
-
-		//for (auto& node : varNodes)
-		//{
-		//	vars += node->getShaderCode();
-		//}
-
-		//for (auto& node : functionNodes)
-		//{
-		//	std::vector<std::string> inputNames = getOutputVariableNames(node->getId());
-		//	functions += node->getShaderCode(&inputNames);
-		//}
-
-
-		//for (int i = 0; i < links.size(); i++)
-		//{
-		//	auto& link = links[i];
-		//	auto nodeFirst = link.first->node;
-		//	auto nodeSecond = link.second->node;
-
-		//	if (nodeSecond->getCategory() == ShaderVarNode::ShaderNodeCategory::Output && nodeSecond->getName() == "Output")
-		//	{
-		//		mainBody += std::format("{}{} = {}{};", nodeSecond->getTypeName(), nodeSecond->getId(), nodeFirst->getTypeName(), nodeFirst->getId());
-		//		i = links.size();
-		//	}
-		//}
-
-		//std::string shaderCode = std::string("#version 460 core\n")
-		//	+ uniforms
-		//	+ "\n"
-		//	+ vars
-		//	+ "\n"
-		//	+ functions
-		//	+ "\n"
-		//	+ "void main()\n"
-		//	+ "{\n"
-		//	+ mainBody
-		//	+ "\n"
-		//	+ "}";
-
-
-		ShaderVarNode* outputNode;
+		ShaderVarNode* outputNode = nullptr;
 
 		for (auto& node : varNodes)
 		{
@@ -391,15 +363,48 @@ private:
 
 		assert(outputNode);
 
-		std::string shaderCode = std::string("#version 460 core\n")
-			+ outputNode->getShaderCode()
+		std::string topCode;
+		std::string mainBody;
+		auto shaderCodes = outputNode->getShaderCode();
+		
+		// sort out double compiled nodes (just in case(uniform!!!))
+		for (int i = 0; i < shaderCodes.size(); i++)
+		{
+			for (int j = 0; j < shaderCodes.size(); j++)
+			{
+				if (i != j && shaderCodes[i] == shaderCodes[j])
+				{
+					shaderCodes.erase(shaderCodes.begin() + j);
+				}
+			}
+		}
+
+		for (auto& node : shaderCodes)
+		{
+			if (node.first == ShaderVarNode::ShaderVarNodeType::Uniform || node.second.substr(0, 3) == "out")
+			{
+				topCode += node.second;
+			}
+			else
+			{
+				mainBody += node.second;
+			}
+		}
+
+		mainBody += std::format("\n{} = {};", outputNode->getShaderVar()->getVariableName(), outputNode->getInputs()[0].connectedTo->node->getShaderVar()->getVariableName());
+
+		std::string code = std::string("#version 460 core\n\n")
+			+ topCode
 			+ "\n"
-			+ "}";
+			+ "void main()\n"
+			+ "{\n"
+			+ mainBody
+			+ "\n}";
 
 
-		std::cout << shaderCode << std::endl;
+		std::cout << code << std::endl;
 
-		Material* material = new Material("test-material", new Shader(".\\Vertex\\v_debug.glsl", GL_VERTEX_SHADER), new Shader(shaderCode, GL_FRAGMENT_SHADER, false));
+		Material* material = new Material("test-material", new Shader(".\\Vertex\\v_debug.glsl", GL_VERTEX_SHADER), new Shader(code, GL_FRAGMENT_SHADER, false));
 		MaterialLib::addMaterial(material);
 	}
 
@@ -432,9 +437,36 @@ private:
 		return nullptr;
 	}
 
-	int getNextNodeId()
+	int getNextNodeId(int correction = 0)
 	{
-		return uniformNodes.size() + functionNodes.size() + varNodes.size();
+		int id = uniformNodes.size() + functionNodes.size() + varNodes.size() + correction;
+
+		if (checkNodeIdExists(id))
+		{
+			return getNextNodeId(1);
+		}
+		else
+		{
+			return id;
+		}
+	}
+
+	bool checkNodeIdExists(int id)
+	{
+		for (auto& node : varNodes)
+		{
+			if (node->id == id) return true;
+		}
+		for (auto& node : uniformNodes)
+		{
+			if (node->id == id) return true;
+		}
+		for (auto& node : functionNodes)
+		{
+			if (node->id == id) return true;
+		}
+
+		return false;
 	}
 
 
@@ -446,6 +478,7 @@ private:
 			if (nodeId == node->getId())
 			{
 				uniformNodes.erase(uniformNodes.begin() + i);
+				deleteLinksByNode(node);
 				delete node;
 				return;
 			}
@@ -457,6 +490,7 @@ private:
 			if (nodeId == node->getId())
 			{
 				varNodes.erase(varNodes.begin() + i);
+				deleteLinksByNode(node);
 				delete node;
 				return;
 			}
@@ -468,6 +502,7 @@ private:
 			if (nodeId == node->getId())
 			{
 				functionNodes.erase(functionNodes.begin() + i);
+				deleteLinksByNode(node);
 				delete node;
 				return;
 			}
@@ -480,25 +515,17 @@ private:
 		links.erase(links.begin() + id);
 
 		link.second->connectedTo = nullptr;
+		link.first->connectedTo = nullptr;
 
-		bool firstAttribConnected = false, secondNodeConnected = false;
+		bool secondNodeConnected = false;
 		for (auto& val : links)
 		{
-			if (link.first->id == val.first->id)
-			{
-				firstAttribConnected = true;
-			}
-
 			if (val.second->node->id == link.second->node->id)
 			{
 				secondNodeConnected = true;
+				break;
 			}
-		}
-
-		if (!firstAttribConnected)
-		{
-			link.first->connectedTo = nullptr;
-		}
+		}	
 
 		if (!secondNodeConnected && !link.second->immutable)
 		{
@@ -506,6 +533,41 @@ private:
 			for (auto& input : node->getInputs())
 			{
 				input.type = 0;
+			}
+		}
+	}
+
+	void deleteLinkByAttribId(int attribId)
+	{
+		for (int i = 0; i < links.size(); i++)
+		{
+			if (links[i].first->id == attribId || links[i].second->id == attribId)
+			{
+				deleteLinkById(i);
+				return;
+			}
+		}
+	}
+
+	void deleteLinksByNode(ShaderVarNode* node)
+	{
+		for (int i = 0; i < links.size(); i++)
+		{
+			bool match = node->getOutput()->id == links[i].first->id;
+
+			for (auto& input : node->getInputs())
+			{
+				if (input.id == links[i].second->id)
+				{
+					match = true;
+					continue;
+				}
+			}
+
+			if (match)
+			{
+				deleteLinkById(i);
+				i--;
 			}
 		}
 	}

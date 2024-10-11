@@ -201,6 +201,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="src\Renderer\Renderer.hpp" />
     <ClInclude Include="src\Renderer\UI\ShaderNodeEditor.hpp" />
     <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderFunctionNode.hpp" />
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodeAttribute.hpp" />
     <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderVarNode.hpp" />
     <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderUniformNode.hpp" />
     <ClInclude Include="src\Renderer\UI\UserInterface.hpp" />
@@ -234,6 +235,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClCompile Include="src\Core\PhysicEngine.cpp" />
     <ClCompile Include="src\Globals\GlobalConfig.cpp" />
     <ClCompile Include="src\Landscape.cpp" />
+    <ClCompile Include="src\Renderer\Data\ShaderNode\ShaderVar.cpp" />
     <ClCompile Include="src\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Renderer\UI\UserInterface.cpp" />
     <ClCompile Include="src\Scene\Objects\GameObject.cpp" />

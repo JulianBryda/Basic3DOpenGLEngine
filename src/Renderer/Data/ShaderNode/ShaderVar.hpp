@@ -6,8 +6,8 @@
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 
+#include "../../UI/ShaderNodeEditor/ShaderNodeAttribute.hpp"
 
-struct ShaderNodeAttribute;
 
 class ShaderVar
 {
@@ -24,46 +24,56 @@ public:
 	ShaderVar(int id, void* value, GLint outputType, ShaderVarPrefix prefix = None)
 	{
 		this->id = id;
-		this->value = value;
 		this->outputType = outputType;
 		this->prefix = prefix;
+		this->compiled = false;
 	}
 
 	~ShaderVar()
 	{
-		if (value)
-			delete value;
+
 	}
 
-	virtual std::string getShaderCode(std::vector<ShaderNodeAttribute>& inputs);
-
-	int id;
-	void* value;
-	GLint outputType;
-	ShaderVarPrefix prefix;
-
-protected:
-
-	std::string getVarCode(std::string type)
+	virtual std::string getShaderCode(std::vector<ShaderNodeAttribute>& inputs)
 	{
-		if (value)
+		if (compiled == true) return "";
+
+		std::string result;
+
+		if (prefix == ShaderVarPrefix::None)
 		{
-			return std::format("{}{} {}{} = {};\n", getPrefix(), type, "var", this->id, getFormatedValue());
+			result = std::format("{} {} = {};\n", getTypeName(), getVariableName(), getFormatedValue(inputs));
 		}
 		else
 		{
-			return std::format("{}{} {}{};\n", getPrefix(), type, "var", this->id);
+			result = std::format("{} {} {};\n", getPrefix(), getTypeName(), getVariableName());
 		}
+
+		compiled = true;
+
+		return result;
 	}
+
+	virtual std::string getVariableName()
+	{
+		return std::format("var{}", this->id);
+	}
+
+	int id;
+	GLint outputType;
+	ShaderVarPrefix prefix;
+	bool compiled;
+
+protected:
 
 	std::string getPrefix()
 	{
 		switch (prefix)
 		{
 		case In:
-			return "in ";
+			return "in";
 		case Out:
-			return "out ";
+			return "out";
 		default:
 			return "";
 		}
@@ -90,25 +100,35 @@ protected:
 		}
 	}
 
-	std::string getFormatedValue()
+	std::string getFormatedValue(std::vector<ShaderNodeAttribute>& inputs)
 	{
 		switch (outputType)
 		{
 		case GL_INT:
-			return std::format("{}", *static_cast<int*>(value));
+			assert(inputs.size() >= 1);
+			return std::format("{}", getValueOrNameInt(inputs[0]));
 		case GL_FLOAT:
-			return std::format("{}", *static_cast<float*>(value));
+			assert(inputs.size() >= 1);
+			return std::format("{}", getValueOrNameFloat(inputs[0]));
 		case GL_DOUBLE:
-			return std::format("{}", *static_cast<double*>(value));
+			assert(inputs.size() >= 1);
+			return std::format("{}", getValueOrNameDouble(inputs[0]));
 		case GL_FLOAT_VEC2:
-			return std::format("vec2({}, {})", static_cast<glm::vec2*>(value)->x, static_cast<glm::vec2*>(value)->y);
+			assert(inputs.size() >= 2);
+			return std::format("vec2({}, {})", getValueOrNameFloat(inputs[0]), getValueOrNameFloat(inputs[1]));
 		case GL_FLOAT_VEC3:
-			return std::format("vec3({}, {}, {})", static_cast<glm::vec3*>(value)->x, static_cast<glm::vec3*>(value)->y, static_cast<glm::vec3*>(value)->z);
+			assert(inputs.size() >= 3);
+			return std::format("vec3({}, {}, {})", getValueOrNameFloat(inputs[0]), getValueOrNameFloat(inputs[1]), getValueOrNameFloat(inputs[2]));
 		case GL_FLOAT_VEC4:
-			return std::format("vec4({}, {}, {}, {})", static_cast<glm::vec4*>(value)->x, static_cast<glm::vec4*>(value)->y, static_cast<glm::vec4*>(value)->z, static_cast<glm::vec4*>(value)->a);
+			assert(inputs.size() >= 4);
+			return std::format("vec4({}, {}, {}, {})", getValueOrNameFloat(inputs[0]), getValueOrNameFloat(inputs[1]), getValueOrNameFloat(inputs[2]), getValueOrNameFloat(inputs[3]));
 		default:
 			throw std::runtime_error("Type not supported!");
 		}
 	}
+
+	std::string getValueOrNameInt(ShaderNodeAttribute& attribute);
+	std::string getValueOrNameFloat(ShaderNodeAttribute& attribute);
+	std::string getValueOrNameDouble(ShaderNodeAttribute& attribute);
 
 };

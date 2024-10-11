@@ -30,10 +30,20 @@ public:
 	std::string getShaderCode(std::vector<ShaderNodeAttribute>& inputs) override
 	{
 		assert(inputs.size() >= 1);
+		if (compiled == true) return "";
 
 		std::vector<std::string> inputNames = getOutputVariableNames(inputs);
 
-		return getFunctionCode(getTypeName(), inputNames);
+		std::string result = getFunctionCode(getTypeName(), inputNames);
+
+		compiled = true;
+
+		return result;
+	}
+
+	std::string getVariableName() override
+	{
+		return std::format("func{}", this->id);
 	}
 
 private:
@@ -45,12 +55,12 @@ private:
 		case Operation:
 		{
 			std::string inputList = join(inputNames, std::format(" {} ", functionName));
-			return std::format("{} {}{} = {};\n", varName, "func", this->id, inputList);
+			return std::format("{} {} = {};\n", varName, getVariableName(), inputList);
 		}
 		case FunctionCall:
 		{
 			std::string inputList = join(inputNames, ", ");
-			return std::format("{} {}{} = {}({});\n", varName, "func", this->id, this->functionName, inputList);
+			return std::format("{} {} = {}({});\n", varName, getVariableName(), this->functionName, inputList);
 		}
 		default:
 			break;
@@ -77,16 +87,7 @@ private:
 
 		for (auto& input : inputs)
 		{
-			ShaderVarNode* node = input.connectedTo->node;
-
-			if (node->getType() == ShaderVarNode::ShaderVarNodeType::Uniform)
-			{
-				varNames.push_back(std::format("{}", static_cast<ShaderUniform*>(node->getShaderVar())->getUniformName()));
-			}
-			else
-			{
-				varNames.push_back(std::format("{}{}", node->getTypeName(), node->getId()));
-			}
+			varNames.push_back(input.connectedTo->node->getShaderVar()->getVariableName());
 		}
 
 		return varNames;

@@ -285,6 +285,9 @@
     <ClInclude Include="src\Renderer\Data\ShaderNode\ShaderVar.hpp">
       <Filter>src\Renderer\Data\ShaderNode</Filter>
     </ClInclude>
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodeAttribute.hpp">
+      <Filter>src\Renderer\UI\ShaderNodeEditor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\FuckWindows.cpp">
@@ -325,6 +328,9 @@
     </ClCompile>
     <ClCompile Include="src\ThirdParty\ImNodes\imnodes.cpp">
       <Filter>src\ThirdParty\ImNodes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\Data\ShaderNode\ShaderVar.cpp">
+      <Filter>src\Renderer\Data\ShaderNode</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
