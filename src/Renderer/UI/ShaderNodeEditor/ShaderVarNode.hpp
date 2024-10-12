@@ -39,7 +39,7 @@ public:
 
 		this->shaderVar = new ShaderVar(id, value, outputType, prefix);
 
-		ImNodes::SetNodeScreenSpacePos(id, ImGui::GetMousePos());
+		ImNodes::SetNodeScreenSpacePos(id, ImGui::GetWindowPos());
 	}
 
 	~ShaderVarNode()
@@ -238,7 +238,7 @@ protected:
 		this->name = name;
 		this->category = category;
 
-		ImNodes::SetNodeScreenSpacePos(id, ImGui::GetMousePos());
+		ImNodes::SetNodeScreenSpacePos(id, ImGui::GetWindowPos());
 	}
 
 	ShaderVarNodeType type;

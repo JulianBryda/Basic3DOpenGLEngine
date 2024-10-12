@@ -157,6 +157,9 @@ private:
 
 					varNodes.push_back(node);
 				}
+
+				ImGui::Separator();
+
 				if (ImGui::MenuItem("Vec2"))
 				{
 					glm::vec2* value = new glm::vec2();
@@ -273,6 +276,22 @@ private:
 
 					functionNodes.push_back(node);
 				}
+				if (ImGui::MenuItem("Cos"))
+				{
+					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Cos", "cos", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::FunctionCall);
+					node->addInput({ 0, "Value", nullptr });
+					node->setOutput(new ShaderNodeAttribute(0, "Result", nullptr));
+
+					functionNodes.push_back(node);
+				}
+				if (ImGui::MenuItem("Tan"))
+				{
+					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Tan", "tan", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::FunctionCall);
+					node->addInput({ 0, "Value", nullptr });
+					node->setOutput(new ShaderNodeAttribute(0, "Result", nullptr));
+
+					functionNodes.push_back(node);
+				}
 
 				ImGui::Separator();
 
@@ -284,11 +303,6 @@ private:
 
 					functionNodes.push_back(node);
 				}
-
-				ImGui::EndMenu();
-			}
-			if (ImGui::BeginMenu("Shader"))
-			{
 
 				ImGui::EndMenu();
 			}
