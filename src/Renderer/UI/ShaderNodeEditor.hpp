@@ -46,6 +46,12 @@ public:
 				renderLinks();
 			}
 			ImNodes::EndNodeEditor();
+
+			ImGui::Begin("Output Console", nullptr);
+			{
+				ImGui::TextUnformatted(consoleText.c_str());
+			}
+			ImGui::End();
 		}
 		ImGui::End();
 
@@ -361,13 +367,22 @@ private:
 			}
 		}
 
-		assert(outputNode);
+		if (!outputNode)
+		{
+			consoleText += "No Output Node found!\n";
+			return;
+		}
+		if (!outputNode->getInputs()[0].connectedTo)
+		{
+			consoleText += "No Node connected to Output Node!\n";
+			return;
+		}
 
 		std::string topCode;
 		std::string mainBody;
 		auto shaderCodes = outputNode->getShaderCode();
-		
-		// sort out double compiled nodes (just in case(uniform!!!))
+
+		// sort out double compiled nodes
 		for (int i = 0; i < shaderCodes.size(); i++)
 		{
 			for (int j = 0; j < shaderCodes.size(); j++)
@@ -401,11 +416,14 @@ private:
 			+ mainBody
 			+ "\n}";
 
-
+#ifdef _DEBUG
 		std::cout << code << std::endl;
+#endif
 
-		Material* material = new Material("test-material", new Shader(".\\Vertex\\v_debug.glsl", GL_VERTEX_SHADER), new Shader(code, GL_FRAGMENT_SHADER, false));
+		Material* material = new Material(std::format("Material-{}", MaterialLib::g_materials.size()), new Shader(".\\Vertex\\v_debug.glsl", GL_VERTEX_SHADER), new Shader(code, GL_FRAGMENT_SHADER, false));
 		MaterialLib::addMaterial(material);
+
+		consoleText += std::format("{} compiled successfully!\n", material->getName());
 	}
 
 	ShaderVarNode* getNodeByAttribId(int attribId)
@@ -525,7 +543,7 @@ private:
 				secondNodeConnected = true;
 				break;
 			}
-		}	
+		}
 
 		if (!secondNodeConnected && !link.second->immutable)
 		{
@@ -579,6 +597,8 @@ private:
 		ImGui::Text(text);
 		ImGui::PopStyleColor();
 	}
+
+	std::string consoleText;
 
 	std::vector<ShaderUniformNode*> uniformNodes;
 	std::vector<ShaderFunctionNode*> functionNodes;

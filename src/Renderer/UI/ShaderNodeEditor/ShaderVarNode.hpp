@@ -38,6 +38,8 @@ public:
 		this->type = ShaderVarNodeType::Var;
 
 		this->shaderVar = new ShaderVar(id, value, outputType, prefix);
+
+		ImNodes::SetNodeScreenSpacePos(id, ImGui::GetMousePos());
 	}
 
 	~ShaderVarNode()
@@ -235,6 +237,8 @@ protected:
 		this->id = id;
 		this->name = name;
 		this->category = category;
+
+		ImNodes::SetNodeScreenSpacePos(id, ImGui::GetMousePos());
 	}
 
 	ShaderVarNodeType type;

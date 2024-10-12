@@ -30,15 +30,10 @@ public:
 	std::string getShaderCode(std::vector<ShaderNodeAttribute>& inputs) override
 	{
 		assert(inputs.size() >= 1);
-		if (compiled == true) return "";
 
 		std::vector<std::string> inputNames = getOutputVariableNames(inputs);
 
-		std::string result = getFunctionCode(getTypeName(), inputNames);
-
-		compiled = true;
-
-		return result;
+		return getFunctionCode(getTypeName(), inputNames);
 	}
 
 	std::string getVariableName() override

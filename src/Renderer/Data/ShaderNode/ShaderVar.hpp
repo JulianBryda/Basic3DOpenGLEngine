@@ -26,7 +26,6 @@ public:
 		this->id = id;
 		this->outputType = outputType;
 		this->prefix = prefix;
-		this->compiled = false;
 	}
 
 	~ShaderVar()
@@ -36,22 +35,14 @@ public:
 
 	virtual std::string getShaderCode(std::vector<ShaderNodeAttribute>& inputs)
 	{
-		if (compiled == true) return "";
-
-		std::string result;
-
 		if (prefix == ShaderVarPrefix::None)
 		{
-			result = std::format("{} {} = {};\n", getTypeName(), getVariableName(), getFormatedValue(inputs));
+			return std::format("{} {} = {};\n", getTypeName(), getVariableName(), getFormatedValue(inputs));
 		}
 		else
 		{
-			result = std::format("{} {} {};\n", getPrefix(), getTypeName(), getVariableName());
+			return std::format("{} {} {};\n", getPrefix(), getTypeName(), getVariableName());
 		}
-
-		compiled = true;
-
-		return result;
 	}
 
 	virtual std::string getVariableName()
@@ -62,7 +53,6 @@ public:
 	int id;
 	GLint outputType;
 	ShaderVarPrefix prefix;
-	bool compiled;
 
 protected:
 
