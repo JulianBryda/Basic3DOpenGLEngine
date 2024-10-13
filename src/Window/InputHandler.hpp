@@ -1,6 +1,5 @@
 #pragma once
 #include <iostream>
-#include <GLFW/glfw3.h>
 #include <ctime>
 #include <functional>
 
@@ -220,6 +219,8 @@ public:
 
 	void HandleScrollInput(double offset)
 	{
+		if (checkForUi()) return;
+
 		float off = static_cast<float>(offset) / 10.0f;
 		Renderer::getInstance().getActiveScene()->getActiveCamera()->multiplyDistance(1.0f - off);
 	}
@@ -500,7 +501,7 @@ public:
 
 		std::vector<GLuint> pixels(width * height);
 
-		glBindTexture(GL_TEXTURE_2D, Textures::g_textures->overdrawTexture);
+		glBindTexture(GL_TEXTURE_2D, Textures::get("overdraw"));
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, pixels.data());
 
 		std::vector<unsigned char> rgbaPixels(width * height * 4);

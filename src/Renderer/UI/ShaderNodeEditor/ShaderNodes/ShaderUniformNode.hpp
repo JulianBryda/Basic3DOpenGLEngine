@@ -1,7 +1,7 @@
 #pragma once
 #include <algorithm>
 #include "ShaderVarNode.hpp"
-#include "../../Data/ShaderNode/ShaderUniform.hpp"
+#include "../../../Data/ShaderNode/ShaderUniform.hpp"
 
 class ShaderUniformNode : public ShaderVarNode
 {

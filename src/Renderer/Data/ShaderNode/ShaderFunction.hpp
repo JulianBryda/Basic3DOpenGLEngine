@@ -16,10 +16,11 @@ public:
 		FunctionCall
 	};
 
-	ShaderFunction(int id, std::string functionName, GLint outputType, ShaderFunctionOperation operation) : ShaderVar(id, nullptr, outputType)
+	ShaderFunction(int id, std::string functionName, GLint outputType, ShaderFunctionOperation operation) : ShaderVar(id, outputType)
 	{
 		this->functionName = functionName;
 		this->operation = operation;
+		this->variableName = std::format("func{}", id);
 	}
 
 	~ShaderFunction()
@@ -36,11 +37,6 @@ public:
 		return getFunctionCode(getTypeName(), inputNames);
 	}
 
-	std::string getVariableName() override
-	{
-		return std::format("func{}", this->id);
-	}
-
 private:
 
 	std::string getFunctionCode(std::string varName, std::vector<std::string>& inputNames)
@@ -50,12 +46,12 @@ private:
 		case Operation:
 		{
 			std::string inputList = join(inputNames, std::format(" {} ", functionName));
-			return std::format("{} {} = {};\n", varName, getVariableName(), inputList);
+			return std::format("{} {} = {};\n", varName, variableName, inputList);
 		}
 		case FunctionCall:
 		{
 			std::string inputList = join(inputNames, ", ");
-			return std::format("{} {} = {}({});\n", varName, getVariableName(), this->functionName, inputList);
+			return std::format("{} {} = {}({});\n", varName, variableName, this->functionName, inputList);
 		}
 		default:
 			break;
@@ -82,7 +78,7 @@ private:
 
 		for (auto& input : inputs)
 		{
-			varNames.push_back(input.connectedTo->node->getShaderVar()->getVariableName());
+			varNames.push_back(input.connectedTo->node->getShaderVar()->variableName);
 		}
 
 		return varNames;

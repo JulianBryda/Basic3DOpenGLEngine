@@ -1,6 +1,5 @@
 #pragma once
 #include <iostream>
-#include <GLFW/glfw3.h>
 
 #include "ShaderVar.hpp"
 
@@ -9,9 +8,9 @@ class ShaderUniform : public ShaderVar
 
 public:
 
-	ShaderUniform(int id, std::string uniformName, GLint outputType, int arraySize) : ShaderVar(id, nullptr, outputType)
+	ShaderUniform(int id, std::string uniformName, GLint outputType, int arraySize) : ShaderVar(id, outputType)
 	{
-		this->uniformName = uniformName;
+		this->variableName = uniformName;
 		this->arraySize = arraySize;
 	}
 
@@ -23,11 +22,6 @@ public:
 	std::string getShaderCode(std::vector<ShaderNodeAttribute>& inputs) override
 	{
 		return getUniformCode(getTypeName());
-	}
-
-	std::string getVariableName() override
-	{
-		return uniformName;
 	}
 
 	bool operator==(const ShaderUniform& other)
@@ -42,14 +36,13 @@ private:
 	{
 		if (this->arraySize > 1)
 		{
-			return std::format("uniform {} {}[{}];\n", varName, uniformName, this->arraySize);
+			return std::format("uniform {} {}[{}];\n", varName, variableName, this->arraySize);
 		}
 		else
 		{
-			return std::format("uniform {} {};\n", varName, uniformName);
+			return std::format("uniform {} {};\n", varName, variableName);
 		}
 	}
 
-	std::string uniformName;
 	int arraySize;
 };

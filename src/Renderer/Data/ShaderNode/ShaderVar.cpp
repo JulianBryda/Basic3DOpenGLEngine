@@ -1,6 +1,6 @@
 #include "ShaderVar.hpp"
 
-#include "../../UI/ShaderNodeEditor/ShaderVarNode.hpp"
+#include "../../UI/ShaderNodeEditor/ShaderNodes/ShaderVarNode.hpp"
 
 std::string ShaderVar::getValueOrNameInt(ShaderNodeAttribute& attribute)
 {
@@ -11,7 +11,7 @@ std::string ShaderVar::getValueOrNameInt(ShaderNodeAttribute& attribute)
 	}
 	else
 	{
-		return attribute.connectedTo->node->getShaderVar()->getVariableName();
+		return attribute.connectedTo->node->getShaderVar()->variableName;
 	}
 }
 
@@ -24,7 +24,7 @@ std::string ShaderVar::getValueOrNameFloat(ShaderNodeAttribute& attribute)
 	}
 	else
 	{
-		return attribute.connectedTo->node->getShaderVar()->getVariableName();
+		return attribute.connectedTo->node->getShaderVar()->variableName;
 	}
 }
 
@@ -37,6 +37,6 @@ std::string ShaderVar::getValueOrNameDouble(ShaderNodeAttribute& attribute)
 	}
 	else
 	{
-		return attribute.connectedTo->node->getShaderVar()->getVariableName();
+		return attribute.connectedTo->node->getShaderVar()->variableName;
 	}
 }

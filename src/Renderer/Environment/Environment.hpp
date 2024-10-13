@@ -4,6 +4,7 @@
 
 #include "../../Scene/Scene.hpp"
 #include "../Graphics/Material.hpp"
+#include "../../Globals/GlobalTextures.hpp"
 
 namespace Environment
 {
@@ -24,7 +25,7 @@ namespace Environment
 			material->setMat4("viewMatrix", activeScene->getActiveCamera()->getViewMatrix());
 			material->setMat4("modelMatrix", object->getModelMatrix());
 
-			material->setTexture(object->getTextureType(), object->getTexture(), GL_TEXTURE0);
+			material->setTexture(GL_TEXTURE_CUBE_MAP, Textures::get("skybox"), GL_TEXTURE0);
 
 			object->draw();
 		}

@@ -350,7 +350,7 @@ void UserInterface::renderObjectManager()
 
 				if (ImGui::TreeNode("Material"))
 				{
-					if (ImGui::BeginCombo("Shader", object->getMaterialPtr()->getName().c_str()))
+					if (ImGui::BeginCombo("Material", object->getMaterialPtr()->getName().c_str()))
 					{
 						for (auto& shader : MaterialLib::g_materials)
 						{
@@ -364,22 +364,22 @@ void UserInterface::renderObjectManager()
 						ImGui::EndCombo();
 					}
 
-					ImGui::Image((void*)(intptr_t)object->getTexture(), ImVec2(150, 150));
-					ImGui::SameLine();
-					ImGui::BeginChild("Container", ImVec2(0, 150));
-					{
-						ImGui::BeginChild("Textures", ImVec2(0, 120), true);
-						{
-							renderFolderStructure(".\\Assets\\Textures");
-						}
-						ImGui::EndChild();
+					//ImGui::Image((void*)(intptr_t)object->getTexture(), ImVec2(150, 150));
+					//ImGui::SameLine();
+					//ImGui::BeginChild("Container", ImVec2(0, 150));
+					//{
+					//	ImGui::BeginChild("Textures", ImVec2(0, 120), true);
+					//	{
+					//		renderFolderStructure(".\\Assets\\Textures");
+					//	}
+					//	ImGui::EndChild();
 
-						if (ImGui::Button("Load Texture"))
-						{
-							object->loadTexture(m_selectedTexturePath);
-						}
-					}
-					ImGui::EndChild();
+					//	if (ImGui::Button("Load Texture"))
+					//	{
+					//		object->loadTexture(m_selectedTexturePath);
+					//	}
+					//}
+					//ImGui::EndChild();
 
 					ImGui::TreePop();
 				}

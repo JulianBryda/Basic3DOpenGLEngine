@@ -2,9 +2,9 @@
 #include <algorithm>
 
 #include "../../ThirdParty/ImNodes/imnodes.h"
-#include "ShaderNodeEditor/ShaderVarNode.hpp"
-#include "ShaderNodeEditor/ShaderUniformNode.hpp"
-#include "ShaderNodeEditor/ShaderFunctionNode.hpp"
+#include "ShaderNodeEditor/ShaderNodes/ShaderVarNode.hpp"
+#include "ShaderNodeEditor/ShaderNodes/ShaderUniformNode.hpp"
+#include "ShaderNodeEditor/ShaderNodes/ShaderFunctionNode.hpp"
 
 class ShaderNodeEditor
 {
@@ -18,6 +18,8 @@ public:
 		ImNodesStyle& style = ImNodes::GetStyle();
 		style.Colors[ImNodesCol_NodeBackgroundHovered] = style.Colors[ImNodesCol_NodeBackground];
 		style.Colors[ImNodesCol_NodeBackgroundSelected] = style.Colors[ImNodesCol_NodeBackground];
+
+
 	}
 
 	~ShaderNodeEditor()
@@ -35,23 +37,44 @@ public:
 				{
 					compileNodeTree();
 				}
+
+				ImGui::SetNextItemWidth(300.f);
+				if (ImGui::BeginCombo("Material", selectedMaterial ? selectedMaterial->getName().c_str() : "--Selected Material--"))
+				{
+					for (auto& material : MaterialLib::g_materials)
+					{
+						if (!material.second->getNodeBased()) continue;
+
+						bool isSelected = selectedMaterial == material.second;
+						if (ImGui::Selectable(material.second->getName().c_str(), isSelected))
+							selectedMaterial = material.second;
+						if (isSelected)
+							ImGui::SetItemDefaultFocus();
+					}
+
+					ImGui::EndCombo();
+				}
 			}
 			ImGui::EndMenuBar();
 
-			ImNodes::BeginNodeEditor();
+			ImGui::BeginChild("Node Editor", { ImGui::GetWindowSize().x, ImGui::GetWindowSize().y - 150 });
 			{
-				renderNodePopup();
+				ImNodes::BeginNodeEditor();
+				{
+					renderNodePopup();
 
-				renderNodes();
-				renderLinks();
+					renderNodes();
+					renderLinks();
+				}
+				ImNodes::EndNodeEditor();
 			}
-			ImNodes::EndNodeEditor();
+			ImGui::EndChild();
 
-			ImGui::Begin("Output Console", nullptr);
+			ImGui::BeginChild("Node Editor Output");
 			{
-				ImGui::TextUnformatted(consoleText.c_str());
+				ImGui::TextUnformatted(outputText.c_str());
 			}
-			ImGui::End();
+			ImGui::EndChild();
 		}
 		ImGui::End();
 
@@ -89,7 +112,6 @@ public:
 			delete[] linkIds;
 		}
 	}
-
 
 private:
 
@@ -142,8 +164,8 @@ private:
 				if (ImGui::MenuItem("Int"))
 				{
 					int* value = new int(0);
-					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Int", value, GL_INT, ShaderVarNode::ShaderNodeCategory::Input);
-					node->addInput(ShaderNodeAttribute(GL_INT, "", value));
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Int", GL_INT, ShaderVarNode::ShaderNodeCategory::Input);
+					node->addInput(ShaderNodeAttribute(GL_INT, "", value, true));
 					node->setOutput(new ShaderNodeAttribute(GL_INT, "Value", value));
 
 					varNodes.push_back(node);
@@ -151,8 +173,8 @@ private:
 				if (ImGui::MenuItem("Float"))
 				{
 					float* value = new float(0);
-					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Float", value, GL_FLOAT, ShaderVarNode::ShaderNodeCategory::Input);
-					node->addInput(ShaderNodeAttribute(GL_FLOAT, "", value));
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Float", GL_FLOAT, ShaderVarNode::ShaderNodeCategory::Input);
+					node->addInput(ShaderNodeAttribute(GL_FLOAT, "", value, true));
 					node->setOutput(new ShaderNodeAttribute(GL_FLOAT, "Value", value));
 
 					varNodes.push_back(node);
@@ -163,7 +185,7 @@ private:
 				if (ImGui::MenuItem("Vec2"))
 				{
 					glm::vec2* value = new glm::vec2();
-					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Vec2", value, GL_FLOAT_VEC2, ShaderVarNode::ShaderNodeCategory::Input);
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Vec2", GL_FLOAT_VEC2, ShaderVarNode::ShaderNodeCategory::Input);
 					node->addInput(ShaderNodeAttribute(GL_FLOAT, "X", &value->x));
 					node->addInput(ShaderNodeAttribute(GL_FLOAT, "Y", &value->y));
 					node->setOutput(new ShaderNodeAttribute(GL_FLOAT_VEC2, "Value", value));
@@ -173,7 +195,7 @@ private:
 				if (ImGui::MenuItem("Vec3"))
 				{
 					glm::vec3* value = new glm::vec3();
-					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Vec3", value, GL_FLOAT_VEC3, ShaderVarNode::ShaderNodeCategory::Input);
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Vec3", GL_FLOAT_VEC3, ShaderVarNode::ShaderNodeCategory::Input);
 					node->addInput(ShaderNodeAttribute(GL_FLOAT, "X", &value->x));
 					node->addInput(ShaderNodeAttribute(GL_FLOAT, "Y", &value->y));
 					node->addInput(ShaderNodeAttribute(GL_FLOAT, "Z", &value->z));
@@ -184,12 +206,39 @@ private:
 				if (ImGui::MenuItem("Vec4"))
 				{
 					glm::vec4* value = new glm::vec4();
-					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Vec4", value, GL_FLOAT_VEC4, ShaderVarNode::ShaderNodeCategory::Input);
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Vec4", GL_FLOAT_VEC4, ShaderVarNode::ShaderNodeCategory::Input);
 					node->addInput(ShaderNodeAttribute(GL_FLOAT, "X", &value->x));
 					node->addInput(ShaderNodeAttribute(GL_FLOAT, "Y", &value->y));
 					node->addInput(ShaderNodeAttribute(GL_FLOAT, "Z", &value->z));
 					node->addInput(ShaderNodeAttribute(GL_FLOAT, "A", &value->a));
 					node->setOutput(new ShaderNodeAttribute(GL_FLOAT_VEC4, "Value", value));
+
+					varNodes.push_back(node);
+				}
+
+				ImGui::Separator();
+
+				if (ImGui::MenuItem("Position"))
+				{
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Position", GL_FLOAT_VEC3, ShaderVarNode::ShaderNodeCategory::Input, ShaderVar::In);
+					node->setOutput(new ShaderNodeAttribute(GL_FLOAT_VEC3, "Value", nullptr));
+					node->getShaderVar()->variableName = "fragPos";
+
+					varNodes.push_back(node);
+				}
+				if (ImGui::MenuItem("Normal"))
+				{
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Normal", GL_FLOAT_VEC3, ShaderVarNode::ShaderNodeCategory::Input, ShaderVar::In);
+					node->setOutput(new ShaderNodeAttribute(GL_FLOAT_VEC3, "Value", nullptr));
+					node->getShaderVar()->variableName = "fragNorm";
+
+					varNodes.push_back(node);
+				}
+				if (ImGui::MenuItem("Uv"))
+				{
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Uv", GL_FLOAT_VEC2, ShaderVarNode::ShaderNodeCategory::Input, ShaderVar::In);
+					node->setOutput(new ShaderNodeAttribute(GL_FLOAT_VEC2, "Value", nullptr));
+					node->getShaderVar()->variableName = "fragUv";
 
 					varNodes.push_back(node);
 				}
@@ -210,8 +259,7 @@ private:
 			{
 				if (ImGui::MenuItem("Output"))
 				{
-
-					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Output", nullptr, GL_FLOAT_VEC4, ShaderVarNode::ShaderNodeCategory::Output, ShaderVar::Out);
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Output", GL_FLOAT_VEC4, ShaderVarNode::ShaderNodeCategory::Output, ShaderVar::Out);
 					node->addInput({ GL_FLOAT_VEC4, "Output", nullptr });
 
 					varNodes.push_back(node);
@@ -238,7 +286,7 @@ private:
 			{
 				if (ImGui::MenuItem("Add"))
 				{
-					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Add", "+", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::Operation);
+					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Add", 0, "+", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::Operation);
 					node->addInput({ 0, "Value 1", nullptr });
 					node->addInput({ 0, "Value 2", nullptr });
 					node->setOutput(new ShaderNodeAttribute(0, "Result", nullptr));
@@ -248,7 +296,7 @@ private:
 
 				if (ImGui::MenuItem("Subtract"))
 				{
-					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Subtract", "-", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::Operation);
+					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Subtract", 0, "-", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::Operation);
 					node->addInput({ 0, "Value 1", nullptr });
 					node->addInput({ 0, "Value 2", nullptr });
 					node->setOutput(new ShaderNodeAttribute(0, "Result", nullptr));
@@ -258,7 +306,7 @@ private:
 
 				if (ImGui::MenuItem("Multiply"))
 				{
-					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Multiply", "*", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::Operation);
+					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Multiply", 0, "*", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::Operation);
 					node->addInput({ 0, "Value 1", nullptr });
 					node->addInput({ 0, "Value 2", nullptr });
 					node->setOutput(new ShaderNodeAttribute(0, "Result", nullptr));
@@ -270,7 +318,7 @@ private:
 
 				if (ImGui::MenuItem("Sin"))
 				{
-					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Sin", "sin", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::FunctionCall);
+					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Sin", 0, "sin", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::FunctionCall);
 					node->addInput({ 0, "Value", nullptr });
 					node->setOutput(new ShaderNodeAttribute(0, "Result", nullptr));
 
@@ -278,7 +326,7 @@ private:
 				}
 				if (ImGui::MenuItem("Cos"))
 				{
-					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Cos", "cos", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::FunctionCall);
+					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Cos", 0, "cos", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::FunctionCall);
 					node->addInput({ 0, "Value", nullptr });
 					node->setOutput(new ShaderNodeAttribute(0, "Result", nullptr));
 
@@ -286,7 +334,7 @@ private:
 				}
 				if (ImGui::MenuItem("Tan"))
 				{
-					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Tan", "tan", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::FunctionCall);
+					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Tan", 0, "tan", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::FunctionCall);
 					node->addInput({ 0, "Value", nullptr });
 					node->setOutput(new ShaderNodeAttribute(0, "Result", nullptr));
 
@@ -297,7 +345,7 @@ private:
 
 				if (ImGui::MenuItem("Normalize"))
 				{
-					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Normalize", "normalize", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::FunctionCall);
+					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Normalize", 0, "normalize", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::FunctionCall);
 					node->addInput({ 0, "Value", nullptr });
 					node->setOutput(new ShaderNodeAttribute(0, "Result", nullptr));
 
@@ -308,6 +356,27 @@ private:
 			}
 			if (ImGui::BeginMenu("Texture"))
 			{
+				if (ImGui::MenuItem("Sampler2D"))
+				{
+					GLuint* value = new GLuint();
+					ShaderUniformNode* node = new ShaderUniformNode(getNextNodeId(), "Sampler2D", GL_SAMPLER_2D, ShaderVarNode::ShaderNodeCategory::Texture, 1);
+					node->addInput(ShaderNodeAttribute(GL_SAMPLER_2D, "", value, true));
+					node->setOutput(new ShaderNodeAttribute(GL_SAMPLER_2D, "Value", nullptr));
+
+					uniformNodes.push_back(node);
+				}
+
+				ImGui::Separator();
+
+				if (ImGui::MenuItem("Texture"))
+				{
+					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Texture", GL_FLOAT_VEC4, "texture", ShaderFunctionNode::ShaderNodeCategory::Texture, ShaderFunction::ShaderFunctionOperation::FunctionCall);
+					node->addInput({ GL_SAMPLER_2D, "Sampler2D", nullptr });
+					node->addInput({ GL_FLOAT_VEC2, "Uv", nullptr });
+					node->setOutput(new ShaderNodeAttribute(GL_FLOAT_VEC4, "Value", nullptr));
+
+					functionNodes.push_back(node);
+				}
 
 				ImGui::EndMenu();
 			}
@@ -383,12 +452,12 @@ private:
 
 		if (!outputNode)
 		{
-			consoleText += "No Output Node found!\n";
+			outputText += "No Output Node found!\n";
 			return;
 		}
 		if (!outputNode->getInputs()[0].connectedTo)
 		{
-			consoleText += "No Node connected to Output Node!\n";
+			outputText += "No Node connected to Output Node!\n";
 			return;
 		}
 
@@ -410,7 +479,7 @@ private:
 
 		for (auto& node : shaderCodes)
 		{
-			if (node.first == ShaderVarNode::ShaderVarNodeType::Uniform || node.second.substr(0, 3) == "out")
+			if (node.first == ShaderVarNode::ShaderVarNodeType::Uniform || node.second.substr(0, 3) == "out" || node.second.substr(0, 2) == "in")
 			{
 				topCode += node.second;
 			}
@@ -420,7 +489,7 @@ private:
 			}
 		}
 
-		mainBody += std::format("\n{} = {};", outputNode->getShaderVar()->getVariableName(), outputNode->getInputs()[0].connectedTo->node->getShaderVar()->getVariableName());
+		mainBody += std::format("\n{} = {};", outputNode->getShaderVar()->variableName, outputNode->getInputs()[0].connectedTo->node->getShaderVar()->variableName);
 
 		std::string code = std::string("#version 460 core\n\n")
 			+ topCode
@@ -434,10 +503,21 @@ private:
 		std::cout << code << std::endl;
 #endif
 
-		Material* material = new Material(std::format("Material-{}", MaterialLib::g_materials.size()), new Shader(".\\Vertex\\v_debug.glsl", GL_VERTEX_SHADER), new Shader(code, GL_FRAGMENT_SHADER, false));
-		MaterialLib::addMaterial(material);
 
-		consoleText += std::format("{} compiled successfully!\n", material->getName());
+		// TODO Add Texture Id from ShaderVarNode to Material for use in shader!
+		Material* material;
+		if (selectedMaterial)
+		{
+			material = selectedMaterial;
+			material->update(new Shader(".\\Vertex\\v_material.glsl", GL_VERTEX_SHADER), new Shader(code, GL_FRAGMENT_SHADER, false));
+		}
+		else
+		{
+			material = new Material(std::format("Material-{}", MaterialLib::g_materials.size()), true, new Shader(".\\Vertex\\v_material.glsl", GL_VERTEX_SHADER), new Shader(code, GL_FRAGMENT_SHADER, false));
+			MaterialLib::addMaterial(material);
+		}
+
+		outputText += std::format("{} compiled successfully!\n", material->getName());
 	}
 
 	ShaderVarNode* getNodeByAttribId(int attribId)
@@ -612,7 +692,8 @@ private:
 		ImGui::PopStyleColor();
 	}
 
-	std::string consoleText;
+	std::string outputText;
+	Material* selectedMaterial;
 
 	std::vector<ShaderUniformNode*> uniformNodes;
 	std::vector<ShaderFunctionNode*> functionNodes;

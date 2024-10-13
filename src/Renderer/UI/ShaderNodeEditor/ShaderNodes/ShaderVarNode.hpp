@@ -4,10 +4,10 @@
 #include <variant>
 #include <functional>
 #include <optional>
-#include <GLFW/glfw3.h>
 #include <format>
-#include "../../../ThirdParty/ImNodes/imnodes.h"
-#include "../../Data/ShaderNode/ShaderVar.hpp"
+#include "../../../../ThirdParty/ImNodes/imnodes.h"
+#include "../../../Data/ShaderNode/ShaderVar.hpp"
+#include "../../../../Globals/GlobalTextures.hpp"
 
 class ShaderVarNode
 {
@@ -30,14 +30,15 @@ public:
 		Uniform
 	};
 
-	ShaderVarNode(int id, std::string name, void* value, GLint outputType, ShaderNodeCategory category, ShaderVar::ShaderVarPrefix prefix = ShaderVar::None)
+	ShaderVarNode(int id, std::string name, GLint outputType, ShaderNodeCategory category, ShaderVar::ShaderVarPrefix prefix = ShaderVar::None)
 	{
 		this->id = id;
 		this->name = name;
 		this->category = category;
 		this->type = ShaderVarNodeType::Var;
 
-		this->shaderVar = new ShaderVar(id, value, outputType, prefix);
+		this->output = nullptr;
+		this->shaderVar = new ShaderVar(id, outputType, prefix);
 
 		ImNodes::SetNodeScreenSpacePos(id, ImGui::GetWindowPos());
 	}
@@ -103,6 +104,9 @@ public:
 		case GL_FLOAT:
 			renderFloat(std::format("##{}{}", input.name, input.id).c_str(), static_cast<float*>(input.value));
 			break;
+		case GL_SAMPLER_2D:
+			renderSampler2D(std::format("##{}{}", input.name, input.id).c_str(), input.value);
+			break;
 		default:
 			break;
 		}
@@ -119,6 +123,27 @@ public:
 	{
 		ImGui::SetNextItemWidth(80.f);
 		ImGui::DragFloat(name, value, 0.1f);
+	}
+
+	void renderSampler2D(const char* name, void* value)
+	{
+		static char buffer[_MAX_PATH];
+		ImGui::SetNextItemWidth(200.f);
+		ImGui::InputText("##25897", buffer, _MAX_PATH);
+		ImGui::SameLine();
+		if (ImGui::Button("Select"))
+		{
+			std::string path = openFileDialog();
+			if (path == "") return;
+
+			strcpy(buffer, path.c_str());
+			Textures::loadTexture(path.c_str(), static_cast<GLuint*>(value));
+		}
+
+		if (value)
+		{
+			ImGui::Image((void*)(intptr_t)*static_cast<GLuint*>(value), { 100, 100 });
+		}
 	}
 
 	int getId() const
@@ -238,6 +263,10 @@ protected:
 		this->name = name;
 		this->category = category;
 
+		this->output = nullptr;
+		this->shaderVar = nullptr;
+		this->type = ShaderVarNode::ShaderVarNodeType::Var;
+
 		ImNodes::SetNodeScreenSpacePos(id, ImGui::GetWindowPos());
 	}
 
@@ -268,4 +297,6 @@ private:
 			return IM_COL32(0, 0, 0, 255);
 		}
 	}
+
+	std::string openFileDialog();
 };

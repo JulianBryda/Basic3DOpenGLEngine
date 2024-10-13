@@ -1,7 +1,6 @@
 #pragma once
 #include <iostream>
 #include <format>
-#include <glad/glad.h>
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -37,12 +36,6 @@ public:
 
 	void draw();
 
-	void loadTexture(const char* path);
-	static void loadTexture(const char* path, GLuint& texture);
-
-	void loadCubeMap(std::vector<const char*> faces);
-	static void loadCubeMap(std::vector<const char*> faces, GLuint* texture);
-
 	// getter
 	std::string getName() const;
 
@@ -56,9 +49,6 @@ public:
 	glm::vec3* getScalePtr();
 
 	virtual glm::mat4 getModelMatrix();
-
-	GLuint getTexture() const;
-	GLenum getTextureType() const;
 
 	Material* getMaterialPtr();
 
@@ -97,8 +87,7 @@ private:
 
 	std::string m_name;
 
-	GLuint m_vbo, m_ebo, m_texture;
-	GLenum m_textureType;
+	GLuint m_vbo, m_ebo;
 
 	Material* m_pMaterial;
 

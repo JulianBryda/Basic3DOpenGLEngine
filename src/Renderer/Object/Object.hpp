@@ -1,6 +1,8 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 #include "../../Scene/Scene.hpp"
 #include "../Graphics/Material.hpp"
@@ -35,7 +37,7 @@ namespace Object
 		}
 
 		material->setFloat("time", glfwGetTime());
-		material->setTexture(GL_TEXTURE_2D, Textures::g_textures->overdrawTexture, GL_TEXTURE0);
+		material->setTexture(GL_TEXTURE_2D, Textures::get("overdraw"), GL_TEXTURE0);
 		material->setUInt("atomicImage", 0);
 
 		object->draw();
@@ -87,7 +89,7 @@ namespace Object
 		{
 			material->setFloat("time", glfwGetTime());
 
-			material->setTexture(object->getTextureType(), object->getTexture(), GL_TEXTURE0);
+			//material->setTexture(object->getTextureType(), object->getTexture(), GL_TEXTURE0);
 
 			material->setLightCount(activeScene->getLights().size());
 			for (int i = 0; i < activeScene->getLights().size(); i++)
@@ -125,7 +127,7 @@ namespace Object
 		if (Config::g_settings->renderMode == Config::RenderMode::Debug)
 		{
 			GLuint clearValue = 0;
-			glClearTexImage(Textures::g_textures->overdrawTexture, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, &clearValue);
+			glClearTexImage(Textures::get("overdraw"), 0, GL_RED_INTEGER, GL_UNSIGNED_INT, &clearValue);
 
 			for (auto& object : activeScene->getObjects())
 			{

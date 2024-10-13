@@ -71,6 +71,9 @@
     <None Include="Shader\Vertex\v_terrain.glsl">
       <Filter>Shader\Vertex</Filter>
     </None>
+    <None Include="Shader\Vertex\v_material.glsl">
+      <Filter>Shader\Vertex</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -144,6 +147,9 @@
     </Filter>
     <Filter Include="src\Renderer\Data\ShaderNode">
       <UniqueIdentifier>{9c616862-88fa-43a8-b93b-811910b4dcf0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodes">
+      <UniqueIdentifier>{f953ab76-8b52-491a-9510-1b5e224423cf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -267,15 +273,6 @@
     <ClInclude Include="src\Utils\ShaderNodeCompiler.hpp">
       <Filter>src\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderFunctionNode.hpp">
-      <Filter>src\Renderer\UI\ShaderNodeEditor</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderVarNode.hpp">
-      <Filter>src\Renderer\UI\ShaderNodeEditor</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderUniformNode.hpp">
-      <Filter>src\Renderer\UI\ShaderNodeEditor</Filter>
-    </ClInclude>
     <ClInclude Include="src\Renderer\Data\ShaderNode\ShaderFunction.hpp">
       <Filter>src\Renderer\Data\ShaderNode</Filter>
     </ClInclude>
@@ -287,6 +284,15 @@
     </ClInclude>
     <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodeAttribute.hpp">
       <Filter>src\Renderer\UI\ShaderNodeEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodes\ShaderFunctionNode.hpp">
+      <Filter>src\Renderer\UI\ShaderNodeEditor\ShaderNodes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodes\ShaderUniformNode.hpp">
+      <Filter>src\Renderer\UI\ShaderNodeEditor\ShaderNodes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodes\ShaderVarNode.hpp">
+      <Filter>src\Renderer\UI\ShaderNodeEditor\ShaderNodes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -331,6 +337,12 @@
     </ClCompile>
     <ClCompile Include="src\Renderer\Data\ShaderNode\ShaderVar.cpp">
       <Filter>src\Renderer\Data\ShaderNode</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Globals\GlobalTextures.cpp">
+      <Filter>src\Globals</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodes\ShaderVarNode.cpp">
+      <Filter>src\Renderer\UI\ShaderNodeEditor\ShaderNodes</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

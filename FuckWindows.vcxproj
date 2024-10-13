@@ -175,6 +175,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <None Include="Shader\Vertex\v_debugTriangle.glsl" />
     <None Include="Shader\Vertex\v_debugWireframe.glsl" />
     <None Include="Shader\Vertex\v_depth.glsl" />
+    <None Include="Shader\Vertex\v_material.glsl" />
     <None Include="Shader\Vertex\v_render.glsl" />
     <None Include="Shader\Vertex\v_skybox.glsl" />
     <None Include="Shader\Vertex\v_terrain.glsl" />
@@ -200,10 +201,10 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="src\Renderer\PostProcess\PostProcess.hpp" />
     <ClInclude Include="src\Renderer\Renderer.hpp" />
     <ClInclude Include="src\Renderer\UI\ShaderNodeEditor.hpp" />
-    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderFunctionNode.hpp" />
     <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodeAttribute.hpp" />
-    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderVarNode.hpp" />
-    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderUniformNode.hpp" />
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodes\ShaderFunctionNode.hpp" />
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodes\ShaderUniformNode.hpp" />
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodes\ShaderVarNode.hpp" />
     <ClInclude Include="src\Renderer\UI\UserInterface.hpp" />
     <ClInclude Include="src\Scene\Lights\DirectionalLight.hpp" />
     <ClInclude Include="src\Scene\Lights\Light.hpp" />
@@ -234,9 +235,11 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClCompile Include="src\Core\FuckWindows.cpp" />
     <ClCompile Include="src\Core\PhysicEngine.cpp" />
     <ClCompile Include="src\Globals\GlobalConfig.cpp" />
+    <ClCompile Include="src\Globals\GlobalTextures.cpp" />
     <ClCompile Include="src\Landscape.cpp" />
     <ClCompile Include="src\Renderer\Data\ShaderNode\ShaderVar.cpp" />
     <ClCompile Include="src\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodes\ShaderVarNode.cpp" />
     <ClCompile Include="src\Renderer\UI\UserInterface.cpp" />
     <ClCompile Include="src\Scene\Objects\GameObject.cpp" />
     <ClCompile Include="src\Scene\Objects\GameObjectCollisions.cpp" />

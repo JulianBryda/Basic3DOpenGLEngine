@@ -8,13 +8,13 @@ class ShaderNodeAttribute
 
 public:
 
-	ShaderNodeAttribute(GLint type, const char* name, void* value)
+	ShaderNodeAttribute(GLint type, const char* name, void* value, bool hide = false)
 	{
 		this->id = 0;
 		this->type = type;
 		this->name = name;
 		this->immutable = type != 0;
-		this->hide = false;
+		this->hide = hide;
 
 		this->value = value;
 

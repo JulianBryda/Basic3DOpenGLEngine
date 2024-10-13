@@ -22,4 +22,7 @@ public:
 		return modelMatrix;
 	}
 
+private:
+
+
 };

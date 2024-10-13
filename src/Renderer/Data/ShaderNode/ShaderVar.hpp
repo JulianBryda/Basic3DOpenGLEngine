@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <glm/glm.hpp>
-#include <glad/glad.h>
 
 #include "../../UI/ShaderNodeEditor/ShaderNodeAttribute.hpp"
 
@@ -21,11 +20,12 @@ public:
 		Out
 	};
 
-	ShaderVar(int id, void* value, GLint outputType, ShaderVarPrefix prefix = None)
+	ShaderVar(int id, GLint outputType, ShaderVarPrefix prefix = None)
 	{
 		this->id = id;
 		this->outputType = outputType;
 		this->prefix = prefix;
+		this->variableName = std::format("var{}", id);
 	}
 
 	~ShaderVar()
@@ -37,22 +37,18 @@ public:
 	{
 		if (prefix == ShaderVarPrefix::None)
 		{
-			return std::format("{} {} = {};\n", getTypeName(), getVariableName(), getFormatedValue(inputs));
+			return std::format("{} {} = {};\n", getTypeName(), variableName, getFormatedValue(inputs));
 		}
 		else
 		{
-			return std::format("{} {} {};\n", getPrefix(), getTypeName(), getVariableName());
+			return std::format("{} {} {};\n", getPrefix(), getTypeName(), variableName);
 		}
-	}
-
-	virtual std::string getVariableName()
-	{
-		return std::format("var{}", this->id);
 	}
 
 	int id;
 	GLint outputType;
 	ShaderVarPrefix prefix;
+	std::string variableName;
 
 protected:
 
@@ -85,6 +81,8 @@ protected:
 			return "vec3";
 		case GL_FLOAT_VEC4:
 			return "vec4";
+		case GL_SAMPLER_2D:
+			return "sampler2D";
 		default:
 			throw std::runtime_error("Type not supported!");
 		}

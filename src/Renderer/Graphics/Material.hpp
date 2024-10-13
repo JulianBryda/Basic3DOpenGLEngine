@@ -1,8 +1,6 @@
 #pragma once
 #include <iostream>
-#include <glm/glm.hpp>
 #include <variant>
-#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <format>
@@ -26,43 +24,35 @@ public:
 	using UniformType = std::variant<Parameter<bool>, Parameter<float>, Parameter<int>, Parameter<glm::vec2>, Parameter<glm::vec3>, Parameter<glm::mat4>>;
 
 	template<typename... Args>
-	Material(std::string name, Args*... shaders)
+	Material(std::string name, bool nodeBased, Args*... shaders)
 	{
 		static_assert(sizeof...(shaders) > 0, "No Shaders provided!");
 		static_assert((std::is_same_v<Args, Shader> && ...), "All arguments must be of type Shader!");
 
 		this->m_id = glCreateProgram();
 		this->m_name = name;
+		this->nodeBased = nodeBased;
 
 		std::vector<Shader*> shaderVector = makeVector(shaders...);
-		for (auto& shader : shaderVector)
-		{
-			glAttachShader(this->m_id, shader->getId());
-		}
-
-		glLinkProgram(this->m_id);
-		// print linking errors if any
-		int success;
-		char infoLog[512];
-		glGetProgramiv(this->m_id, GL_LINK_STATUS, &success);
-		if (!success)
-		{
-			glGetProgramInfoLog(this->m_id, 512, NULL, infoLog);
-			std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-		}
-
-		// get uniforms required by shader and save it in m_parameterAtlas
-		extractShaderParameters();
-
-		for (Shader* shader : shaderVector)
-		{
-			delete shader;
-		}
+		compileMaterial(shaderVector);
 	}
 
 	~Material()
 	{
 		glDeleteProgram(this->m_id);
+	}
+
+	template<typename... Args>
+	void update(Args*... shaders)
+	{
+		static_assert(sizeof...(shaders) > 0, "No Shaders provided!");
+		static_assert((std::is_same_v<Args, Shader> && ...), "All arguments must be of type Shader!");
+
+		glDeleteProgram(m_id);
+		m_id = glCreateProgram();
+
+		std::vector<Shader*> shaderVector = makeVector(shaders...);
+		compileMaterial(shaderVector);
 	}
 
 	void use() const
@@ -169,6 +159,11 @@ public:
 		return m_parameterAtlas;
 	}
 
+	bool getNodeBased() const
+	{
+		return nodeBased;
+	}
+
 private:
 
 	template <typename... Args>
@@ -263,6 +258,33 @@ private:
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(*param.value));
 	}
 
+	void compileMaterial(std::vector<Shader*>& shaderVector)
+	{
+		for (auto& shader : shaderVector)
+		{
+			glAttachShader(this->m_id, shader->getId());
+		}
+
+		glLinkProgram(this->m_id);
+		// print linking errors if any
+		int success;
+		char infoLog[512];
+		glGetProgramiv(this->m_id, GL_LINK_STATUS, &success);
+		if (!success)
+		{
+			glGetProgramInfoLog(this->m_id, 512, NULL, infoLog);
+			std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+		}
+
+		// get uniforms required by shader and save it in m_parameterAtlas
+		extractShaderParameters();
+
+		for (Shader* shader : shaderVector)
+		{
+			delete shader;
+		}
+	}
+
 	void extractShaderParameters()
 	{
 #ifdef _DEBUG
@@ -336,4 +358,6 @@ private:
 	std::string m_name;
 
 	std::vector<size_t> m_parameterAtlas;
+
+	bool nodeBased;
 };

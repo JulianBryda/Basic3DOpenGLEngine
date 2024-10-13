@@ -1,17 +1,17 @@
 #pragma once
 #include "ShaderVarNode.hpp"
-#include "../../Data/ShaderNode/ShaderFunction.hpp"
+#include "../../../Data/ShaderNode/ShaderFunction.hpp"
 
 class ShaderFunctionNode : public ShaderVarNode
 {
 
 public:
 
-	ShaderFunctionNode(int id, std::string name, std::string functionName, ShaderNodeCategory category, ShaderFunction::ShaderFunctionOperation operation) : ShaderVarNode(id, name, category)
+	ShaderFunctionNode(int id, std::string name, GLint outputType, std::string functionName, ShaderNodeCategory category, ShaderFunction::ShaderFunctionOperation operation) : ShaderVarNode(id, name, category)
 	{
 		this->type = ShaderVarNodeType::Function;
 
-		this->shaderVar = new ShaderFunction(id, functionName, 0, operation);
+		this->shaderVar = new ShaderFunction(id, functionName, outputType, operation);
 	}
 
 	~ShaderFunctionNode()

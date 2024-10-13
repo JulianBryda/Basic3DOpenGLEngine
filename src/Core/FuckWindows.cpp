@@ -43,8 +43,6 @@ int main()
 		return -1;
 	}
 
-	auto textures = Textures::GlobalTextures(settings.screenWidth, settings.screenHeight);
-
 	// enable vsync
 	glfwSwapInterval(Config::g_settings->vsyncEnabled);
 
@@ -86,9 +84,15 @@ int main()
 	};
 
 	Skybox* skybox = new Skybox("Skybox");
-	skybox->loadCubeMap(faces);
+	GLuint cubeMap;
+	Textures::loadCubeMap(faces, cubeMap);
+	Textures::addTexture("skybox", cubeMap);
 
 	Renderer::getInstance().getActiveScene()->addEnvObject(skybox);
+
+	GLuint overdraw;
+	Textures::updateImageTexture(overdraw, Config::g_settings->screenWidth, Config::g_settings->screenHeight);
+	Textures::addTexture("overdraw", overdraw);
 
 	auto statTracker = StatTracker();
 
@@ -126,7 +130,7 @@ int main()
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
-	Textures::g_textures->updateTextures(width, height);
+	Textures::updateImageTexture(Textures::get("overdraw"), width, height);
 	Config::g_settings->updateScreenSize(width, height);
 }
 
