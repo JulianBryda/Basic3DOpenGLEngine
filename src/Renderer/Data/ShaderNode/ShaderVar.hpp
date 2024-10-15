@@ -45,8 +45,18 @@ public:
 		}
 	}
 
+	ShaderVarPrefix getVarPrefix() const
+	{
+		return prefix;
+	}
+
+	GLenum getOutputType() const
+	{
+		return outputType;
+	}
+
 	int id;
-	GLint outputType;
+	GLenum outputType;
 	ShaderVarPrefix prefix;
 	std::string variableName;
 

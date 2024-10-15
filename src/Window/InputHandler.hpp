@@ -448,6 +448,8 @@ public:
 
 	bool checkForUi()
 	{
+		if (!GImGui) return false;
+
 		double mouseX, mouseY;
 		glfwGetCursorPos(m_window, &mouseX, &mouseY);
 

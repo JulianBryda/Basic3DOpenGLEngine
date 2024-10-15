@@ -5,6 +5,7 @@
 #include <functional>
 #include <optional>
 #include <format>
+#include <thread>
 #include "../../../../ThirdParty/ImNodes/imnodes.h"
 #include "../../../Data/ShaderNode/ShaderVar.hpp"
 #include "../../../../Globals/GlobalTextures.hpp"
@@ -125,25 +126,22 @@ public:
 		ImGui::DragFloat(name, value, 0.1f);
 	}
 
+	char buffer[_MAX_PATH]{ 0 };
+
 	void renderSampler2D(const char* name, void* value)
 	{
-		static char buffer[_MAX_PATH];
 		ImGui::SetNextItemWidth(200.f);
 		ImGui::InputText("##25897", buffer, _MAX_PATH);
 		ImGui::SameLine();
 		if (ImGui::Button("Select"))
 		{
-			std::string path = openFileDialog();
-			if (path == "") return;
+			openFileDialog(buffer);
 
-			strcpy(buffer, path.c_str());
-			Textures::loadTexture(path.c_str(), static_cast<GLuint*>(value));
+			Textures::loadTexture(buffer, static_cast<GLuint*>(value));
+			this->output->value = value;
 		}
 
-		if (value)
-		{
-			ImGui::Image((void*)(intptr_t)*static_cast<GLuint*>(value), { 100, 100 });
-		}
+		ImGui::Image((void*)(intptr_t) * static_cast<GLuint*>(value), { 100, 100 });
 	}
 
 	int getId() const
@@ -184,9 +182,9 @@ public:
 		return nullptr;
 	}
 
-	std::vector<std::pair<ShaderVarNodeType, std::string>> getShaderCode()
+	std::vector<std::pair<ShaderVarNode*, std::string>> getShaderCode()
 	{
-		std::vector<std::pair<ShaderVarNodeType, std::string>> output;
+		std::vector<std::pair<ShaderVarNode*, std::string>> output;
 
 		for (auto& input : inputs)
 		{
@@ -198,7 +196,7 @@ public:
 			}
 		}
 
-		output.push_back({ this->type, this->shaderVar->getShaderCode(inputs) });
+		output.push_back({ this, this->shaderVar->getShaderCode(inputs) });
 
 		return output;
 	}
@@ -298,5 +296,5 @@ private:
 		}
 	}
 
-	std::string openFileDialog();
+	void openFileDialog(char* buffer);
 };

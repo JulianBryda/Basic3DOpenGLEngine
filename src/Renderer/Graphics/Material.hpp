@@ -7,6 +7,7 @@
 #include <type_traits>
 
 #include "Shader.hpp"
+#include "Texture.hpp"
 
 class Material
 {
@@ -57,6 +58,11 @@ public:
 
 	void use() const
 	{
+		for (auto& texture : m_textures)
+		{
+			setTexture(texture);
+		}
+
 		glUseProgram(this->m_id);
 	}
 
@@ -96,6 +102,11 @@ public:
 	inline void setMat4(const char* name, glm::mat4 value) const
 	{
 		glUniformMatrix4fv(glGetUniformLocation(m_id, name), 1, GL_FALSE, glm::value_ptr(value));
+	}
+
+	inline void setTexture(const Texture& texture) const
+	{
+		setTexture(texture.getType(), texture.getId(), texture.getIndex());
 	}
 
 	inline void setTexture(GLenum type, GLuint texture, GLuint textureIndex) const
@@ -147,6 +158,11 @@ public:
 	inline void setLightCount(size_t count) const
 	{
 		this->setInt("lightCount", static_cast<int>(count));
+	}
+
+	void addTexture(Texture texture)
+	{
+		m_textures.push_back(texture);
 	}
 
 	std::string getName() const
@@ -358,6 +374,7 @@ private:
 	std::string m_name;
 
 	std::vector<size_t> m_parameterAtlas;
+	std::vector<Texture> m_textures;
 
 	bool nodeBased;
 };

@@ -270,9 +270,6 @@
     <ClInclude Include="src\ThirdParty\ImNodes\imnodes_internal.h">
       <Filter>src\ThirdParty\ImNodes</Filter>
     </ClInclude>
-    <ClInclude Include="src\Utils\ShaderNodeCompiler.hpp">
-      <Filter>src\Utils</Filter>
-    </ClInclude>
     <ClInclude Include="src\Renderer\Data\ShaderNode\ShaderFunction.hpp">
       <Filter>src\Renderer\Data\ShaderNode</Filter>
     </ClInclude>
@@ -293,6 +290,9 @@
     </ClInclude>
     <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodes\ShaderVarNode.hpp">
       <Filter>src\Renderer\UI\ShaderNodeEditor\ShaderNodes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Graphics\Texture.hpp">
+      <Filter>src\Renderer\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -270,15 +270,42 @@ private:
 
 			ImGui::Separator();
 
+			if (ImGui::BeginMenu("Converter"))
+			{
+				if (ImGui::MenuItem("Vec2To3"))
+				{
+					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Vec2To3", GL_FLOAT_VEC3, "vec3", ShaderFunctionNode::ShaderNodeCategory::Converter, ShaderFunction::ShaderFunctionOperation::FunctionCall);
+					node->addInput({ GL_FLOAT_VEC2, "RG", nullptr });
+					node->addInput({ GL_FLOAT, "B", nullptr });
+					node->setOutput(new ShaderNodeAttribute(GL_FLOAT_VEC3, "Value", nullptr));
+
+					functionNodes.push_back(node);
+				}
+
+				if (ImGui::MenuItem("Vec3To4"))
+				{
+					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Vec3To4", GL_FLOAT_VEC4, "vec4", ShaderFunctionNode::ShaderNodeCategory::Converter, ShaderFunction::ShaderFunctionOperation::FunctionCall);
+					node->addInput({ GL_FLOAT_VEC3, "RGB", nullptr });
+					node->addInput({ GL_FLOAT, "A", nullptr });
+					node->setOutput(new ShaderNodeAttribute(GL_FLOAT_VEC4, "Value", nullptr));
+
+					functionNodes.push_back(node);
+				}
+
+				ImGui::EndMenu();
+			}
 			if (ImGui::BeginMenu("Color"))
 			{
-				//if (ImGui::MenuItem("Mix Color"))
-				//{
-				//	ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Mix Color", "mix", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::FunctionCall);
-				//	node->addInput({ GL_FLOAT_VEC4, "Color" });
+				if (ImGui::MenuItem("Mix Color"))
+				{
+					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Mix", 0, "mix", ShaderFunctionNode::ShaderNodeCategory::Color, ShaderFunction::ShaderFunctionOperation::FunctionCall);
+					node->addInput({ 0, "Value 1", nullptr });
+					node->addInput({ 0, "Value 2", nullptr });
+					node->addInput({ GL_FLOAT, "Blend", nullptr });
+					node->setOutput(new ShaderNodeAttribute(0, "Result", nullptr));
 
-				//	functionNodes.push_back(node);
-				//}
+					functionNodes.push_back(node);
+				}
 
 				ImGui::EndMenu();
 			}
@@ -359,7 +386,8 @@ private:
 				if (ImGui::MenuItem("Sampler2D"))
 				{
 					GLuint* value = new GLuint();
-					ShaderUniformNode* node = new ShaderUniformNode(getNextNodeId(), "Sampler2D", GL_SAMPLER_2D, ShaderVarNode::ShaderNodeCategory::Texture, 1);
+					int nodeId = getNextNodeId();
+					ShaderUniformNode* node = new ShaderUniformNode(nodeId, std::format("Sampler2D_{}", nodeId), GL_SAMPLER_2D, ShaderVarNode::ShaderNodeCategory::Texture, 1);
 					node->addInput(ShaderNodeAttribute(GL_SAMPLER_2D, "", value, true));
 					node->setOutput(new ShaderNodeAttribute(GL_SAMPLER_2D, "Value", nullptr));
 
@@ -410,7 +438,7 @@ private:
 
 		if (!isLinkValid(startAttribute, endAttribute)) return;
 
-		if (endNode->getType() == ShaderVarNode::ShaderVarNodeType::Function)
+		if (endNode->getType() == ShaderVarNode::ShaderVarNodeType::Function && !endAttribute->immutable)
 		{
 			static_cast<ShaderFunctionNode*>(endNode)->setFunctionType(startAttribute->type);
 		}
@@ -452,12 +480,12 @@ private:
 
 		if (!outputNode)
 		{
-			outputText += "No Output Node found!\n";
+			outputText += "Error: No Output Node found!\n";
 			return;
 		}
 		if (!outputNode->getInputs()[0].connectedTo)
 		{
-			outputText += "No Node connected to Output Node!\n";
+			outputText += "Error: No Node connected to Output Node!\n";
 			return;
 		}
 
@@ -470,7 +498,7 @@ private:
 		{
 			for (int j = 0; j < shaderCodes.size(); j++)
 			{
-				if (i != j && shaderCodes[i] == shaderCodes[j])
+				if (i != j && shaderCodes[i].second == shaderCodes[j].second)
 				{
 					shaderCodes.erase(shaderCodes.begin() + j);
 				}
@@ -479,7 +507,7 @@ private:
 
 		for (auto& node : shaderCodes)
 		{
-			if (node.first == ShaderVarNode::ShaderVarNodeType::Uniform || node.second.substr(0, 3) == "out" || node.second.substr(0, 2) == "in")
+			if (node.first->getType() == ShaderVarNode::ShaderVarNodeType::Uniform || node.first->getShaderVar()->getVarPrefix() == ShaderVar::Out || node.first->getShaderVar()->getVarPrefix() == ShaderVar::In)
 			{
 				topCode += node.second;
 			}
@@ -503,18 +531,33 @@ private:
 		std::cout << code << std::endl;
 #endif
 
-
-		// TODO Add Texture Id from ShaderVarNode to Material for use in shader!
 		Material* material;
 		if (selectedMaterial)
 		{
 			material = selectedMaterial;
-			material->update(new Shader(".\\Vertex\\v_material.glsl", GL_VERTEX_SHADER), new Shader(code, GL_FRAGMENT_SHADER, false));
+			material->update(new Shader("\\Vertex\\v_material.glsl", GL_VERTEX_SHADER), new Shader(code, GL_FRAGMENT_SHADER, false));
 		}
 		else
 		{
-			material = new Material(std::format("Material-{}", MaterialLib::g_materials.size()), true, new Shader(".\\Vertex\\v_material.glsl", GL_VERTEX_SHADER), new Shader(code, GL_FRAGMENT_SHADER, false));
+			material = new Material(std::format("Material-{}", MaterialLib::g_materials.size()), true, new Shader("\\Vertex\\v_material.glsl", GL_VERTEX_SHADER), new Shader(code, GL_FRAGMENT_SHADER, false));
 			MaterialLib::addMaterial(material);
+		}
+
+		int index = 0;
+		for (auto& node : shaderCodes)
+		{
+			if (node.first->getType() == ShaderVarNode::ShaderVarNodeType::Uniform && node.first->getShaderVar()->getOutputType() == GL_SAMPLER_2D)
+			{
+				if (node.first->getOutput()->value == nullptr)
+				{
+					outputText += "Warning: No Texture selected for Sampler2D!\n";
+					continue;
+				}
+
+				material->addTexture(Texture(*static_cast<GLuint*>(node.first->getOutput()->value), GL_TEXTURE_2D, GL_TEXTURE0 + index, node.first->getName()));
+				index++;
+			}
+
 		}
 
 		outputText += std::format("{} compiled successfully!\n", material->getName());

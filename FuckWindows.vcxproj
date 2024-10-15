@@ -196,6 +196,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="src\Renderer\Environment\Environment.hpp" />
     <ClInclude Include="src\Renderer\Graphics\Material.hpp" />
     <ClInclude Include="src\Renderer\Graphics\Shader.hpp" />
+    <ClInclude Include="src\Renderer\Graphics\Texture.hpp" />
     <ClInclude Include="src\Renderer\Lighting\Lighting.hpp" />
     <ClInclude Include="src\Renderer\Object\Object.hpp" />
     <ClInclude Include="src\Renderer\PostProcess\PostProcess.hpp" />
@@ -226,7 +227,6 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="src\Utils\GameObjectConstructor.hpp" />
     <ClInclude Include="src\Utils\ObjectLoader.hpp" />
     <ClInclude Include="src\Utils\MaterialLib.hpp" />
-    <ClInclude Include="src\Utils\ShaderNodeCompiler.hpp" />
     <ClInclude Include="src\Utils\StatTracker.hpp" />
     <ClInclude Include="src\Window\AppWindow.hpp" />
     <ClInclude Include="src\Window\InputHandler.hpp" />

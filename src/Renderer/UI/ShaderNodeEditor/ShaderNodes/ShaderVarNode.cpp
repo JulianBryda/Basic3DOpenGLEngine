@@ -1,27 +1,23 @@
 #include "ShaderVarNode.hpp"
+#include "ShaderVarNode.hpp"
 #include <Windows.h>
 
-std::string ShaderVarNode::openFileDialog()
+void ShaderVarNode::openFileDialog(char* buffer)
 {
 	OPENFILENAMEA ofn;
-	char szFile[260] = { 0 };
+	char szFile[_MAX_PATH] = { 0 };
 
 	ZeroMemory(&ofn, sizeof(ofn));
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = nullptr;
 	ofn.lpstrFile = szFile;
-	ofn.nMaxFile = sizeof(szFile);
+	ofn.nMaxFile = _MAX_PATH;
 	ofn.lpstrFilter = "All\0*.*\0PNG\0*.png\0JPG\0*.jpg\0";
 	ofn.nFilterIndex = 1;
-	ofn.lpstrFileTitle = nullptr;
-	ofn.nMaxFileTitle = 0;
-	ofn.lpstrInitialDir = nullptr;
-	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 
 	if (GetOpenFileNameA(&ofn))
 	{
-		return std::string(ofn.lpstrFile);
+		strcpy(buffer, ofn.lpstrFile);
 	}
-
-	return "";
 }

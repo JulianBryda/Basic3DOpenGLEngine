@@ -56,7 +56,7 @@ private:
 		};
 	}
 
-	void read_shader_from_file(std::string_view shaderPath, std::string& shaderCode, GLenum shaderType)
+	void read_shader_from_file(std::string& shaderPath, std::string& shaderCode)
 	{
 		// 1. retrieve the source code from filePath
 		std::ifstream shaderFile;
@@ -66,7 +66,7 @@ private:
 		try
 		{
 			// open files
-			shaderFile.open(std::format(".\\Shader\\{}", shaderPath).c_str());
+			shaderFile.open(std::format(".\\Shader{}", shaderPath).c_str());
 
 			std::stringstream shaderStream;
 			// read file's buffer contents into streams
@@ -78,16 +78,16 @@ private:
 		}
 		catch (std::ifstream::failure e)
 		{
-			std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+			std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ\n" << e.what() << std::endl;
 		}
 	}
 
-	void compile_shader(std::string_view shaderPath, GLuint& shaderId, GLenum shaderType)
+	void compile_shader(std::string& shaderPath, GLuint& shaderId, GLenum shaderType)
 	{
 		std::string shaderCode;
 
 		// read shader code
-		this->read_shader_from_file(shaderPath, shaderCode, shaderType);
+		this->read_shader_from_file(shaderPath, shaderCode);
 
 		// create shader
 		this->create_shader(shaderId, shaderCode.c_str(), shaderType);
