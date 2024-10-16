@@ -8,7 +8,7 @@ class ShaderUniform : public ShaderVar
 
 public:
 
-	ShaderUniform(int id, std::string uniformName, GLint outputType, int arraySize) : ShaderVar(id, outputType)
+	ShaderUniform(int id, std::string uniformName, int arraySize) : ShaderVar(id)
 	{
 		this->variableName = uniformName;
 		this->arraySize = arraySize;
@@ -19,9 +19,9 @@ public:
 
 	}
 
-	std::string getShaderCode(std::vector<ShaderNodeAttribute>& inputs) override
+	std::string getShaderCode(std::vector<ShaderNodeAttribute>& inputs, ShaderEnums::ShaderVarType outputType) override
 	{
-		return getUniformCode(getTypeName());
+		return getUniformCode(getTypeName(outputType));
 	}
 
 	bool operator==(const ShaderUniform& other)

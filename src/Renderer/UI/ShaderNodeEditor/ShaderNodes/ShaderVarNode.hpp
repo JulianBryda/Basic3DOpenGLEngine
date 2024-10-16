@@ -9,37 +9,22 @@
 #include "../../../../ThirdParty/ImNodes/imnodes.h"
 #include "../../../Data/ShaderNode/ShaderVar.hpp"
 #include "../../../../Globals/GlobalTextures.hpp"
+#include "ShaderEnums.hpp"
 
 class ShaderVarNode
 {
 public:
 
-	enum ShaderNodeCategory
-	{
-		Input,
-		Output,
-		Color,
-		Converter,
-		Shader,
-		Texture
-	};
 
-	enum ShaderVarNodeType
-	{
-		Var,
-		Function,
-		Uniform
-	};
-
-	ShaderVarNode(int id, std::string name, GLint outputType, ShaderNodeCategory category, ShaderVar::ShaderVarPrefix prefix = ShaderVar::None)
+	ShaderVarNode(int id, std::string name, ShaderEnums::ShaderNodeCategory category, ShaderEnums::ShaderVarPrefix prefix)
 	{
 		this->id = id;
 		this->name = name;
 		this->category = category;
-		this->type = ShaderVarNodeType::Var;
+		this->type = ShaderEnums::ShaderVarNodeType::Var;
 
 		this->output = nullptr;
-		this->shaderVar = new ShaderVar(id, outputType, prefix);
+		this->shaderVar = new ShaderVar(id, prefix);
 
 		ImNodes::SetNodeScreenSpacePos(id, ImGui::GetWindowPos());
 	}
@@ -67,22 +52,48 @@ public:
 
 			for (auto& input : inputs)
 			{
-				if (!input.hide) ImNodes::BeginInputAttribute(input.id);
+				if (input.visibility == ShaderEnums::Visible)
+				{
+					ImNodes::PushColorStyle(ImNodesCol_Pin, input.color);
+					ImNodes::PushColorStyle(ImNodesCol_PinHovered, input.color + IM_COL32(0, 0, 0, 75));
+					ImNodes::BeginInputAttribute(input.id);
+				}
+
+				if (input.visibility != ShaderEnums::Hidden)
 				{
 					ImGui::TextUnformatted(input.name);
 					ImGui::SameLine();
 					renderInput(input);
 				}
-				if (!input.hide) ImNodes::EndInputAttribute();
+
+				if (input.visibility == ShaderEnums::Visible)
+				{
+					ImNodes::PopColorStyle();
+					ImNodes::PopColorStyle();
+					ImNodes::EndInputAttribute();
+				}
 			}
 
 			if (output != nullptr)
 			{
-				ImNodes::BeginOutputAttribute(output->id);
+				if (output->visibility == ShaderEnums::Visible)
+				{
+					ImNodes::PushColorStyle(ImNodesCol_Pin, output->color);
+					ImNodes::PushColorStyle(ImNodesCol_PinHovered, output->color + IM_COL32(0, 0, 0, 75));
+					ImNodes::BeginOutputAttribute(output->id);
+				}
+
+				if (output->visibility != ShaderEnums::Hidden)
 				{
 					ImGui::TextUnformatted(output->name);
 				}
-				ImNodes::EndOutputAttribute();
+
+				if (output->visibility == ShaderEnums::Visible)
+				{
+					ImNodes::PopColorStyle();
+					ImNodes::PopColorStyle();
+					ImNodes::EndOutputAttribute();
+				}
 			}
 		}
 		ImNodes::EndNode();
@@ -95,23 +106,23 @@ public:
 
 	void renderInput(ShaderNodeAttribute& input)
 	{
-		if (input.value == nullptr || input.connectedTo != nullptr) return;
-
-		switch (input.type)
+		if (input.value != nullptr && input.connectedTo == nullptr)
 		{
-		case GL_INT:
-			renderInt(std::format("##{}{}", input.name, input.id).c_str(), static_cast<int*>(input.value));
-			break;
-		case GL_FLOAT:
-			renderFloat(std::format("##{}{}", input.name, input.id).c_str(), static_cast<float*>(input.value));
-			break;
-		case GL_SAMPLER_2D:
-			renderSampler2D(std::format("##{}{}", input.name, input.id).c_str(), input.value);
-			break;
-		default:
-			break;
+			switch (input.getType())
+			{
+			case ShaderEnums::ShaderVarType::INT:
+				renderInt(std::format("##{}{}", input.name, input.id).c_str(), static_cast<int*>(input.value));
+				break;
+			case ShaderEnums::ShaderVarType::FLOAT:
+				renderFloat(std::format("##{}{}", input.name, input.id).c_str(), static_cast<float*>(input.value));
+				break;
+			case ShaderEnums::ShaderVarType::SAMPLER_2D:
+				renderSampler2D(std::format("##{}{}", input.name, input.id).c_str(), input.value);
+				break;
+			default:
+				break;
+			}
 		}
-
 	}
 
 	void renderInt(const char* name, int* value)
@@ -154,12 +165,12 @@ public:
 		return name;
 	}
 
-	ShaderNodeCategory getCategory() const
+	ShaderEnums::ShaderNodeCategory getCategory() const
 	{
 		return category;
 	}
 
-	ShaderVarNodeType getType() const
+	ShaderEnums::ShaderVarNodeType getType() const
 	{
 		return type;
 	}
@@ -196,7 +207,7 @@ public:
 			}
 		}
 
-		output.push_back({ this, this->shaderVar->getShaderCode(inputs) });
+		output.push_back({ this, this->shaderVar->getShaderCode(inputs, this->output->getType()) });
 
 		return output;
 	}
@@ -205,11 +216,11 @@ public:
 	{
 		switch (type)
 		{
-		case ShaderVarNodeType::Var:
+		case ShaderEnums::ShaderVarNodeType::Var:
 			return "var";
-		case ShaderVarNodeType::Uniform:
+		case ShaderEnums::ShaderVarNodeType::Uniform:
 			return "uniform";
-		case ShaderVarNodeType::Function:
+		case ShaderEnums::ShaderVarNodeType::Function:
 			return "func";
 		default:
 			return "Unknown";
@@ -249,13 +260,13 @@ public:
 
 	int id;
 	std::string name;
-	ShaderNodeCategory category;
+	ShaderEnums::ShaderNodeCategory category;
 
 	ShaderVar* shaderVar;
 
 protected:
 
-	ShaderVarNode(int id, std::string name, ShaderNodeCategory category)
+	ShaderVarNode(int id, std::string name, ShaderEnums::ShaderNodeCategory category)
 	{
 		this->id = id;
 		this->name = name;
@@ -263,33 +274,33 @@ protected:
 
 		this->output = nullptr;
 		this->shaderVar = nullptr;
-		this->type = ShaderVarNode::ShaderVarNodeType::Var;
+		this->type = ShaderEnums::ShaderVarNodeType::Var;
 
 		ImNodes::SetNodeScreenSpacePos(id, ImGui::GetWindowPos());
 	}
 
-	ShaderVarNodeType type;
+	ShaderEnums::ShaderVarNodeType type;
 
 	std::vector<ShaderNodeAttribute> inputs;
 	ShaderNodeAttribute* output;
 
 private:
 
-	unsigned int getNodeColor(ShaderNodeCategory category) const
+	unsigned int getNodeColor(ShaderEnums::ShaderNodeCategory category) const
 	{
 		switch (category)
 		{
-		case ShaderNodeCategory::Input:
+		case ShaderEnums::ShaderNodeCategory::Input:
 			return IM_COL32(80, 80, 80, 255);
-		case ShaderNodeCategory::Output:
+		case ShaderEnums::ShaderNodeCategory::Output:
 			return IM_COL32(100, 30, 30, 255);
-		case ShaderNodeCategory::Color:
+		case ShaderEnums::ShaderNodeCategory::Color:
 			return IM_COL32(110, 110, 30, 255);
-		case ShaderNodeCategory::Converter:
+		case ShaderEnums::ShaderNodeCategory::Converter:
 			return IM_COL32(35, 100, 130, 255);
-		case ShaderNodeCategory::Shader:
+		case ShaderEnums::ShaderNodeCategory::Shader:
 			return IM_COL32(40, 100, 40, 255);
-		case ShaderNodeCategory::Texture:
+		case ShaderEnums::ShaderNodeCategory::Texture:
 			return IM_COL32(120, 70, 30, 255);
 		default:
 			return IM_COL32(0, 0, 0, 255);

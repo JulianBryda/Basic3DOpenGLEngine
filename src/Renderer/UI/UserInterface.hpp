@@ -21,6 +21,7 @@
 #include "../../Window/AppWindow.hpp"
 
 #include "ShaderNodeEditor.hpp"
+#include "ObjectManager.hpp"
 
 class UserInterface
 {
@@ -58,6 +59,8 @@ public:
 		// Setup Platform/Renderer backends
 		ImGui_ImplGlfw_InitForOpenGL(m_pWindow, true);
 		ImGui_ImplOpenGL3_Init();
+
+		m_pObjectManager = new ObjectManager(m_pWindow);
 	}
 
 	~UserInterface()
@@ -66,6 +69,8 @@ public:
 		ImGui_ImplGlfw_Shutdown();
 		ImPlot::DestroyContext();
 		ImGui::DestroyContext();
+
+		delete m_pObjectManager;
 	}
 
 	static UserInterface& getInstance()
@@ -84,7 +89,8 @@ public:
 		// render functions here
 		renderMenuBar();
 
-		if (m_objectManager) renderObjectManager();
+		if (m_objectList) m_pObjectManager->renderObjectList();
+		if (m_objectProperties) m_pObjectManager->renderObjectProperties();
 		if (m_lightManager) renderLightManager();
 		if (m_assetManager) renderAssetManager();
 		
@@ -174,79 +180,31 @@ public:
 		}
 	}
 
-	bool isSelected(GameObject* object)
-	{
-		for (int i = 0; i < m_selectedObjects.size(); i++)
-		{
-			if (m_selectedObjects[i] == object)
-			{
-				return true;
-			}
-		}
+	// object manager redirections
 
-		return false;
+	void addSelectedObject(GameObject* object)
+	{
+		m_pObjectManager->addSelectedObject(object);
 	}
 
-	template <typename T>
-	int getIndex(std::vector<T>& vector, T& value)
+	void removeSelectedObject(GameObject* object)
 	{
-		for (int i = 0; i < vector.size(); i++)
-		{
-			if (vector[i] == value)
-			{
-				return i;
-			}
-		}
-
-		return -1;
+		m_pObjectManager->removeSelectedObject(object);
 	}
 
-	// static
-
-	static void addSelectedObject(GameObject* object)
+	void setSelectedObject(GameObject* object)
 	{
-		if (object == nullptr) return;
-
-		object->setIsOutline(true);
-		m_selectedObjects.push_back(object);
+		m_pObjectManager->setSelectedObject(object);
 	}
 
-	static void removeSelectedObject(GameObject* object)
+	std::vector<GameObject*>& getSelectedObjects()
 	{
-		for (size_t i = 0; i < m_selectedObjects.size(); i++)
-		{
-			if (m_selectedObjects[i] == object)
-			{
-				m_selectedObjects.erase(m_selectedObjects.begin() + i);
-				break;
-			}
-		}
+		return m_pObjectManager->getSelectedObjects();
 	}
 
-	static void setSelectedObject(GameObject* object)
+	GameObject* getSelectedObject()
 	{
-		for (auto& obj : m_selectedObjects)
-		{
-			obj->setIsOutline(false);
-		}
-
-		m_selectedObjects.clear();
-
-		if (object != nullptr)
-		{
-			object->setIsOutline(true);
-			m_selectedObjects.push_back(object);
-		}
-	}
-
-	static std::vector<GameObject*>& getSelectedObjects()
-	{
-		return m_selectedObjects;
-	}
-
-	static GameObject* getSelectedObject()
-	{
-		return m_selectedObjects[m_selectedObjects.size() - 1];
+		return m_pObjectManager->getSelectedObject();
 	}
 
 private:
@@ -255,7 +213,6 @@ private:
 
 	void renderMenuBar();
 
-	void renderObjectManager();
 	void renderLightManager();
 	void renderAssetManager();
 
@@ -271,7 +228,8 @@ private:
 	char m_selectedTexturePath[_MAX_PATH] = "";
 	std::string m_selectedAssetPath = "";
 
-	bool m_objectManager = false,
+	bool m_objectList = false,
+		m_objectProperties = false,
 		m_highlightCloseCollidableObjects = false,
 		m_lightManager = false,
 		m_assetManager = false,
@@ -283,6 +241,5 @@ private:
 
 	GLFWwindow* m_pWindow;
 
-	// static
-	static std::vector<GameObject*> m_selectedObjects;
+	ObjectManager* m_pObjectManager;
 };

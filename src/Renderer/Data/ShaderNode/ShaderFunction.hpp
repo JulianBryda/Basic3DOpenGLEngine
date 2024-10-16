@@ -16,7 +16,7 @@ public:
 		FunctionCall
 	};
 
-	ShaderFunction(int id, std::string functionName, GLint outputType, ShaderFunctionOperation operation) : ShaderVar(id, outputType)
+	ShaderFunction(int id, std::string functionName, ShaderFunctionOperation operation) : ShaderVar(id)
 	{
 		this->functionName = functionName;
 		this->operation = operation;
@@ -28,13 +28,13 @@ public:
 
 	}
 
-	std::string getShaderCode(std::vector<ShaderNodeAttribute>& inputs) override
+	std::string getShaderCode(std::vector<ShaderNodeAttribute>& inputs, ShaderEnums::ShaderVarType outputType) override
 	{
 		assert(inputs.size() >= 1);
 
 		std::vector<std::string> inputNames = getOutputVariableNames(inputs);
 
-		return getFunctionCode(getTypeName(), inputNames);
+		return getFunctionCode(getTypeName(outputType), inputNames);
 	}
 
 private:

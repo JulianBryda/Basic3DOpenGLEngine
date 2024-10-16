@@ -294,6 +294,12 @@
     <ClInclude Include="src\Renderer\Graphics\Texture.hpp">
       <Filter>src\Renderer\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="src\Renderer\UI\ObjectManager.hpp">
+      <Filter>src\Renderer\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodes\ShaderEnums.hpp">
+      <Filter>src\Renderer\UI\ShaderNodeEditor\ShaderNodes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\FuckWindows.cpp">

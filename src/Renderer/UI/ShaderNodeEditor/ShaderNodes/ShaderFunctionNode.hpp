@@ -7,11 +7,11 @@ class ShaderFunctionNode : public ShaderVarNode
 
 public:
 
-	ShaderFunctionNode(int id, std::string name, GLint outputType, std::string functionName, ShaderNodeCategory category, ShaderFunction::ShaderFunctionOperation operation) : ShaderVarNode(id, name, category)
+	ShaderFunctionNode(int id, std::string name, std::string functionName, ShaderEnums::ShaderNodeCategory category, ShaderFunction::ShaderFunctionOperation operation) : ShaderVarNode(id, name, category)
 	{
-		this->type = ShaderVarNodeType::Function;
+		this->type = ShaderEnums::ShaderVarNodeType::Function;
 
-		this->shaderVar = new ShaderFunction(id, functionName, outputType, operation);
+		this->shaderVar = new ShaderFunction(id, functionName, operation);
 	}
 
 	~ShaderFunctionNode()
@@ -19,19 +19,18 @@ public:
 
 	}
 
-	void setFunctionType(GLint type)
+	void setFunctionType(ShaderEnums::ShaderVarType type)
 	{
-		if (!output->immutable)
+		if (output && !output->immutable)
 		{
-			output->type = type;
-			shaderVar->outputType = type;
+			output->setType(type);
 		}
 
 		for (auto& input : inputs)
 		{
 			if (!input.immutable)
 			{
-				input.type = type;
+				input.setType(type);
 			}
 		}
 	}

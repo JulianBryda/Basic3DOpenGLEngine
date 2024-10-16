@@ -13,17 +13,9 @@ class ShaderVar
 
 public:
 
-	enum ShaderVarPrefix
-	{
-		None,
-		In,
-		Out
-	};
-
-	ShaderVar(int id, GLint outputType, ShaderVarPrefix prefix = None)
+	ShaderVar(int id, ShaderEnums::ShaderVarPrefix prefix = ShaderEnums::None)
 	{
 		this->id = id;
-		this->outputType = outputType;
 		this->prefix = prefix;
 		this->variableName = std::format("var{}", id);
 	}
@@ -33,31 +25,25 @@ public:
 
 	}
 
-	virtual std::string getShaderCode(std::vector<ShaderNodeAttribute>& inputs)
+	virtual std::string getShaderCode(std::vector<ShaderNodeAttribute>& inputs, ShaderEnums::ShaderVarType outputType)
 	{
-		if (prefix == ShaderVarPrefix::None)
+		if (prefix == ShaderEnums::ShaderVarPrefix::None)
 		{
-			return std::format("{} {} = {};\n", getTypeName(), variableName, getFormatedValue(inputs));
+			return std::format("{} {} = {};\n", getTypeName(outputType), variableName, getFormatedValue(inputs, outputType));
 		}
 		else
 		{
-			return std::format("{} {} {};\n", getPrefix(), getTypeName(), variableName);
+			return std::format("{} {} {};\n", getPrefix(), getTypeName(outputType), variableName);
 		}
 	}
 
-	ShaderVarPrefix getVarPrefix() const
+	ShaderEnums::ShaderVarPrefix getVarPrefix() const
 	{
 		return prefix;
 	}
 
-	GLenum getOutputType() const
-	{
-		return outputType;
-	}
-
 	int id;
-	GLenum outputType;
-	ShaderVarPrefix prefix;
+	ShaderEnums::ShaderVarPrefix prefix;
 	std::string variableName;
 
 protected:
@@ -66,58 +52,58 @@ protected:
 	{
 		switch (prefix)
 		{
-		case In:
+		case ShaderEnums::In:
 			return "in";
-		case Out:
+		case ShaderEnums::Out:
 			return "out";
 		default:
 			return "";
 		}
 	}
 
-	std::string getTypeName()
+	std::string getTypeName(ShaderEnums::ShaderVarType type)
 	{
-		switch (outputType)
+		switch (type)
 		{
-		case GL_INT:
+		case ShaderEnums::INT:
 			return "int";
-		case GL_FLOAT:
+		case ShaderEnums::FLOAT:
 			return "float";
-		case GL_DOUBLE:
+		case ShaderEnums::DOUBLE:
 			return "double";
-		case GL_FLOAT_VEC2:
+		case ShaderEnums::VEC_2:
 			return "vec2";
-		case GL_FLOAT_VEC3:
+		case ShaderEnums::VEC_3:
 			return "vec3";
-		case GL_FLOAT_VEC4:
+		case ShaderEnums::VEC_4:
 			return "vec4";
-		case GL_SAMPLER_2D:
+		case ShaderEnums::SAMPLER_2D:
 			return "sampler2D";
 		default:
 			throw std::runtime_error("Type not supported!");
 		}
 	}
 
-	std::string getFormatedValue(std::vector<ShaderNodeAttribute>& inputs)
+	std::string getFormatedValue(std::vector<ShaderNodeAttribute>& inputs, ShaderEnums::ShaderVarType type)
 	{
-		switch (outputType)
+		switch (type)
 		{
-		case GL_INT:
+		case ShaderEnums::INT:
 			assert(inputs.size() >= 1);
 			return std::format("{}", getValueOrNameInt(inputs[0]));
-		case GL_FLOAT:
+		case ShaderEnums::FLOAT:
 			assert(inputs.size() >= 1);
 			return std::format("{}", getValueOrNameFloat(inputs[0]));
-		case GL_DOUBLE:
+		case ShaderEnums::DOUBLE:
 			assert(inputs.size() >= 1);
 			return std::format("{}", getValueOrNameDouble(inputs[0]));
-		case GL_FLOAT_VEC2:
+		case ShaderEnums::VEC_2:
 			assert(inputs.size() >= 2);
 			return std::format("vec2({}, {})", getValueOrNameFloat(inputs[0]), getValueOrNameFloat(inputs[1]));
-		case GL_FLOAT_VEC3:
+		case ShaderEnums::VEC_3:
 			assert(inputs.size() >= 3);
 			return std::format("vec3({}, {}, {})", getValueOrNameFloat(inputs[0]), getValueOrNameFloat(inputs[1]), getValueOrNameFloat(inputs[2]));
-		case GL_FLOAT_VEC4:
+		case ShaderEnums::VEC_4:
 			assert(inputs.size() >= 4);
 			return std::format("vec4({}, {}, {}, {})", getValueOrNameFloat(inputs[0]), getValueOrNameFloat(inputs[1]), getValueOrNameFloat(inputs[2]), getValueOrNameFloat(inputs[3]));
 		default:
