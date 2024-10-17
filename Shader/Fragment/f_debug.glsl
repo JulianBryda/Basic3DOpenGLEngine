@@ -2,7 +2,7 @@
 
 out vec4 FragColor;
 
-uniform vec3 viewPos;
+uniform vec3 viewpos;
 
 in vec3 fragPos;
 in vec3 objPos;
@@ -12,7 +12,7 @@ void main()
 {
 	vec3 norm = normalize(fragNorm);
 
-	vec3 viewDir = normalize(viewPos - fragPos);
+	vec3 viewDir = normalize(viewpos - fragPos);
 	float dotProd = dot(norm, viewDir);
 	float diff = max(dotProd, 0.0);
 	

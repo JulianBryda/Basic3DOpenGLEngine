@@ -16,7 +16,7 @@ uniform vec3 slopeColor;
 uniform float slopeStart;
 uniform float slopeEnd;
 
-uniform vec3 viewPos;
+uniform vec3 viewpos;
 
 in vec3 fragPos;
 in vec3 fragNorm;
@@ -31,7 +31,7 @@ void main()
 
 	vec3 finalColor = mix(slopeColor, flatColor, slopeFactor);
 
-	vec3 viewDir = normalize(viewPos - fragPos);
+	vec3 viewDir = normalize(viewpos - fragPos);
 	float dotProd = dot(fragNorm, viewDir);
 	float diff = max(dotProd, 0.0);
 

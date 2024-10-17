@@ -252,10 +252,36 @@ private:
 
 				ImGui::Separator();
 
+				if (ImGui::MenuItem("ViewPos"))
+				{
+					ShaderUniformNode* node = new ShaderUniformNode(getNextNodeId(), "ViewPos", ShaderEnums::ShaderNodeCategory::Input, 1);
+					node->setOutput(new ShaderNodeAttribute(ShaderEnums::VEC_3, "ViewPos", nullptr));
+
+					uniformNodes.push_back(node);
+				}
+
 				if (ImGui::MenuItem("Time"))
 				{
 					ShaderUniformNode* node = new ShaderUniformNode(getNextNodeId(), "Time", ShaderEnums::ShaderNodeCategory::Input, 1);
 					node->setOutput(new ShaderNodeAttribute(ShaderEnums::FLOAT, "Time", nullptr));
+
+					uniformNodes.push_back(node);
+				}
+
+				ImGui::Separator();
+
+				if (ImGui::MenuItem("Lights"))
+				{
+					ShaderUniformNode* node = new ShaderUniformNode(getNextNodeId(), "Lights", ShaderEnums::ShaderNodeCategory::Input, 10);
+					node->setOutput(new ShaderNodeAttribute(ShaderEnums::LIGHT_ARRAY, "Lights", nullptr));
+
+					uniformNodes.push_back(node);
+				}
+
+				if (ImGui::MenuItem("LightCount"))
+				{
+					ShaderUniformNode* node = new ShaderUniformNode(getNextNodeId(), "LightCount", ShaderEnums::ShaderNodeCategory::Input, 1);
+					node->setOutput(new ShaderNodeAttribute(ShaderEnums::INT, "LightCount", nullptr));
 
 					uniformNodes.push_back(node);
 				}
@@ -467,6 +493,30 @@ private:
 				ImGui::EndMenu();
 			}
 
+			ImGui::Separator();
+
+			if (ImGui::BeginMenu("Shader"))
+			{
+				if (ImGui::MenuItem("Lighting"))
+				{
+					ShaderFunctionNode* node = new ShaderFunctionNode(getNextNodeId(), "Lighting", "CalculateLighting", ShaderEnums::ShaderNodeCategory::Shader, ShaderFunction::ShaderFunctionOperation::FunctionCall);
+					node->addInput({ ShaderEnums::LIGHT_ARRAY, "Lights", nullptr });
+					node->addInput({ ShaderEnums::INT, "LightCount", nullptr });
+					node->addInput({ ShaderEnums::VEC_3, "Position", nullptr });
+					node->addInput({ ShaderEnums::VEC_3, "Normal", nullptr });
+					node->addInput({ ShaderEnums::VEC_3, "ViewPos", nullptr });
+					node->addInput({ ShaderEnums::VEC_3, "Ambient", nullptr });
+					node->addInput({ ShaderEnums::VEC_3, "Diffuse", nullptr });
+					node->addInput({ ShaderEnums::VEC_3, "Specular", nullptr });
+					node->addInput({ ShaderEnums::FLOAT, "Shininess", nullptr });
+					node->setOutput(new ShaderNodeAttribute(ShaderEnums::VEC_4, "Value", nullptr));
+					node->setInclude("light.glsl");
+
+					functionNodes.push_back(node);
+				}
+
+				ImGui::EndMenu();
+			}
 
 			ImGui::EndPopup(); // End the popup
 		}
@@ -549,6 +599,7 @@ private:
 
 		std::string topCode;
 		std::string mainBody;
+		std::string includes;
 		auto shaderCodes = outputNode->getShaderCode();
 
 		// sort out double compiled nodes
@@ -573,21 +624,25 @@ private:
 			{
 				mainBody += node.second;
 			}
+
+			std::string toInclude = std::format("#include \"{}\"\n", node.first->getShaderVar()->getInclude());
+			if (node.first->getShaderVar()->getInclude() != "" && includes.find(toInclude) == std::string::npos)
+			{
+				includes += toInclude;
+			}
 		}
 
 		mainBody += std::format("\n{} = {};", outputNode->getShaderVar()->variableName, outputNode->getInputs()[0].connectedTo->node->getShaderVar()->variableName);
 
-		std::string code = std::string("#version 460 core\n\n")
+		std::string code = std::string("#version 460 core\n")
+			+ includes
+			+ "\n"
 			+ topCode
 			+ "\n"
 			+ "void main()\n"
 			+ "{\n"
 			+ mainBody
 			+ "\n}";
-
-#ifdef _DEBUG
-		std::cout << code << std::endl;
-#endif
 
 		Material* material;
 		if (selectedMaterial)

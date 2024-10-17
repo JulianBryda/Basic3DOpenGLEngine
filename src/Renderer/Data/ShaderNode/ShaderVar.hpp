@@ -18,6 +18,7 @@ public:
 		this->id = id;
 		this->prefix = prefix;
 		this->variableName = std::format("var{}", id);
+		this->include = "";
 	}
 
 	~ShaderVar()
@@ -37,14 +38,25 @@ public:
 		}
 	}
 
+	std::string getInclude() const
+	{
+		return include;
+	}
+
 	ShaderEnums::ShaderVarPrefix getVarPrefix() const
 	{
 		return prefix;
 	}
 
+	void setInclude(std::string value)
+	{
+		include = value;
+	}
+
 	int id;
 	ShaderEnums::ShaderVarPrefix prefix;
 	std::string variableName;
+	std::string include;
 
 protected:
 
@@ -79,6 +91,9 @@ protected:
 			return "vec4";
 		case ShaderEnums::SAMPLER_2D:
 			return "sampler2D";
+		case ShaderEnums::LIGHT:
+		case ShaderEnums::LIGHT_ARRAY:
+			return "Light";
 		default:
 			throw std::runtime_error("Type not supported!");
 		}

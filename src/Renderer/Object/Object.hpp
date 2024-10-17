@@ -85,17 +85,15 @@ namespace Object
 			material->setFloat3("flatColor", landscape->getFlatColor());
 			material->setFloat3("slopeColor", landscape->getSlopeColor());
 		}
-		else
+
+		material->setFloat("time", glfwGetTime());
+
+		//material->setTexture(object->getTextureType(), object->getTexture(), GL_TEXTURE0);
+
+		material->setLightCount(activeScene->getLights().size());
+		for (int i = 0; i < activeScene->getLights().size(); i++)
 		{
-			material->setFloat("time", glfwGetTime());
-
-			//material->setTexture(object->getTextureType(), object->getTexture(), GL_TEXTURE0);
-
-			material->setLightCount(activeScene->getLights().size());
-			for (int i = 0; i < activeScene->getLights().size(); i++)
-			{
-				material->setLight(activeScene->getLights()[i], i, GL_TEXTURE1 + i);
-			}
+			material->setLight(activeScene->getLights()[i], i, GL_TEXTURE0 + i + material->getTextures().size());
 		}
 
 		object->draw();

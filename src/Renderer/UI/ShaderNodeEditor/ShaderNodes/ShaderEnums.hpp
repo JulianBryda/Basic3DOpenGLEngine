@@ -47,6 +47,9 @@ namespace ShaderEnums
 
 		SAMPLER_2D = 1 << 7,
 
+		LIGHT = 1 << 8,
+		LIGHT_ARRAY = 1 << 9,
+
 		VEC = VEC_2 | VEC_3 | VEC_4
 	};
 }

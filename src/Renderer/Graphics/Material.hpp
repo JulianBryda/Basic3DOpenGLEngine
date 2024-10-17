@@ -157,7 +157,7 @@ public:
 
 	inline void setLightCount(size_t count) const
 	{
-		this->setInt("lightCount", static_cast<int>(count));
+		this->setInt("lightcount", static_cast<int>(count));
 	}
 
 	void addTexture(Texture texture)
@@ -178,6 +178,11 @@ public:
 	bool getNodeBased() const
 	{
 		return nodeBased;
+	}
+
+	std::vector<Texture>& getTextures()
+	{
+		return m_textures;
 	}
 
 private:

@@ -258,6 +258,11 @@ public:
 		return shaderVar;
 	}
 
+	void setInclude(std::string value)
+	{
+		shaderVar->setInclude(value);
+	}
+
 	int id;
 	std::string name;
 	ShaderEnums::ShaderNodeCategory category;

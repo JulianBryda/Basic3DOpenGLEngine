@@ -19,11 +19,11 @@ public:
 		// compile shader
 		if (readFromFile)
 		{
-			compile_shader(shader, m_id, type);
+			readAndCompile(shader, m_id, type);
 		}
 		else
 		{
-			create_shader(m_id, shader.c_str(), type);
+			processAndCompile(m_id, shader, type);
 		}
 	}
 
@@ -38,7 +38,25 @@ public:
 
 private:
 
-	void create_shader(GLuint& shaderId, const char* shaderCode, GLenum shaderType)
+	void processAndCompile(GLuint& shaderId, std::string& shaderCode, GLenum shaderType)
+	{
+		processIncludes(shaderCode);
+
+		compile(shaderId, shaderCode.c_str(), shaderType);
+	}
+
+	void readAndCompile(std::string& shaderPath, GLuint& shaderId, GLenum shaderType)
+	{
+		std::string shaderCode;
+
+		// read shader code
+		this->readFromFile(shaderPath, shaderCode);
+
+		// create shader
+		this->processAndCompile(shaderId, shaderCode, shaderType);
+	}
+
+	void compile(GLuint& shaderId, const char* shaderCode, GLenum shaderType)
 	{
 		int success;
 		char infoLog[512];
@@ -53,10 +71,12 @@ private:
 		{
 			glGetShaderInfoLog(shaderId, 512, NULL, infoLog);
 			std::cout << "ERROR::SHADER::COMPILATION_FAILED\n" << infoLog << std::endl;
+			std::cout << shaderCode << std::endl;
+			return;
 		};
 	}
 
-	void read_shader_from_file(std::string& shaderPath, std::string& shaderCode)
+	void readFromFile(const std::string& shaderPath, std::string& shaderCode)
 	{
 		// 1. retrieve the source code from filePath
 		std::ifstream shaderFile;
@@ -82,16 +102,44 @@ private:
 		}
 	}
 
-	void compile_shader(std::string& shaderPath, GLuint& shaderId, GLenum shaderType)
+	void processIncludes(std::string& shaderCode)
 	{
-		std::string shaderCode;
+		std::istringstream stream(shaderCode);
+		std::string line;
 
-		// read shader code
-		this->read_shader_from_file(shaderPath, shaderCode);
+		while (std::getline(stream, line))
+		{
+			std::string trimedLine = trim(line);
+			if (trimedLine.substr(0, 8) != "#include") continue;
 
-		// create shader
-		this->create_shader(shaderId, shaderCode.c_str(), shaderType);
+			std::string includeName = trimedLine.substr(10, line.size() - 11);
+			std::string includePath = "\\Library\\" + includeName;
+
+			std::string libraryShaderCode;
+			readFromFile(includePath, libraryShaderCode);
+
+			shaderCode = shaderCode.replace(shaderCode.find(line), line.size(), libraryShaderCode);
+		}
 	}
+
+
+	std::string ltrim(const std::string& s)
+	{
+		size_t start = s.find_first_not_of(" \t\n\r\f\v");
+		return (start == std::string::npos) ? "" : s.substr(start);
+	}
+
+	std::string rtrim(const std::string& s)
+	{
+		size_t end = s.find_last_not_of(" \t\n\r\f\v");
+		return (end == std::string::npos) ? "" : s.substr(0, end + 1);
+	}
+
+	std::string trim(const std::string& s)
+	{
+		return rtrim(ltrim(s));
+	}
+
 
 	GLuint m_id;
 	GLenum type;

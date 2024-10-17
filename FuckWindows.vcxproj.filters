@@ -74,6 +74,12 @@
     <None Include="Shader\Vertex\v_material.glsl">
       <Filter>Shader\Vertex</Filter>
     </None>
+    <None Include="Shader\Library\structs.glsl">
+      <Filter>Shader\Library</Filter>
+    </None>
+    <None Include="Shader\Library\light.glsl">
+      <Filter>Shader\Library</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -150,6 +156,9 @@
     </Filter>
     <Filter Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodes">
       <UniqueIdentifier>{f953ab76-8b52-491a-9510-1b5e224423cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\Library">
+      <UniqueIdentifier>{ed7ebf3a-39e6-48ec-ac4a-f37e541cbddc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

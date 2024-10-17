@@ -169,6 +169,8 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <None Include="Shader\Fragment\f_texture.glsl" />
     <None Include="Shader\Fragment\f_visualizeNormals.glsl" />
     <None Include="Shader\Geometry\g_visualizeNormals.glsl" />
+    <None Include="Shader\Library\light.glsl" />
+    <None Include="Shader\Library\structs.glsl" />
     <None Include="Shader\Vertex\v_color.glsl" />
     <None Include="Shader\Vertex\v_debug.glsl" />
     <None Include="Shader\Vertex\v_debugOverdraw.glsl" />

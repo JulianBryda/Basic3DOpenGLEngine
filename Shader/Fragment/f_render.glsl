@@ -34,7 +34,7 @@ uniform sampler2D diffuseTexture;
 uniform int lightCount;
 uniform Light lights[10];
 
-uniform vec3 viewPos;
+uniform vec3 viewpos;
 
 in vec3 fragPos;
 in vec3 fragNorm;
@@ -77,7 +77,7 @@ vec4 Spot(vec3 lightPosition, vec3 lightDirection, vec3 lightColor, float innerC
     diffuse = (diffuse * texture(diffuseTexture, fragUv)) * diff;
 
     // specular
-    vec3 viewDir = normalize(viewPos - fragPos);
+    vec3 viewDir = normalize(viewpos - fragPos);
     vec3 reflectDir = reflect(-lightDir, fragNorm);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     vec4 specular = vec4(spec * (lightColor * material.specular), 1.0);
@@ -97,7 +97,7 @@ vec4 Directional(vec3 lightDirection, vec3 lightColor)
     diffuse = (diffuse * texture(diffuseTexture, fragUv)) * diff;
     
     // specular
-    vec3 viewDir = normalize(viewPos - fragPos);
+    vec3 viewDir = normalize(viewpos - fragPos);
     vec3 reflectDir = reflect(-lightDir, fragNorm);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     vec4 specular = vec4(spec * (lightColor * material.specular), 1.0);

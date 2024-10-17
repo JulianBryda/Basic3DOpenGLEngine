@@ -35,7 +35,7 @@ public:
 
 	void initParameterAtlas() override
 	{
-		parameterAtlas.insert({ std::hash<std::string>()("viewPos"), Material::Parameter<glm::vec3>("viewPos", 1, &position) });
+		parameterAtlas.insert({ std::hash<std::string>()("viewpos"), Material::Parameter<glm::vec3>("viewpos", 1, &position) });
 
 		parameterAtlas.insert({ std::hash<std::string>()("projectionMatrix"), Material::Parameter<glm::mat4>("projectionMatrix", 1, &m_projection) });
 		parameterAtlas.insert({ std::hash<std::string>()("viewMatrix"), Material::Parameter<glm::mat4>("viewMatrix", 1, &m_view) });
