@@ -5,6 +5,7 @@
 #include "ShaderNodeEditor/ShaderNodes/ShaderVarNode.hpp"
 #include "ShaderNodeEditor/ShaderNodes/ShaderUniformNode.hpp"
 #include "ShaderNodeEditor/ShaderNodes/ShaderFunctionNode.hpp"
+#include "ShaderNodeEditor/ShaderNodeLink.hpp"
 
 class ShaderNodeEditor
 {
@@ -121,10 +122,10 @@ private:
 		{
 			auto& link = links[i];
 
-			ImNodes::PushColorStyle(ImNodesCol_Link, link.first->color);
-			ImNodes::PushColorStyle(ImNodesCol_LinkHovered, link.first->color + IM_COL32(0, 0, 0, 75));
-			ImNodes::PushColorStyle(ImNodesCol_LinkSelected, link.first->color + IM_COL32(0, 0, 0, 75));
-			ImNodes::Link(i, link.first->id, link.second->id);
+			ImNodes::PushColorStyle(ImNodesCol_Link, link->getFirst()->color);
+			ImNodes::PushColorStyle(ImNodesCol_LinkHovered, link->getFirst()->color + IM_COL32(0, 0, 0, 75));
+			ImNodes::PushColorStyle(ImNodesCol_LinkSelected, link->getFirst()->color + IM_COL32(0, 0, 0, 75));
+			ImNodes::Link(i, link->getFirst()->id, link->getLast()->id);
 			ImNodes::PopColorStyle();
 			ImNodes::PopColorStyle();
 			ImNodes::PopColorStyle();
@@ -180,7 +181,7 @@ private:
 				{
 					float* value = new float(0);
 					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Float", ShaderEnums::ShaderNodeCategory::Input, ShaderEnums::None);
-					node->addInput(ShaderNodeAttribute(ShaderEnums::VEC, "Vec", value));
+					node->addInput(ShaderNodeAttribute(ShaderEnums::FLOAT, "", value, ShaderEnums::AttributeHidden));
 					node->setOutput(new ShaderNodeAttribute(ShaderEnums::FLOAT, "Value", value));
 
 					varNodes.push_back(node);
@@ -503,14 +504,14 @@ private:
 		startAttribute->connectedTo = endAttribute;
 		endAttribute->connectedTo = startAttribute;
 
-		links.push_back({ startAttribute, endAttribute });
+		links.push_back(new ShaderNodeLink(getNextLinkId(), startAttribute, endAttribute));
 	}
 
 	bool isInputAttributeLinked(int attributeId)
 	{
 		for (auto& link : links)
 		{
-			if (link.second->id == attributeId) return true;
+			if (link->getLast()->id == attributeId) return true;
 		}
 
 		return false;
@@ -663,6 +664,20 @@ private:
 		}
 	}
 
+	int getNextLinkId(int correction = 0)
+	{
+		int id = links.size() + correction;
+
+		if (checkLinkIdExists(id))
+		{
+			return getNextLinkId(1);
+		}
+		else
+		{
+			return id;
+		}
+	}
+
 	bool checkNodeIdExists(int id)
 	{
 		for (auto& node : varNodes)
@@ -676,6 +691,16 @@ private:
 		for (auto& node : functionNodes)
 		{
 			if (node->id == id) return true;
+		}
+
+		return false;
+	}
+
+	bool checkLinkIdExists(int id)
+	{
+		for (auto& link : links)
+		{
+			if (link->getId() == id) return true;
 		}
 
 		return false;
@@ -723,53 +748,53 @@ private:
 
 	void deleteLinkById(int id)
 	{
-		std::pair<ShaderNodeAttribute*, ShaderNodeAttribute*> link = links[id];
-		links.erase(links.begin() + id);
+		ShaderNodeLink* link = nullptr;
+		for (int i = 0; i < links.size(); i++)
+		{
+			if (links[i]->getId() == id)
+			{
+				link = links[i];
+				links.erase(links.begin() + i);
+				break;
+			}
+		}
 
-		link.second->connectedTo = nullptr;
-		link.first->connectedTo = nullptr;
+		if (!link) return;
+
+		link->getLast()->connectedTo = nullptr;
+		link->getFirst()->connectedTo = nullptr;
 
 		bool secondNodeConnected = false;
 		for (auto& val : links)
 		{
-			if (val.second->node->id == link.second->node->id)
+			if (val->getLast()->node->id == link->getLast()->node->id)
 			{
 				secondNodeConnected = true;
 				break;
 			}
 		}
 
-		if (!secondNodeConnected && !link.second->immutable)
+		if (!secondNodeConnected && !link->getLast()->immutable)
 		{
-			auto node = link.second->node;
+			auto node = link->getLast()->node;
 			for (auto& input : node->getInputs())
 			{
 				input.setType(ShaderEnums::NONE);
 			}
 		}
-	}
 
-	void deleteLinkByAttribId(int attribId)
-	{
-		for (int i = 0; i < links.size(); i++)
-		{
-			if (links[i].first->id == attribId || links[i].second->id == attribId)
-			{
-				deleteLinkById(i);
-				return;
-			}
-		}
+		delete link;
 	}
 
 	void deleteLinksByNode(ShaderVarNode* node)
 	{
 		for (int i = 0; i < links.size(); i++)
 		{
-			bool match = node->getOutput()->id == links[i].first->id;
+			bool match = node->getOutput()->id == links[i]->getFirst()->id;
 
 			for (auto& input : node->getInputs())
 			{
-				if (input.id == links[i].second->id)
+				if (input.id == links[i]->getLast()->id)
 				{
 					match = true;
 					continue;
@@ -778,7 +803,7 @@ private:
 
 			if (match)
 			{
-				deleteLinkById(i);
+				deleteLinkById(links[i]->getId());
 				i--;
 			}
 		}
@@ -798,6 +823,6 @@ private:
 	std::vector<ShaderUniformNode*> uniformNodes;
 	std::vector<ShaderFunctionNode*> functionNodes;
 	std::vector<ShaderVarNode*> varNodes;
-	std::vector<std::pair<ShaderNodeAttribute*, ShaderNodeAttribute*>> links;	// std::pair<startId, endId>
+	std::vector<ShaderNodeLink*> links;	// std::pair<startId, endId>
 
 };

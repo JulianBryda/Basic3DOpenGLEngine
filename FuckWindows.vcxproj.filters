@@ -300,6 +300,9 @@
     <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodes\ShaderEnums.hpp">
       <Filter>src\Renderer\UI\ShaderNodeEditor\ShaderNodes</Filter>
     </ClInclude>
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodeLink.hpp">
+      <Filter>src\Renderer\UI\ShaderNodeEditor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\FuckWindows.cpp">

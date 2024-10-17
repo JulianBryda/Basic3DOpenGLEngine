@@ -204,6 +204,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="src\Renderer\UI\ObjectManager.hpp" />
     <ClInclude Include="src\Renderer\UI\ShaderNodeEditor.hpp" />
     <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodeAttribute.hpp" />
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodeLink.hpp" />
     <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodes\ShaderEnums.hpp" />
     <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodes\ShaderFunctionNode.hpp" />
     <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodes\ShaderUniformNode.hpp" />
