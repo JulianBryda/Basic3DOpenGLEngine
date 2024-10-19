@@ -26,6 +26,11 @@ public:
 		this->color = getColor(type);
 	}
 
+	~ShaderNodeAttribute()
+	{
+
+	}
+
 	ShaderEnums::ShaderVarType getType() const
 	{
 		return type;

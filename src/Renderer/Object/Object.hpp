@@ -88,6 +88,7 @@ namespace Object
 
 		material->setFloat("time", glfwGetTime());
 
+		material->setMaterialTextures();
 		//material->setTexture(object->getTextureType(), object->getTexture(), GL_TEXTURE0);
 
 		material->setLightCount(activeScene->getLights().size());

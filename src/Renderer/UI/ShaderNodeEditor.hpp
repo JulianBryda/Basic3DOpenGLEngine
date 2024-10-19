@@ -472,7 +472,7 @@ private:
 					GLuint* value = new GLuint();
 					int nodeId = getNextNodeId();
 					ShaderUniformNode* node = new ShaderUniformNode(nodeId, std::format("Sampler2D_{}", nodeId), ShaderEnums::ShaderNodeCategory::Texture, 1);
-					node->addInput(ShaderNodeAttribute(ShaderEnums::SAMPLER_2D, "", value, ShaderEnums::AttributeHidden));
+					node->addInput({ ShaderEnums::SAMPLER_2D, "", value, ShaderEnums::AttributeHidden });
 					node->setOutput(new ShaderNodeAttribute(ShaderEnums::SAMPLER_2D, "Value", nullptr));
 
 					uniformNodes.push_back(node);

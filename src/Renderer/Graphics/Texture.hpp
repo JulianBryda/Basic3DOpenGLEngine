@@ -8,7 +8,7 @@ public:
 
 	Texture(GLuint id, GLenum type, GLint index, std::string name)
 	{
-		this->name = std::hash<std::string>()(name);
+		this->name = name;
 
 		this->id = id;
 		this->type = type;
@@ -24,9 +24,11 @@ public:
 	GLenum getType() const { return type; }
 	GLint getIndex() const { return index; }
 
+	std::string getName() const { return name; }
+
 private:
 
-	size_t name;
+	std::string name;
 
 	GLuint id;
 	GLenum type;
