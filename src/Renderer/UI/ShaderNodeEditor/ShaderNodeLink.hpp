@@ -12,10 +12,6 @@ public:
 		this->last = last;
 	}
 
-	~ShaderNodeLink()
-	{
-
-	}
 
 	int getId() const
 	{

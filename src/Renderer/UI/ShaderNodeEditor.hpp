@@ -125,7 +125,7 @@ private:
 			ImNodes::PushColorStyle(ImNodesCol_Link, link->getFirst()->color);
 			ImNodes::PushColorStyle(ImNodesCol_LinkHovered, link->getFirst()->color + IM_COL32(0, 0, 0, 75));
 			ImNodes::PushColorStyle(ImNodesCol_LinkSelected, link->getFirst()->color + IM_COL32(0, 0, 0, 75));
-			ImNodes::Link(i, link->getFirst()->id, link->getLast()->id);
+			ImNodes::Link(link->getId(), link->getFirst()->id, link->getLast()->id);
 			ImNodes::PopColorStyle();
 			ImNodes::PopColorStyle();
 			ImNodes::PopColorStyle();
@@ -656,6 +656,9 @@ private:
 			MaterialLib::addMaterial(material);
 		}
 
+		// clear textures if any
+		material->getTextures().clear();
+
 		int index = 0;
 		for (auto& node : shaderCodes)
 		{
@@ -667,12 +670,18 @@ private:
 					continue;
 				}
 
-				material->addTexture(Texture(*static_cast<GLuint*>(node.first->getOutput()->value), GL_TEXTURE_2D, GL_TEXTURE0 + index, node.first->getName()));
+				GLuint textureId = *static_cast<GLuint*>(node.first->getOutput()->value);
+
+				std::string textureName = node.first->getName();
+				std::transform(textureName.begin(), textureName.end(), textureName.begin(), [](unsigned char c) {return std::tolower(c);});
+
+				material->addTexture(new Texture(textureId, GL_TEXTURE_2D, GL_TEXTURE0 + index, textureName));
 				index++;
+
 			}
 
 		}
-
+		//TODO IMPLEMENT NORMAL CONVERSION IN SHADER TO WORLD SPACE 
 		outputText += std::format("{} compiled successfully!\n", material->getName());
 	}
 

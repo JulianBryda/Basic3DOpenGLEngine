@@ -58,11 +58,6 @@ public:
 
 	void use() const
 	{
-		for (auto& texture : m_textures)
-		{
-			setTexture(texture);
-		}
-
 		glUseProgram(this->m_id);
 	}
 
@@ -115,6 +110,15 @@ public:
 		glBindTexture(type, texture);
 	}
 
+	inline void setMaterialTextures(int indexOffset = 0)
+	{
+		for (auto& texture : m_textures)
+		{
+			setTexture(texture->getType(), texture->getId(), texture->getIndex() + indexOffset);
+			setInt(texture->getName().c_str(), texture->getIndex() + indexOffset - GL_TEXTURE0);
+		}
+	}
+
 	inline void setImageTexture(GLuint texture, GLenum format)
 	{
 		glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_READ_WRITE, format);
@@ -160,7 +164,7 @@ public:
 		this->setInt("lightcount", static_cast<int>(count));
 	}
 
-	void addTexture(Texture texture)
+	void addTexture(Texture* texture)
 	{
 		m_textures.push_back(texture);
 	}
@@ -180,7 +184,7 @@ public:
 		return nodeBased;
 	}
 
-	std::vector<Texture>& getTextures()
+	std::vector<Texture*>& getTextures()
 	{
 		return m_textures;
 	}
@@ -379,7 +383,7 @@ private:
 	std::string m_name;
 
 	std::vector<size_t> m_parameterAtlas;
-	std::vector<Texture> m_textures;
+	std::vector<Texture*> m_textures;
 
 	bool nodeBased;
 };

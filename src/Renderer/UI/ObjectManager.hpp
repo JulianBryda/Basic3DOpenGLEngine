@@ -106,6 +106,21 @@ public:
 						ImGui::EndCombo();
 					}
 
+					ImGui::BeginListBox("Textures");
+					{
+						for (auto& texture : object->getMaterialPtr()->getTextures())
+						{
+							ImGui::BeginChild(texture->getId(), {50, 70});
+							{
+								ImGui::Image((void*)(intptr_t)texture->getId(), { 50, 50 });
+								ImGui::Text("%i", texture->getId());
+							}
+							ImGui::EndChild();
+							ImGui::SameLine();
+						}
+					}
+					ImGui::EndListBox();
+
 					ImGui::TreePop();
 				}
 
