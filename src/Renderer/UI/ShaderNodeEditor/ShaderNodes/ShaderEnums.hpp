@@ -45,10 +45,13 @@ namespace ShaderEnums
 		VEC_3 = 1 << 5,
 		VEC_4 = 1 << 6,
 
-		SAMPLER_2D = 1 << 7,
+		MAT_3 = 1 << 7,
+		MAT_4 = 1 << 8,
 
-		LIGHT = 1 << 8,
-		LIGHT_ARRAY = 1 << 9,
+		SAMPLER_2D = 1 << 9,
+
+		LIGHT = 1 << 10,
+		LIGHT_ARRAY = 1 << 11,
 
 		VEC = VEC_2 | VEC_3 | VEC_4
 	};

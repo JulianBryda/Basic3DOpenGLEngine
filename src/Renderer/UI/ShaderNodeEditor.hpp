@@ -225,6 +225,30 @@ private:
 
 				ImGui::Separator();
 
+				if (ImGui::MenuItem("Mat3"))
+				{
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Mat3", ShaderEnums::ShaderNodeCategory::Input, ShaderEnums::None);
+					node->addInput(ShaderNodeAttribute(ShaderEnums::VEC_3, "X", nullptr));
+					node->addInput(ShaderNodeAttribute(ShaderEnums::VEC_3, "Y", nullptr));
+					node->addInput(ShaderNodeAttribute(ShaderEnums::VEC_3, "Z", nullptr));
+					node->setOutput(new ShaderNodeAttribute(ShaderEnums::MAT_3, "Value", nullptr));
+
+					varNodes.push_back(node);
+				}
+				if (ImGui::MenuItem("Mat4"))
+				{
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Mat4", ShaderEnums::ShaderNodeCategory::Input, ShaderEnums::None);
+					node->addInput(ShaderNodeAttribute(ShaderEnums::VEC_4, "X", nullptr));
+					node->addInput(ShaderNodeAttribute(ShaderEnums::VEC_4, "Y", nullptr));
+					node->addInput(ShaderNodeAttribute(ShaderEnums::VEC_4, "Z", nullptr));
+					node->addInput(ShaderNodeAttribute(ShaderEnums::VEC_4, "A", nullptr));
+					node->setOutput(new ShaderNodeAttribute(ShaderEnums::MAT_4, "Value", nullptr));
+
+					varNodes.push_back(node);
+				}
+
+				ImGui::Separator();
+
 				if (ImGui::MenuItem("Position"))
 				{
 					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Position", ShaderEnums::ShaderNodeCategory::Input, ShaderEnums::In);
@@ -681,7 +705,7 @@ private:
 			}
 
 		}
-		//TODO IMPLEMENT NORMAL CONVERSION IN SHADER TO WORLD SPACE 
+
 		outputText += std::format("{} compiled successfully!\n", material->getName());
 	}
 

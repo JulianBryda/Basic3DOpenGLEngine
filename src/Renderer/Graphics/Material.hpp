@@ -119,15 +119,6 @@ public:
 		}
 	}
 
-	inline void setMaterialTextures(GLuint textureIndexOffset = 0)
-	{
-		for (auto& texture : m_textures)
-		{
-			setTexture(texture.getType(), texture.getId(), texture.getIndex() + textureIndexOffset);
-			setInt(texture.getName().c_str(), texture.getIndex() + textureIndexOffset - GL_TEXTURE0);
-		}
-	}
-
 	inline void setImageTexture(GLuint texture, GLenum format)
 	{
 		glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_READ_WRITE, format);
