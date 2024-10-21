@@ -89,6 +89,10 @@ protected:
 			return "vec3";
 		case ShaderEnums::VEC_4:
 			return "vec4";
+		case ShaderEnums::MAT_3:
+			return "mat3";
+		case ShaderEnums::MAT_4:
+			return "mat4";
 		case ShaderEnums::SAMPLER_2D:
 			return "sampler2D";
 		case ShaderEnums::LIGHT:

@@ -36,18 +36,18 @@ public:
 	{
 		for (int i = 0; i < m_indices.size(); i += 3)
 		{
-			glm::vec3 v0 = m_vertices[m_indices[i]].getVertex();
-			glm::vec3 v1 = m_vertices[m_indices[i + 1]].getVertex();
-			glm::vec3 v2 = m_vertices[m_indices[i + 2]].getVertex();
+			glm::vec3 v0 = m_vertices[m_indices[i]].vertex;
+			glm::vec3 v1 = m_vertices[m_indices[i + 1]].vertex;
+			glm::vec3 v2 = m_vertices[m_indices[i + 2]].vertex;
 
 			glm::vec3 edge1 = v1 - v0;
 			glm::vec3 edge2 = v2 - v0;
 
 			glm::vec3 faceNormal = glm::normalize(glm::cross(edge1, edge2));
 
-			m_vertices[m_indices[i]].setNormal(faceNormal);
-			m_vertices[m_indices[i + 1]].setNormal(faceNormal);
-			m_vertices[m_indices[i + 2]].setNormal(faceNormal);
+			m_vertices[m_indices[i]].normal = faceNormal;
+			m_vertices[m_indices[i + 1]].normal = faceNormal;
+			m_vertices[m_indices[i + 2]].normal = faceNormal;
 		}
 	}
 

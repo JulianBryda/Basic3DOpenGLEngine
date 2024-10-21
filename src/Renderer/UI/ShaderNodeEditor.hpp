@@ -273,6 +273,14 @@ private:
 
 					varNodes.push_back(node);
 				}
+				if (ImGui::MenuItem("TBN"))
+				{
+					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "TBN", ShaderEnums::ShaderNodeCategory::Input, ShaderEnums::In);
+					node->setOutput(new ShaderNodeAttribute(ShaderEnums::MAT_3, "Value", nullptr));
+					node->getShaderVar()->variableName = "tbnMatrix";
+
+					varNodes.push_back(node);
+				}
 
 				ImGui::Separator();
 
@@ -869,6 +877,7 @@ private:
 			{
 				input.setType(ShaderEnums::NONE);
 			}
+			node->getOutput()->setType(ShaderEnums::NONE);
 		}
 
 		delete link;

@@ -183,7 +183,7 @@ public:
 				float yCord = heightmap[x * resolutionY + y] - (maxHeight + minHeight) / 2.f;
 				float zCord = y / static_cast<float>(resolutionY) * 2 - .5f;
 
-				Vertex vertex = Vertex(glm::vec3(xCord, yCord, zCord), glm::vec3(0.f), glm::vec2(xCord, zCord));
+				Vertex vertex = Vertex(glm::vec3(xCord, yCord, zCord), glm::vec3(0.f), glm::vec2(xCord, zCord), glm::vec3(), glm::vec3()); // TODO CALC TANGENT AND BITANGENT
 				vertices.push_back(vertex);
 			}
 		}

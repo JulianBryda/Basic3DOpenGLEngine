@@ -14,7 +14,7 @@ public:
 	{
 		visualizeNormals = false;
 
-		Vertex vertex = Vertex(glm::vec3(0.f), glm::vec3(0.f), glm::vec2(0.f));
+		Vertex vertex = Vertex(glm::vec3(0.f), glm::vec3(0.f), glm::vec2(0.f), glm::vec3(0.f), glm::vec3(0.f));
 
 		glGenVertexArrays(1, &m_vao);
 		glGenBuffers(1, &m_vbo);

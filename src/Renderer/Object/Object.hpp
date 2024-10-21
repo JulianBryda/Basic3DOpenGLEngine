@@ -91,7 +91,7 @@ namespace Object
 		material->setLightCount(activeScene->getLights().size());
 		for (int i = 0; i < activeScene->getLights().size(); i++)
 		{
-			material->setLight(activeScene->getLights()[i], i, GL_TEXTURE0 + i + material->getTextures().size());
+			material->setLight(activeScene->getLights()[i], i, GL_TEXTURE0 + i);
 		}
 
 		material->setMaterialTextures(activeScene->getLights().size());

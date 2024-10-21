@@ -72,7 +72,7 @@ namespace ObjectLoader
 	static ObjectData* load_model_mesh_assimp(const char* path, int& meshCount)
 	{
 		Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals | aiProcess_GenUVCoords);
+		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace);
 
 		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 		{
@@ -98,8 +98,10 @@ namespace ObjectLoader
 				glm::vec3 vertex(aiMesh->mVertices[j].x, aiMesh->mVertices[j].y, aiMesh->mVertices[j].z);
 				glm::vec3 normal(aiMesh->mNormals[j].x, aiMesh->mNormals[j].y, aiMesh->mNormals[j].z);
 				glm::vec2 uv(aiMesh->mTextureCoords[0][j].x, aiMesh->mTextureCoords[0][j].y);
+				glm::vec3 tangent(aiMesh->mTangents[j].x, aiMesh->mTangents[j].y, aiMesh->mTangents[j].z);
+				glm::vec3 bitangent(aiMesh->mBitangents[j].x, aiMesh->mBitangents[j].y, aiMesh->mBitangents[j].z);
 
-				data.mesh.addVertex(Vertex(vertex, normal, uv));
+				data.mesh.addVertex(Vertex(vertex, normal, uv, tangent, bitangent));
 			}
 
 			for (uint32_t j = 0; j < aiMesh->mNumFaces; j++)
@@ -127,7 +129,7 @@ namespace ObjectLoader
 	static void load_model_mesh_assimp(const char* path, Mesh& mesh)
 	{
 		Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
+		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
 
 		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 		{
@@ -146,8 +148,10 @@ namespace ObjectLoader
 				glm::vec3 vertex(aiMesh->mVertices[j].x, aiMesh->mVertices[j].y, aiMesh->mVertices[j].z);
 				glm::vec3 normal(aiMesh->mNormals[j].x, aiMesh->mNormals[j].y, aiMesh->mNormals[j].z);
 				glm::vec2 uv(aiMesh->mTextureCoords[0][j].x, aiMesh->mTextureCoords[0][j].y);
+				glm::vec3 tangent(aiMesh->mTangents[j].x, aiMesh->mTangents[j].y, aiMesh->mTangents[j].z);
+				glm::vec3 bitangent(aiMesh->mBitangents[j].x, aiMesh->mBitangents[j].y, aiMesh->mBitangents[j].z);
 
-				mesh.addVertex(Vertex(vertex, normal, uv));
+				mesh.addVertex(Vertex(vertex, normal, uv, tangent, bitangent));
 			}
 
 			for (uint32_t j = 0; j < aiMesh->mNumFaces; j++)

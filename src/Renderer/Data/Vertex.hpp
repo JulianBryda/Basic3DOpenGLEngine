@@ -2,43 +2,26 @@
 #include <iostream>
 #include <glm/glm.hpp>
 
-class Vertex
+struct Vertex
 {
 
-public:
-
-	Vertex(glm::vec3 vertex, glm::vec3 normal, glm::vec2 uv)
+	Vertex(glm::vec3 vertex, glm::vec3 normal, glm::vec2 uv, glm::vec3 tangent, glm::vec3 bitangent)
 	{
-		this->m_vertex = vertex;
-		this->m_normal = normal;
-		this->m_uv = uv;
-	}
-
-	~Vertex()
-	{
-
+		this->vertex = vertex;
+		this->normal = normal;
+		this->uv = uv;
+		this->tangent = tangent;
+		this->bitangent = bitangent;
 	}
 
 	inline bool operator==(const Vertex& other)
 	{
-		return other.m_vertex == this->m_vertex && other.m_normal == this->m_normal && other.m_uv == this->m_uv;
+		return other.vertex == this->vertex && other.normal == this->normal && other.uv == this->uv && other.tangent == this->tangent && other.bitangent == this->bitangent;
 	}
 
-
-	// getter
-	glm::vec3 getVertex() const { return this->m_vertex; }
-	glm::vec3* getVertexPtr() { return &this->m_vertex; }
-	glm::vec3 getNormal() const { return this->m_normal; }
-	glm::vec3* getNormalPtr() { return &this->m_normal; }
-	glm::vec2 getUv() const { return this->m_uv; }
-	glm::vec2* getUvPtr() { return &this->m_uv; }
-
-	// setter
-	void setNormal(glm::vec3 value) { m_normal = value; }
-
-private:
-
-	glm::vec3 m_vertex;
-	glm::vec3 m_normal;
-	glm::vec2 m_uv;
+	glm::vec3 vertex;
+	glm::vec3 normal;
+	glm::vec2 uv;
+	glm::vec3 tangent;
+	glm::vec3 bitangent;
 };

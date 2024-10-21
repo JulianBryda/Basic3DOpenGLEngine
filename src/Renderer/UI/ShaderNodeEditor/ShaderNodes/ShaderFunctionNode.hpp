@@ -21,7 +21,7 @@ public:
 
 	void setFunctionType(ShaderEnums::ShaderVarType type)
 	{
-		if (output && !output->immutable)
+		if (output && !output->immutable && output->getType() == ShaderEnums::ShaderVarType::NONE)
 		{
 			output->setType(type);
 		}
@@ -30,7 +30,7 @@ public:
 		{
 			if (!input.immutable)
 			{
-				input.setType(type);
+				input.setType(getInputType(type));
 			}
 		}
 	}
@@ -42,6 +42,25 @@ private:
 		for (int i = 0; i < inputs.size(); i++)
 		{
 			inputs[i].id = this->id * 500 + i + 2;
+		}
+	}
+
+	ShaderEnums::ShaderVarType getInputType(ShaderEnums::ShaderVarType type)
+	{
+		switch (type)
+		{
+		case ShaderEnums::VEC_2:
+			return static_cast<ShaderEnums::ShaderVarType>(type | ShaderEnums::FLOAT);
+		case ShaderEnums::VEC_3:
+			return static_cast<ShaderEnums::ShaderVarType>(type | ShaderEnums::MAT_3 | ShaderEnums::FLOAT);
+		case ShaderEnums::VEC_4:
+			return static_cast<ShaderEnums::ShaderVarType>(type | ShaderEnums::MAT_4 | ShaderEnums::FLOAT);
+		case ShaderEnums::MAT_3:
+			return static_cast<ShaderEnums::ShaderVarType>(type | ShaderEnums::VEC_3 | ShaderEnums::FLOAT);
+		case ShaderEnums::MAT_4:
+			return static_cast<ShaderEnums::ShaderVarType>(type | ShaderEnums::VEC_4 | ShaderEnums::FLOAT);
+		default:
+			return type;
 		}
 	}
 
