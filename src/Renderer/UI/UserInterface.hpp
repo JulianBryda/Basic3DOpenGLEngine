@@ -100,9 +100,12 @@ public:
 		static ShaderNodeEditor nodeEditor;
 
 		if (m_nodeEditor) nodeEditor.render();
+		if (m_nodeEditor) nodeEditor.renderMaterialPreviewWindow();
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		nodeEditor.renderMaterialPreview();
 	}
 
 	void renderFolderStructure(const char* path)

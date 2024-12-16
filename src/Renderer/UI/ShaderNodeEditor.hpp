@@ -20,12 +20,68 @@ public:
 		style.Colors[ImNodesCol_NodeBackgroundHovered] = style.Colors[ImNodesCol_NodeBackground];
 		style.Colors[ImNodesCol_NodeBackgroundSelected] = style.Colors[ImNodesCol_NodeBackground];
 
-
+		selectedMaterial = nullptr;
+		demoObject = new GameObject("DemoSphere", ".\\Assets\\Objects\\Sphere.obj", nullptr, NONE);
+		demoObject->getModelMatrix(); // needed to compute modelMatrix, if not called, modelMatrix will be incorrect!
+		demoCamera = new Camera("DemoCamera", false);
+		demoCamera->setPosition(glm::vec3(5.f));
+		demoCamera->setViewMatrix(glm::lookAt(demoCamera->getPosition(), demoObject->getPosition(), glm::vec3(0.f, 1.f, 0.f)));
+		demoCamera->setProjectionMatrix(glm::perspective(glm::radians(90.f), 1.f, 0.1f, 10.f));
 	}
 
 	~ShaderNodeEditor()
 	{
+		delete demoCamera;
+		delete demoObject;
 		ImNodes::DestroyContext();
+	}
+
+	ImVec2 pos, size;
+
+	void renderMaterialPreviewWindow()
+	{
+		ImGui::Begin("Material Preview", nullptr);
+		{
+			pos = ImGui::GetWindowPos();
+			size = ImGui::GetWindowSize();
+		}
+		ImGui::End();
+	}
+
+	void renderMaterialPreview()
+	{
+		if (selectedMaterial)
+		{
+			GLint viewport[4];
+			glGetIntegerv(GL_VIEWPORT, viewport);
+
+			int viewportSize = (size.x > size.y) ? size.y : size.x;
+			glViewport(pos.x, viewport[3] - pos.y - viewportSize, viewportSize, viewportSize);
+
+			selectedMaterial->use();
+			auto& objectAtlas = demoObject->getParameterAtlas();
+			auto finalAtlas = demoCamera->getParameterAtlas(); // do not use reference on this one!
+
+			//merge maps
+			for (const auto& pair : objectAtlas)
+			{
+				finalAtlas.insert_or_assign(pair.first, pair.second);
+			}
+
+			for (auto& name : selectedMaterial->getParameterAtlas())
+			{
+				if (finalAtlas.contains(name))
+				{
+					Material::UniformType uniformType = finalAtlas[name];
+
+					selectedMaterial->setUniform(uniformType);
+				}
+			}
+
+			demoObject->draw();
+
+			glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+		}
 	}
 
 	void render()
@@ -705,7 +761,7 @@ private:
 				GLuint textureId = *static_cast<GLuint*>(node.first->getOutput()->value);
 
 				std::string textureName = node.first->getName();
-				std::transform(textureName.begin(), textureName.end(), textureName.begin(), [](unsigned char c) {return std::tolower(c);});
+				std::transform(textureName.begin(), textureName.end(), textureName.begin(), [](unsigned char c) {return std::tolower(c); });
 
 				material->addTexture(new Texture(textureId, GL_TEXTURE_2D, GL_TEXTURE0 + index, textureName));
 				index++;
@@ -922,4 +978,6 @@ private:
 	std::vector<ShaderVarNode*> varNodes;
 	std::vector<ShaderNodeLink*> links;	// std::pair<startId, endId>
 
+	GameObject* demoObject;
+	Camera* demoCamera;
 };
