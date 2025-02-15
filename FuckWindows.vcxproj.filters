@@ -338,9 +338,6 @@
     <ClCompile Include="src\Core\FuckWindows.cpp">
       <Filter>src\Core</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\PhysicEngine.cpp">
-      <Filter>src\Core</Filter>
-    </ClCompile>
     <ClCompile Include="src\Renderer\UI\UserInterface.cpp">
       <Filter>src\Renderer\UI</Filter>
     </ClCompile>

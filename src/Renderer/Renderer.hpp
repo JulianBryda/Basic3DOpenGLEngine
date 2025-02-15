@@ -6,8 +6,6 @@
 #include "../Scene/Objects/Camera.hpp"
 #include "../Scene/Scene.hpp"
 
-#include "../Core/PhysicEngine.hpp"
-
 
 class Renderer
 {
@@ -81,7 +79,6 @@ public:
 	void deleteObject(GameObject& object)
 	{
 		m_activeScene->deleteObject(&object);
-		PhysicEngine::removeObject(&object);
 	}
 
 private:

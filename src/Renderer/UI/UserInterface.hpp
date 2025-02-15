@@ -8,8 +8,6 @@
 
 #include "implot.h"
 
-#include "../../Core/PhysicEngine.hpp"
-
 #include "../../Utils/AssetManager.hpp"
 
 #include "../../ThirdParty/IconsFontAwesome5.h"
@@ -59,8 +57,6 @@ public:
 		// Setup Platform/Renderer backends
 		ImGui_ImplGlfw_InitForOpenGL(m_pWindow, true);
 		ImGui_ImplOpenGL3_Init();
-
-		m_pObjectManager = new ObjectManager(m_pWindow);
 	}
 
 	~UserInterface()
@@ -69,8 +65,6 @@ public:
 		ImGui_ImplGlfw_Shutdown();
 		ImPlot::DestroyContext();
 		ImGui::DestroyContext();
-
-		delete m_pObjectManager;
 	}
 
 	static UserInterface& getInstance()
@@ -89,8 +83,8 @@ public:
 		// render functions here
 		renderMenuBar();
 
-		if (m_objectList) m_pObjectManager->renderObjectList();
-		if (m_objectProperties) m_pObjectManager->renderObjectProperties();
+		if (m_objectList) ObjectManager::getInstance().renderObjectList();
+		if (m_objectProperties) ObjectManager::getInstance().renderObjectProperties();
 		if (m_lightManager) renderLightManager();
 		if (m_assetManager) renderAssetManager();
 		
@@ -183,11 +177,6 @@ public:
 		}
 	}
 
-	ObjectManager* getObjectManager() const
-	{
-		return m_pObjectManager;
-	}
-
 private:
 
 	void setImguiStyle();
@@ -221,6 +210,4 @@ private:
 	Light* m_selectedLight;
 
 	GLFWwindow* m_pWindow;
-
-	ObjectManager* m_pObjectManager;
 };

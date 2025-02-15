@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <imgui_internal.h>
 
-#include "../Renderer/UI/UserInterface.hpp"
+#include "../Renderer/UI/ObjectManager.hpp"
 #include "../Window/InputHandler.hpp"
 
 class ActionHandler
@@ -63,8 +63,8 @@ public:
 	void handleActions()
 	{
 		camera = Renderer::getInstance().getActiveScene()->getActiveCamera();
-		object = UserInterface::getInstance().getObjectManager()->getSelectedObject();
-		objects = UserInterface::getInstance().getObjectManager()->getSelectedObjects();
+		object = ObjectManager::getInstance().getSelectedObject();
+		objects = ObjectManager::getInstance().getSelectedObjects();
 		m_lastXClick = InputHandler::getInstance().lastXClick;
 		m_lastYClick = InputHandler::getInstance().lastYClick;
 
@@ -152,7 +152,7 @@ private:
 
 				glm::vec2 cursorPosition = glm::vec2(xPos, yPos);
 				glm::vec2 startPosition = glm::vec2(m_lastXManipulation, m_lastYManipulation);
-				glm::vec2 mainObjectPosition = worldToScreen(UserInterface::getInstance().getObjectManager()->getSelectedObject()->getPosition(), camera->getViewMatrix(), camera->getProjectionMatrix());
+				glm::vec2 mainObjectPosition = worldToScreen(ObjectManager::getInstance().getSelectedObject()->getPosition(), camera->getViewMatrix(), camera->getProjectionMatrix());
 
 				if (m_manipulationStruct.state == Scaling && m_manipulationStruct.inititalScale.size() == objects.size())
 				{
@@ -213,11 +213,11 @@ private:
 		setManipulationState(Nothing);
 
 		// send nullptr to clear objects and avoid duplicates
-		UserInterface::getInstance().getObjectManager()->setSelectedObject(nullptr);
+		ObjectManager::getInstance().setSelectedObject(nullptr);
 
 		for (auto& object : Renderer::getInstance().getActiveScene()->getObjects())
 		{
-			UserInterface::getInstance().getObjectManager()->addSelectedObject(object);
+			ObjectManager::getInstance().addSelectedObject(object);
 		}
 	}
 
@@ -265,21 +265,21 @@ private:
 
 	void duplicateObject()
 	{
-		GameObject* object = UserInterface::getInstance().getObjectManager()->getSelectedObject();
+		GameObject* object = ObjectManager::getInstance().getSelectedObject();
 		if (object == nullptr) return;
 
 		GameObject* obj = new GameObject(*object);
 		obj->setIsPhysicsEnabled(true);
 
 		Renderer::getInstance().addObject(obj);
-		UserInterface::getInstance().getObjectManager()->setSelectedObject(obj);
+		ObjectManager::getInstance().setSelectedObject(obj);
 
 		moveObject();
 	}
 
 	void deleteObject()
 	{
-		auto& objects = UserInterface::getInstance().getObjectManager()->getSelectedObjects();
+		auto& objects = ObjectManager::getInstance().getSelectedObjects();
 
 		for (int i = 0; i < objects.size(); i++)
 		{
@@ -289,7 +289,7 @@ private:
 			Renderer::getInstance().deleteObject(*object);
 		}
 
-		UserInterface::getInstance().getObjectManager()->setSelectedObject(nullptr);
+		ObjectManager::getInstance().setSelectedObject(nullptr);
 	}
 
 	void scaleObject()
@@ -298,7 +298,7 @@ private:
 		m_lastYManipulation = yPos;
 		setManipulationState(m_manipulationStruct.state == Scaling ? Nothing : Scaling);
 
-		auto& objects = UserInterface::getInstance().getObjectManager()->getSelectedObjects();
+		auto& objects = ObjectManager::getInstance().getSelectedObjects();
 
 		for (int i = 0; i < objects.size(); i++)
 		{
@@ -317,7 +317,7 @@ private:
 		m_lastYManipulation = yPos;
 		setManipulationState(m_manipulationStruct.state == Moving ? Nothing : Moving);
 
-		auto& objects = UserInterface::getInstance().getObjectManager()->getSelectedObjects();
+		auto& objects = ObjectManager::getInstance().getSelectedObjects();
 
 		for (int i = 0; i < objects.size(); i++)
 		{
@@ -336,7 +336,7 @@ private:
 		m_lastYManipulation = yPos;
 		setManipulationState(m_manipulationStruct.state == Rotating ? Nothing : Rotating);
 
-		auto& objects = UserInterface::getInstance().getObjectManager()->getSelectedObjects();
+		auto& objects = ObjectManager::getInstance().getSelectedObjects();
 
 		for (int i = 0; i < objects.size(); i++)
 		{
@@ -372,13 +372,13 @@ private:
 			glm::vec3 correctedWorldCoods = worldCoords * 0.9f;
 			if (checkHitAABB(object, correctedWorldCoods))
 			{
-				UserInterface::getInstance().getObjectManager()->setSelectedObject(object);
+				ObjectManager::getInstance().setSelectedObject(object);
 				return;
 			}
 		}
 
 		// no object clicked, send nullptr
-		UserInterface::getInstance().getObjectManager()->setSelectedObject(nullptr);
+		ObjectManager::getInstance().setSelectedObject(nullptr);
 
 	}
 
@@ -503,8 +503,8 @@ private:
 		m_lastFrameTime = 0.f;
 
 	Camera* camera = Renderer::getInstance().getActiveScene()->getActiveCamera();
-	GameObject* object = UserInterface::getInstance().getObjectManager()->getSelectedObject();
-	std::vector<GameObject*>& objects = UserInterface::getInstance().getObjectManager()->getSelectedObjects();
+	GameObject* object = ObjectManager::getInstance().getSelectedObject();
+	std::vector<GameObject*>& objects = ObjectManager::getInstance().getSelectedObjects();
 
 	double xPos, yPos;
 };

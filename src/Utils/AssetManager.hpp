@@ -1,6 +1,8 @@
 #pragma once
+#include <iostream>
 #include <filesystem>
 #include <map>
+#include <glad/glad.h>
 
 #include "stb_image.h"
 

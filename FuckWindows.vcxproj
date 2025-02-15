@@ -244,7 +244,6 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\FuckWindows.cpp" />
-    <ClCompile Include="src\Core\PhysicEngine.cpp" />
     <ClCompile Include="src\Globals\GlobalConfig.cpp" />
     <ClCompile Include="src\Globals\GlobalTextures.cpp" />
     <ClCompile Include="src\Landscape.cpp" />

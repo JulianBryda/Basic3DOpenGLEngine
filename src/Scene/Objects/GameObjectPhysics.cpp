@@ -1,6 +1,5 @@
 #include "GameObjectPhysics.h"
 #include "GameObject.hpp"
-#include "../../Core/PhysicEngine.hpp"
 
 GameObjectPhysics::GameObjectPhysics(GameObject* gameObject)
 {
@@ -44,11 +43,6 @@ bool GameObjectPhysics::toggleIsPullToObjectEnabled()
 
 void GameObjectPhysics::setIsPhysicsEnabled(bool isPhysicsEnabled)
 {
-	if (this->isPhysicsEnabled == isPhysicsEnabled) return;
-
-	if (isPhysicsEnabled) PhysicEngine::addObject(this->gameObject);
-	else PhysicEngine::removeObject(this->gameObject);
-
 	this->isPhysicsEnabled = isPhysicsEnabled;
 }
 

@@ -10,6 +10,7 @@
 #include "../Core/ActionHandler.hpp"
 
 #include "../Renderer/Renderer.hpp"
+#include "PhysicEngine.hpp"
 
 #include "../Scene/Objects/Skybox.hpp"
 
@@ -104,7 +105,7 @@ int main()
 		statTracker.measureTime([]()
 			{
 				// do fancy physic stuff
-				PhysicEngine::update();
+				PhysicEngine::getInstance().update();
 
 				// render stuff
 				Renderer::getInstance().render();

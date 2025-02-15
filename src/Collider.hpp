@@ -7,7 +7,6 @@ namespace Collision
 
 	inline bool checkBoundingBoxCollision(glm::vec3 firstPosition, glm::vec3 firstScale, glm::vec3 secondPosition, glm::vec3 secondScale)
 	{
-		//NOTE: maybe the z axis collision detection is broken
 		return firstPosition.x + firstScale.x / 2 > secondPosition.x - secondScale.x / 2 &&
 			firstPosition.x - firstScale.x / 2 < secondPosition.x + secondScale.x / 2 &&
 			firstPosition.y + firstScale.y / 2 > secondPosition.y - secondScale.y / 2 &&
@@ -28,11 +27,19 @@ namespace Collision
 			firstPosition.y - firstScale.y / 2 < secondPosition.y + secondScale.y / 2;
 	}
 
-	//NOTE: maybe the z axis collision detection is broken
 	inline bool checkBoundingBoxCollisionZ(glm::vec3 firstPosition, glm::vec3 firstScale, glm::vec3 secondPosition, glm::vec3 secondScale)
 	{
 		return firstPosition.z + firstScale.z / 2 > secondPosition.z - secondScale.z / 2 &&
 			firstPosition.z - firstScale.z / 2 < secondPosition.z + secondScale.z / 2;
+	}
+
+
+	inline glm::vec3 getOverlap(glm::vec3 firstPosition, glm::vec3 firstScale, glm::vec3 secondPosition, glm::vec3 secondScale)
+	{
+		glm::vec3 dif = firstPosition - secondPosition;
+		glm::vec3 dis = (firstScale + secondScale) / 2.f;
+
+		return glm::vec3(glm::abs(dif - dis));;
 	}
 };
 

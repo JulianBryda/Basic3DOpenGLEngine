@@ -4,166 +4,133 @@
 #include <vector>
 
 #include "../Scene/Objects/GameObject.hpp"
+#include "../Renderer/Renderer.hpp"
+#include "../Renderer/UI/ObjectManager.hpp"
 
 class PhysicEngine
 {
 
 public:
 
-	static void update()
+	PhysicEngine()
+	{
+		m_deltaTime = 0.f;
+		m_lastFrameTime = 0.f;
+	}
+
+	~PhysicEngine()
+	{
+
+	}
+
+	static PhysicEngine& getInstance()
+	{
+		static PhysicEngine instance;
+		return instance;
+	}
+
+	void update()
 	{
 		updateDeltaTime();
 
-
-		for (size_t i = 0; i < m_physicalizedObjects.size(); i++)
+		for (auto& object : Renderer::getInstance().getActiveScene()->getObjects())
 		{
-			auto obj = m_physicalizedObjects[i];
 			bool isColliding = false;
 
-			glm::vec3 velocity = obj->getVelocity();
-			glm::vec3 position = obj->getPosition();
+			glm::vec3 velocity = object->getVelocity();
+			glm::vec3 position = object->getPosition();
 
-			if (obj->getIsGravityEnabled())
+			if (object->getIsGravityEnabled())
 			{
-				velocity += glm::vec3(0.0f, -obj->getGravity(), 0.0f) * m_deltaTime;
+				velocity += glm::vec3(0.0f, -object->getGravity(), 0.0f) * m_deltaTime;
 			}
-			else if (obj->getIsPullToObjectEnabled())
+			else if (object->getIsPullToObjectEnabled())
 			{
-				for (size_t j = 0; j < m_physicalizedObjects.size(); j++)
+				for (auto& secondObject : Renderer::getInstance().getActiveScene()->getObjects())
 				{
-					if (obj == m_physicalizedObjects[j]) continue;
+					if (object == secondObject) continue;
 
-					glm::vec3 direction = obj->getPosition() - m_physicalizedObjects[j]->getPosition();
+					glm::vec3 direction = object->getPosition() - secondObject->getPosition();
 					float distance = glm::length(direction);
-					float forceMagnitude = GRAVCONST * obj->getMass() * m_physicalizedObjects[j]->getMass() / (distance * distance);
+					float forceMagnitude = GRAVCONST * object->getMass() * secondObject->getMass() / (distance * distance);
 					glm::vec3 force = glm::normalize(direction) * forceMagnitude;
 
-					velocity -= force / obj->getMass();
+					velocity -= force / object->getMass();
 				}
 			}
 
-			velocity -= obj->getLinearDrag() * velocity * m_deltaTime;
+			velocity -= object->getLinearDrag() * velocity * m_deltaTime;
 			position += velocity * m_deltaTime;
 
 			// collision detection
-			for (size_t j = 0; j < m_physicalizedObjects.size(); j++)
+			if (object->getIsCollisionEnabled())
 			{
-				// check if collisions is enabled on object and object to check for are not the same
-				if (!m_physicalizedObjects[j]->getIsCollisionEnabled() || obj == m_physicalizedObjects[j]) continue;
-
-				// check if objects are even close enough to collide
-				if (std::abs(glm::length(obj->getPosition() - m_physicalizedObjects[j]->getPosition())) > glm::length(obj->getScale() + m_physicalizedObjects[j]->getScale()))
+				for (auto& secondObject : Renderer::getInstance().getActiveScene()->getObjects())
 				{
-					// object is not close enough
-					// every object not in collision range of selected object will get hidden
-					if (m_focusedGameObject != nullptr && m_focusedGameObject != m_physicalizedObjects[j])
-					{
-						m_physicalizedObjects[j]->setIsHidden(true);
-					}
-					else
-					{
-						m_physicalizedObjects[j]->setIsHidden(false);
-					}
+					// check if collisions is enabled on object and object to check for are not the same
+					if (!secondObject->getIsCollisionEnabled() || object == secondObject) continue;
 
-					// object not close enough to collide so skip collisions detection 
-					continue;
-				}
-				else
-				{
-					// object is close enough
-					if (m_focusedGameObject != nullptr && m_focusedGameObject != m_physicalizedObjects[j])
+					// check which collision algorithm to use
+					switch (object->getColliderPtr()->getColliderType())
 					{
-						m_physicalizedObjects[j]->setIsHidden(false);
-					}
-				}
+					case ColliderType::BoundingBox:
+					{
+						if (!Collision::checkBoundingBoxCollision(position, object->getScale(), secondObject->getPosition(), secondObject->getScale())) continue;
 
-				// check which collision algorithm to use
-				switch (obj->getColliderPtr()->getColliderType())
-				{
-				case ColliderType::BoundingBox:
-				{
-					if (Collision::checkBoundingBoxCollisionX(position, obj->getScale(), m_physicalizedObjects[j]->getPosition(), m_physicalizedObjects[j]->getScale()))
-					{
-						velocity *= glm::vec3(1.f, 1.f, .1f);
-						position.x = obj->getPositionPtr()->x;
-					}
+						glm::vec3 mtv = glm::vec3(0.f);
+						glm::vec3 overlap = Collision::getOverlap(position, object->getScale(), secondObject->getPosition(), secondObject->getScale());
 
-					if (Collision::checkBoundingBoxCollisionY(position, obj->getScale(), m_physicalizedObjects[j]->getPosition(), m_physicalizedObjects[j]->getScale()))
-					{
-						velocity *= glm::vec3(.1f, 1.f, 1.f);
-						position.x = obj->getPositionPtr()->y;
-					}
+						if (overlap.x < overlap.y && overlap.x < overlap.z)
+						{
+							mtv = glm::vec3(overlap.x, 0.f, 0.f);
+							velocity.x = 0.f;
+						}
+						else if (overlap.y < overlap.x && overlap.y < overlap.z)
+						{
+							mtv = glm::vec3(0.f, overlap.y, 0.f);
+							velocity.y = 0.f;
+						}
+						else
+						{
+							mtv = glm::vec3(0.f, 0.f, overlap.z);
+							velocity.z = 0.f;
+						}
 
-					if (Collision::checkBoundingBoxCollisionZ(position, obj->getScale(), m_physicalizedObjects[j]->getPosition(), m_physicalizedObjects[j]->getScale()))
-					{
-						velocity *= glm::vec3(1.f, .1f, 1.f);
-						position.y = obj->getPositionPtr()->z;
-					}
+						position += mtv;
 
-					break;
-				}
-				case ColliderType::Circular:
-				{
-					if (obj->checkCircularCollision(*m_physicalizedObjects[j]))
-					{
-						obj->setVelocity(glm::vec3(0.0f));
+						break;
 					}
-					break;
-				}
-				default:
-				{
-					break;
-				}
+					case ColliderType::Circular:
+					{
+						if (object->checkCircularCollision(*secondObject))
+						{
+							object->setVelocity(glm::vec3(0.0f));
+						}
+						break;
+					}
+					default:
+					{
+						break;
+					}
+					}
 				}
 			}
 
-			obj->setPosition(position);
-			obj->setVelocity(velocity);
+			object->setPosition(position);
+			object->setVelocity(velocity);
 		}
 	}
-
-	static void addObject(GameObject* obj)
-	{
-		m_physicalizedObjects.push_back(obj);
-	}
-
-	static void removeObject(GameObject* obj)
-	{
-		if (obj == nullptr) return;
-
-		m_physicalizedObjects.erase(std::remove(m_physicalizedObjects.begin(), m_physicalizedObjects.end(), obj), m_physicalizedObjects.end());
-	}
-
-	static GameObject* getObject(GameObject* object)
-	{
-		for (size_t i = 0; i < m_physicalizedObjects.size(); i++)
-		{
-			if (object == m_physicalizedObjects[i])
-			{
-				return m_physicalizedObjects[i];
-			}
-		}
-
-		return nullptr;
-	}
-
-	static GameObject* getFocusedGameObject() { return m_focusedGameObject; }
-	static void setFocusedGameObject(GameObject* object) { m_focusedGameObject = object; }
 
 private:
 
-	static void updateDeltaTime()
+	void updateDeltaTime()
 	{
 		float currentFrameTime = static_cast<float>(glfwGetTime());
 		m_deltaTime = currentFrameTime - m_lastFrameTime;
 		m_lastFrameTime = currentFrameTime;
 	}
 
-	static std::vector<GameObject*> m_physicalizedObjects;
+	float m_deltaTime, m_lastFrameTime;
 
-	static float m_deltaTime, m_lastFrameTime;
-
-	static GameObject* m_focusedGameObject;
-
-	static constexpr float GRAVCONST = 6.67430f;
+	const float GRAVCONST = 6.67430f;
 };

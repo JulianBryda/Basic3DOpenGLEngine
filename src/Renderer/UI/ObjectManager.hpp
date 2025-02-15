@@ -2,19 +2,26 @@
 #include <imgui.h>
 #include "../../Landscape.hpp"
 #include "../Renderer.hpp"
+#include "../../Window/AppWindow.hpp"
 
 class ObjectManager
 {
 public:
 
-	ObjectManager(GLFWwindow* window)
+	ObjectManager()
 	{
-		m_pWindow = window;
+		m_pWindow = AppWindow::window;
 	}
 
 	~ObjectManager()
 	{
 
+	}
+
+	static ObjectManager& getInstance()
+	{
+		static ObjectManager instance;
+		return instance;
 	}
 
 	void renderObjectList()
