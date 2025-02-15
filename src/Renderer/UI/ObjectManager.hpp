@@ -385,6 +385,8 @@ public:
 
 	GameObject* getSelectedObject()
 	{
+		if (m_selectedObjects.size() == 0) return nullptr;
+
 		return m_selectedObjects[m_selectedObjects.size() - 1];
 	}
 

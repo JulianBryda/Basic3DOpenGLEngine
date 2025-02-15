@@ -7,7 +7,7 @@
 
 #include "../Utils/MaterialLib.hpp"
 
-#include "../Window/InputHandler.hpp"
+#include "../Core/ActionHandler.hpp"
 
 #include "../Renderer/Renderer.hpp"
 
@@ -69,9 +69,6 @@ int main()
 	// load shader
 	MaterialLib::precompileMaterials();
 
-	// init InputHandler
-	InputHandler::getInstance().setWindow(window);
-
 	// add skybox
 	std::vector<const char*> faces =
 	{
@@ -113,7 +110,7 @@ int main()
 				Renderer::getInstance().render();
 
 				// handle input
-				InputHandler::getInstance().handleInput();
+				ActionHandler::getInstance().handleActions();
 			});
 
 		statTracker.countFrame();

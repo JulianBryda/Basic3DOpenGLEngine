@@ -7,6 +7,12 @@
 #include "ShaderNodeEditor/ShaderNodes/ShaderFunctionNode.hpp"
 #include "ShaderNodeEditor/ShaderNodeLink.hpp"
 
+#include "ShaderNodeEditor/ShaderNodes/Nodes/FloatNode.hpp"
+#include "ShaderNodeEditor/ShaderNodes/Nodes/IntNode.hpp"
+#include "ShaderNodeEditor/ShaderNodes/Nodes/Vec2Node.hpp"
+#include "ShaderNodeEditor/ShaderNodes/Nodes/Vec3Node.hpp"
+#include "ShaderNodeEditor/ShaderNodes/Nodes/Vec4Node.hpp"
+
 class ShaderNodeEditor
 {
 
@@ -226,19 +232,13 @@ private:
 			{
 				if (ImGui::MenuItem("Int"))
 				{
-					int* value = new int(0);
-					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Int", ShaderEnums::ShaderNodeCategory::Input, ShaderEnums::None);
-					node->addInput(ShaderNodeAttribute(ShaderEnums::INT, "", value, ShaderEnums::AttributeHidden));
-					node->setOutput(new ShaderNodeAttribute(ShaderEnums::INT, "Value", value));
+					IntNode* node = new IntNode(getNextNodeId());
 
 					varNodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Float"))
 				{
-					float* value = new float(0);
-					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Float", ShaderEnums::ShaderNodeCategory::Input, ShaderEnums::None);
-					node->addInput(ShaderNodeAttribute(ShaderEnums::FLOAT, "", value, ShaderEnums::AttributeHidden));
-					node->setOutput(new ShaderNodeAttribute(ShaderEnums::FLOAT, "Value", value));
+					FloatNode* node = new FloatNode(getNextNodeId());
 
 					varNodes.push_back(node);
 				}
@@ -247,34 +247,19 @@ private:
 
 				if (ImGui::MenuItem("Vec2"))
 				{
-					glm::vec2* value = new glm::vec2();
-					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Vec2", ShaderEnums::ShaderNodeCategory::Input, ShaderEnums::None);
-					node->addInput(ShaderNodeAttribute(ShaderEnums::FLOAT, "X", &value->x));
-					node->addInput(ShaderNodeAttribute(ShaderEnums::FLOAT, "Y", &value->y));
-					node->setOutput(new ShaderNodeAttribute(ShaderEnums::VEC_2, "Value", value));
+					Vec2Node* node = new Vec2Node(getNextNodeId());
 
 					varNodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Vec3"))
 				{
-					glm::vec3* value = new glm::vec3();
-					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Vec3", ShaderEnums::ShaderNodeCategory::Input, ShaderEnums::None);
-					node->addInput(ShaderNodeAttribute(ShaderEnums::FLOAT, "X", &value->x));
-					node->addInput(ShaderNodeAttribute(ShaderEnums::FLOAT, "Y", &value->y));
-					node->addInput(ShaderNodeAttribute(ShaderEnums::FLOAT, "Z", &value->z));
-					node->setOutput(new ShaderNodeAttribute(ShaderEnums::VEC_3, "Value", value));
+					Vec3Node* node = new Vec3Node(getNextNodeId());
 
 					varNodes.push_back(node);
 				}
 				if (ImGui::MenuItem("Vec4"))
 				{
-					glm::vec4* value = new glm::vec4();
-					ShaderVarNode* node = new ShaderVarNode(getNextNodeId(), "Vec4", ShaderEnums::ShaderNodeCategory::Input, ShaderEnums::None);
-					node->addInput(ShaderNodeAttribute(ShaderEnums::FLOAT, "X", &value->x));
-					node->addInput(ShaderNodeAttribute(ShaderEnums::FLOAT, "Y", &value->y));
-					node->addInput(ShaderNodeAttribute(ShaderEnums::FLOAT, "Z", &value->z));
-					node->addInput(ShaderNodeAttribute(ShaderEnums::FLOAT, "A", &value->a));
-					node->setOutput(new ShaderNodeAttribute(ShaderEnums::VEC_4, "Value", value));
+					Vec4Node* node = new Vec4Node(getNextNodeId());
 
 					varNodes.push_back(node);
 				}

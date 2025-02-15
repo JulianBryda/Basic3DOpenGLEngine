@@ -160,6 +160,9 @@
     <Filter Include="Shader\Library">
       <UniqueIdentifier>{ed7ebf3a-39e6-48ec-ac4a-f37e541cbddc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodes\Nodes">
+      <UniqueIdentifier>{7ea5c639-7ecf-48b1-9a38-46db0c91931d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Collider.hpp">
@@ -311,6 +314,24 @@
     </ClInclude>
     <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodeLink.hpp">
       <Filter>src\Renderer\UI\ShaderNodeEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodes\Nodes\Vec2Node.hpp">
+      <Filter>src\Renderer\UI\ShaderNodeEditor\ShaderNodes\Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodes\Nodes\Vec3Node.hpp">
+      <Filter>src\Renderer\UI\ShaderNodeEditor\ShaderNodes\Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodes\Nodes\Vec4Node.hpp">
+      <Filter>src\Renderer\UI\ShaderNodeEditor\ShaderNodes\Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodes\Nodes\IntNode.hpp">
+      <Filter>src\Renderer\UI\ShaderNodeEditor\ShaderNodes\Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\UI\ShaderNodeEditor\ShaderNodes\Nodes\FloatNode.hpp">
+      <Filter>src\Renderer\UI\ShaderNodeEditor\ShaderNodes\Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\ActionHandler.hpp">
+      <Filter>src\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

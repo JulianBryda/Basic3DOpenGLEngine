@@ -84,7 +84,7 @@ public:
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
 
 		// render functions here
 		renderMenuBar();
@@ -183,31 +183,9 @@ public:
 		}
 	}
 
-	// object manager redirections
-
-	void addSelectedObject(GameObject* object)
+	ObjectManager* getObjectManager() const
 	{
-		m_pObjectManager->addSelectedObject(object);
-	}
-
-	void removeSelectedObject(GameObject* object)
-	{
-		m_pObjectManager->removeSelectedObject(object);
-	}
-
-	void setSelectedObject(GameObject* object)
-	{
-		m_pObjectManager->setSelectedObject(object);
-	}
-
-	std::vector<GameObject*>& getSelectedObjects()
-	{
-		return m_pObjectManager->getSelectedObjects();
-	}
-
-	GameObject* getSelectedObject()
-	{
-		return m_pObjectManager->getSelectedObject();
+		return m_pObjectManager;
 	}
 
 private:

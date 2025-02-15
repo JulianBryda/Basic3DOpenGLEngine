@@ -5,50 +5,30 @@
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
-#include "glm/glm.hpp"
-#include "imgui_internal.h"
 
-#include "../Renderer/Renderer.hpp"
-#include "../Renderer/UI/UserInterface.hpp"
+#include "../Window/AppWindow.hpp"
 
 class InputHandler
 {
-private:
 
-	enum ManipulationState
-	{
-		Nothing,
-		Scaling,
-		Moving,
-		Rotating
-	};
 
 public:
 
-	void subscribe(std::function<void(int keyCode)> listener)
-	{
-		listeners.push_back(listener);
-	}
-
 	InputHandler()
 	{
-		m_window = nullptr;
+		m_window = AppWindow::window;
 
-		m_manipulationStruct = { ManipulationState::Nothing };
-		m_movementSpeed = 2.f;
-		m_mouseSpeed = .5f;
-		m_speed = 20.f;
+		mouseMiddleDown = false;
+		shiftMouseMiddleDown = false;
 
-		m_mouseMiddle = false;
-		m_shiftMouseMiddle = false;
-		m_deltaTime = 0.f;
-		m_lastFrameTime = 0.f;
-		m_lastXpos = 0;
-		m_lastYpos = 0;
-		m_lastXClick = 0;
-		m_lastYClick = 0;
-		m_lastXManipulation = 0;
-		m_lastYManipulation = 0;
+		mouseLeftDown = false;
+		shiftMouseLeftDown = false;
+
+		mouseRightDown = false;
+		shiftMouseRightDown = false;
+
+		lastXClick = 0;
+		lastYClick = 0;
 	}
 
 	static InputHandler& getInstance()
@@ -57,137 +37,55 @@ public:
 		return instance;
 	}
 
-
-	void handleInput()
+	void subscribeKey(std::function<void()> listener, int keyCode, int modifier = 0)
 	{
-		updateDeltaTime();
+		keyListeners.push_back({ keyCode, modifier , listener });
+	}
 
-		Camera* activeCamera = Renderer::getInstance().getActiveScene()->getActiveCamera();
-		if (activeCamera->isImmutable()) return;
+	void subscribeMouse(std::function<void()> listener, int keyCode, int modifier = 0)
+	{
+		mouseListeners.push_back({ keyCode, modifier , listener });
+	}
 
-		glm::vec3 moveOff = glm::vec3(0.0f);
-		double xpos, ypos;
-		glfwGetCursorPos(m_window, &xpos, &ypos);
-
-		float horizontalAngle = activeCamera->getHorizontalAngle();
-		float verticalAngle = activeCamera->getVerticalAngle();
-		glm::vec3 anchor = activeCamera->getAnchor();
-
-		if (m_mouseMiddle)
-		{
-			horizontalAngle += m_mouseSpeed * m_deltaTime * float(m_lastXpos - xpos);
-			verticalAngle += m_mouseSpeed * m_deltaTime * float(m_lastYpos - ypos);
-
-			activeCamera->setHorizontalAngle(horizontalAngle);
-			activeCamera->setVerticalAngle(verticalAngle);
-		}
-		else if (m_shiftMouseMiddle)
-		{
-			float distance = glm::length(anchor - activeCamera->getPosition());
-
-			glm::vec3 dir = glm::vec3(cos(verticalAngle) * sin(horizontalAngle), 1.0f, cos(verticalAngle) * cos(horizontalAngle));
-			moveOff = dir * glm::vec3(m_lastXpos - xpos, m_lastYpos - ypos, m_lastXpos - xpos) * m_deltaTime * (distance * 0.25f);
-			moveOff = glm::vec3(-moveOff.z, moveOff.y, moveOff.x);
-
-			// Update anchor position
-			anchor -= moveOff;
-		}
-
-		activeCamera->setPosition(anchor + glm::vec3(cos(verticalAngle) * sin(horizontalAngle), -sin(verticalAngle), cos(verticalAngle) * cos(horizontalAngle)) * activeCamera->getDistance());
-		activeCamera->setViewMatrix(glm::lookAt(activeCamera->getPosition(), anchor, activeCamera->getUp()));
-		activeCamera->setAnchor(anchor);
-
-		m_lastXpos = xpos;
-		m_lastYpos = ypos;
-
-
-		// handle manipulation
-		if (m_manipulationStruct.state != Nothing)
-		{
-			auto& objects = UserInterface::getInstance().getSelectedObjects();
-
-			for (int i = 0; i < objects.size(); i++)
-			{
-				auto object = objects[i];
-				if (object == nullptr) continue;
-
-				glm::vec2 cursorPosition = glm::vec2(xpos, ypos);
-				glm::vec2 startPosition = glm::vec2(m_lastXManipulation, m_lastYManipulation);
-				glm::vec2 mainObjectPosition = worldToScreen(UserInterface::getInstance().getSelectedObject()->getPosition(), activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix());
-
-				if (m_manipulationStruct.state == Scaling && m_manipulationStruct.inititalScale.size() == objects.size())
-				{
-					float distanceOffset = glm::length(mainObjectPosition - startPosition);
-					float distance = glm::length(cursorPosition - mainObjectPosition) - distanceOffset;
-
-					object->setScale(m_manipulationStruct.inititalScale[i] + glm::vec3(distance / 20.f) * m_manipulationStruct.manipulationFactor);
-				}
-				else if (m_manipulationStruct.state == Moving && m_manipulationStruct.initialPosition.size() == objects.size())
-				{
-					glm::vec2 objectPosition = worldToScreen(object->getPosition(), activeCamera->getViewMatrix(), activeCamera->getProjectionMatrix());
-
-					int width, height;
-					glfwGetWindowSize(m_window, &width, &height);
-
-					float tempDepth;
-					static float depth;
-					glReadPixels(static_cast<int>(objectPosition.x), height - static_cast<int>(objectPosition.y), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &tempDepth);
-					if (tempDepth > 0.f)
-					{
-						depth = tempDepth;
-					}
-
-					glm::vec3 cursorWorldPosition = screenToWorld(width, height, cursorPosition.x, cursorPosition.y, depth);
-					glm::vec3 startWorldPosition = screenToWorld(width, height, startPosition.x, startPosition.y, depth);
-
-					glm::vec3 direction = cursorWorldPosition - startWorldPosition;
-
-					object->setPosition(m_manipulationStruct.initialPosition[i] + direction * m_manipulationStruct.manipulationFactor);
-				}
-				else if (m_manipulationStruct.state == Rotating && m_manipulationStruct.inititalRotation.size() == objects.size())
-				{
-					glm::vec3 rotationAxis = activeCamera->getPosition() - object->getPosition();
-					rotationAxis.x = rotationAxis.x < 0 ? -1.f : 1.f;
-					rotationAxis.y = rotationAxis.y < 0 ? -1.f : 1.f;
-					rotationAxis.z = rotationAxis.z < 0 ? -1.f : 1.f;
-
-					glm::vec2 startDirection = startPosition - mainObjectPosition;
-					glm::vec2 currentDirection = cursorPosition - mainObjectPosition;
-
-					float startRadians = atan2(startDirection.y, startDirection.x);
-					float currentRadians = atan2(currentDirection.y, currentDirection.x);
-
-					float degrees = glm::degrees(startRadians - currentRadians);
-
-					float value = degrees < 0 ? 360.f - abs(degrees) : degrees;
-
-					object->setRotation(m_manipulationStruct.inititalRotation[i] + value * (m_manipulationStruct.manipulationFactor * rotationAxis));
-				}
-			}
-
-		}
+	void subscribeScroll(std::function<void(double offset)> listener)
+	{
+		scrollListeners.push_back(listener);
 	}
 
 	void HandleMouseInput(int key, int action, int mods)
 	{
 		if (action == 1)
 		{
+			NotifyMouseListeners(key);
+
 			// pressed
 			switch (key)
 			{
 			case GLFW_MOUSE_BUTTON_MIDDLE:
 			{
-				if (checkForUi()) break;
-
 				if (mods == GLFW_MOD_SHIFT)
-					m_shiftMouseMiddle = true;
+					shiftMouseMiddleDown = true;
 				else
-					m_mouseMiddle = true;
+					mouseMiddleDown = true;
 				break;
 			}
 			case GLFW_MOUSE_BUTTON_LEFT:
-				glfwGetCursorPos(m_window, &m_lastXClick, &m_lastYClick);
+			{
+				glfwGetCursorPos(m_window, &lastXClick, &lastYClick);
+				if (mods == GLFW_MOD_SHIFT)
+					shiftMouseLeftDown = true;
+				else
+					mouseLeftDown = true;
 				break;
+			}
+			case GLFW_MOUSE_BUTTON_RIGHT:
+			{
+				if (mods == GLFW_MOD_SHIFT)
+					shiftMouseRightDown = true;
+				else
+					mouseRightDown = true;
+				break;
+			}
 			default:
 				break;
 			}
@@ -198,19 +96,23 @@ public:
 			switch (key)
 			{
 			case GLFW_MOUSE_BUTTON_MIDDLE:
-				m_shiftMouseMiddle = false;
-				m_mouseMiddle = false;
+			{
+				shiftMouseMiddleDown = false;
+				mouseMiddleDown = false;
 				break;
+			}
 			case GLFW_MOUSE_BUTTON_LEFT:
-				if (m_manipulationStruct.state != Nothing)
-				{
-					setManipulationState(Nothing);
-				}
-				else
-				{
-					selectObject();
-				}
+			{
+				shiftMouseLeftDown = false;
+				mouseLeftDown = false;
 				break;
+			}
+			case GLFW_MOUSE_BUTTON_RIGHT:
+			{
+				shiftMouseRightDown = false;
+				mouseRightDown = false;
+				break;
+			}
 			default:
 				break;
 			}
@@ -219,10 +121,7 @@ public:
 
 	void HandleScrollInput(double offset)
 	{
-		if (checkForUi()) return;
-
-		float off = static_cast<float>(offset) / 10.0f;
-		Renderer::getInstance().getActiveScene()->getActiveCamera()->multiplyDistance(1.0f - off);
+		NotifyScrollListeners(offset);
 	}
 
 	void HandleKeyInput(int key, int action)
@@ -230,373 +129,15 @@ public:
 		// pressed
 		if (action == 1)
 		{
-			NotifyListeners(key);
+			NotifyKeyListeners(key);
 
 			switch (key)
 			{
-			case GLFW_KEY_W:
 
-				break;
-			case GLFW_KEY_S:
-				scaleObject();
-				break;
-			case GLFW_KEY_D:
-				if (glfwGetKey(m_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-				{
-					duplicateObject();
-				}
-				break;
-			case GLFW_KEY_C:
-				if (glfwGetKey(m_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-				{
-					recenterCamera();
-				}
-				break;
-			case GLFW_KEY_A:
-				selectAllObjects();
-				break;
-			case GLFW_KEY_X:
-				setManipulationFactor(glm::vec3(1.f, 0.f, 0.f));
-				break;
-			case GLFW_KEY_Y:
-				setManipulationFactor(glm::vec3(0.f, 1.f, 0.f));
-				break;
-			case GLFW_KEY_Z:
-				setManipulationFactor(glm::vec3(0.f, 0.f, 1.f));
-				break;
-			case GLFW_KEY_G:
-				moveObject();
-				break;
-			case GLFW_KEY_R:
-				rotateObject();
-				break;
-			case GLFW_KEY_SPACE:
-
-				break;
-			case GLFW_KEY_LEFT_SHIFT:
-
-				break;
-			case GLFW_KEY_ESCAPE:
-				undoManipulation();
-				break;
-			case GLFW_KEY_DELETE:
-				deleteObject();
-				break;
-			case GLFW_KEY_F2:
-				saveDepthMaps();
-				break;
-			case GLFW_KEY_F3:
-				saveOverdrawMap();
-				break;
 			default:
 				break;
 			}
 		}
-	}
-
-	void selectAllObjects()
-	{
-		// set manipulation state to nothing to prevent undefined behavior
-		setManipulationState(Nothing);
-
-		// send nullptr to clear objects and avoid duplicates
-		UserInterface::getInstance().setSelectedObject(nullptr);
-
-		for (auto& object : Renderer::getInstance().getActiveScene()->getObjects())
-		{
-			UserInterface::getInstance().addSelectedObject(object);
-		}
-	}
-
-	void undoManipulation()
-	{
-		auto& objects = UserInterface::getInstance().getSelectedObjects();
-
-		for (int i = 0; i < objects.size(); i++)
-		{
-			auto object = objects[i];
-			if (object == nullptr) continue;
-
-			switch (m_manipulationStruct.state)
-			{
-			case Moving:
-				object->setPosition(m_manipulationStruct.initialPosition[i]);
-				break;
-			case Rotating:
-				object->setRotation(m_manipulationStruct.inititalRotation[i]);
-				break;
-			case Scaling:
-				object->setScale(m_manipulationStruct.inititalScale[i]);
-				break;
-			default:
-				break;
-			}
-		}
-
-		setManipulationState(Nothing);
-	}
-
-	void setManipulationState(ManipulationState state)
-	{
-		m_manipulationStruct.state = state;
-		m_manipulationStruct.initialPosition.clear();
-		m_manipulationStruct.inititalRotation.clear();
-		m_manipulationStruct.inititalScale.clear();
-	}
-
-	void recenterCamera()
-	{
-		GameObject* object = UserInterface::getInstance().getSelectedObject();
-		if (object == nullptr) return;
-
-		Camera* camera = Renderer::getInstance().getActiveScene()->getActiveCamera();
-		camera->setAnchor(object->getPosition());
-		camera->setDistance(glm::length(object->getScale()) * 2);
-
-	}
-
-	void duplicateObject()
-	{
-		GameObject* object = UserInterface::getInstance().getSelectedObject();
-		if (object == nullptr) return;
-
-		GameObject* obj = new GameObject(*object);
-		obj->setIsPhysicsEnabled(true);
-
-		Renderer::getInstance().addObject(obj);
-		UserInterface::getInstance().setSelectedObject(obj);
-
-		moveObject();
-	}
-
-	void deleteObject()
-	{
-		auto& objects = UserInterface::getInstance().getSelectedObjects();
-
-		for (int i = 0; i < objects.size(); i++)
-		{
-			auto object = objects[i];
-			if (object == nullptr) continue;
-
-			Renderer::getInstance().deleteObject(*object);
-		}
-
-		UserInterface::getInstance().setSelectedObject(nullptr);
-	}
-
-	void scaleObject()
-	{
-		glfwGetCursorPos(m_window, &m_lastXManipulation, &m_lastYManipulation);
-		setManipulationState(m_manipulationStruct.state == Scaling ? Nothing : Scaling);
-
-		auto& objects = UserInterface::getInstance().getSelectedObjects();
-
-		for (int i = 0; i < objects.size(); i++)
-		{
-			auto object = objects[i];
-			if (object == nullptr) continue;
-
-			m_manipulationStruct.inititalScale.push_back(object->getScale());
-		}
-
-		m_manipulationStruct.manipulationFactor = glm::vec3(1.f);
-	}
-
-	void moveObject()
-	{
-		glfwGetCursorPos(m_window, &m_lastXManipulation, &m_lastYManipulation);
-		setManipulationState(m_manipulationStruct.state == Moving ? Nothing : Moving);
-
-		auto& objects = UserInterface::getInstance().getSelectedObjects();
-
-		for (int i = 0; i < objects.size(); i++)
-		{
-			auto object = objects[i];
-			if (object == nullptr) continue;
-
-			m_manipulationStruct.initialPosition.push_back(object->getPosition());
-		}
-
-		m_manipulationStruct.manipulationFactor = glm::vec3(1.f);
-	}
-
-	void rotateObject()
-	{
-		glfwGetCursorPos(m_window, &m_lastXManipulation, &m_lastYManipulation);
-		setManipulationState(m_manipulationStruct.state == Rotating ? Nothing : Rotating);
-
-		auto& objects = UserInterface::getInstance().getSelectedObjects();
-
-		for (int i = 0; i < objects.size(); i++)
-		{
-			auto object = objects[i];
-			if (object == nullptr) continue;
-
-			m_manipulationStruct.inititalRotation.push_back(object->getRotation());
-		}
-
-		m_manipulationStruct.manipulationFactor = glm::vec3(1.f);
-	}
-
-	void setManipulationFactor(glm::vec3 factor)
-	{
-		if (m_manipulationStruct.state != Nothing)
-		{
-			m_manipulationStruct.manipulationFactor = factor;
-		}
-	}
-
-	bool checkForUi()
-	{
-		if (!GImGui) return false;
-
-		double mouseX, mouseY;
-		glfwGetCursorPos(m_window, &mouseX, &mouseY);
-
-		ImGuiContext& g = *GImGui;
-
-		// check if imgui is on top 
-		for (int i = 2; i < g.Windows.Size; i++)
-		{
-			auto& window = g.Windows[i];
-			if (window->Active && mouseX > window->Pos.x && mouseX < window->Pos.x + window->Size.x && mouseY > window->Pos.y && mouseY < window->Pos.y + window->Size.y)
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	void selectObject()
-	{
-		if (checkForUi()) return;
-
-		double mouseX, mouseY;
-		glfwGetCursorPos(m_window, &mouseX, &mouseY);
-
-		double distance = glm::length(glm::abs(glm::vec2(mouseX, mouseY) - glm::vec2(m_lastXClick, m_lastYClick)));
-		if (distance > 2) return;
-
-		glm::vec3 worldCoords = screenToWorld(mouseX, mouseY);
-
-		// check for object
-		for (auto& object : Renderer::getInstance().getActiveScene()->getObjects())
-		{
-			glm::vec3 correctedWorldCoods = worldCoords * 0.9f;
-			if (checkHitAABB(object, correctedWorldCoods))
-			{
-				UserInterface::getInstance().setSelectedObject(object);
-				return;
-			}
-		}
-
-		// no object clicked, send nullptr
-		UserInterface::getInstance().setSelectedObject(nullptr);
-
-	}
-
-	void saveOverdrawMap()
-	{
-		const char* filePath = ".\\Assets\\Debug\\Overdraw.png";
-		int width = Config::g_settings->screenWidth, height = Config::g_settings->screenHeight;
-
-		std::vector<GLuint> pixels(width * height);
-
-		glBindTexture(GL_TEXTURE_2D, Textures::get("overdraw"));
-		glGetTexImage(GL_TEXTURE_2D, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, pixels.data());
-
-		std::vector<unsigned char> rgbaPixels(width * height * 4);
-
-		for (int i = 0; i < width * height; i++) {
-			unsigned char intensity = static_cast<unsigned char>(pixels[i] / 10);  // Scale the overdraw count to fit into 8 bits
-			rgbaPixels[i * 4 + 0] = intensity; // R
-			rgbaPixels[i * 4 + 1] = 0;         // G
-			rgbaPixels[i * 4 + 2] = 0;         // B
-			rgbaPixels[i * 4 + 3] = 255;       // A
-		}
-
-		if (stbi_write_png(filePath, width, height, 4, rgbaPixels.data(), width * 4))
-		{
-			std::cout << "Saved overdraw to " << filePath << std::endl;
-		}
-		else
-		{
-			std::cerr << "Failed to save overdraw to " << filePath << std::endl;
-		}
-	}
-
-	void saveDepthMaps()
-	{
-		auto& lights = Renderer::getInstance().getActiveScene()->getLights();
-
-		for (int i = 0; i < lights.size(); i++)
-		{
-			saveShadowMapAsImage(lights[i]->getDepthMapFBO(), lights[i]->getShadowWidth(), lights[i]->getShadowHeight(), std::format(".\\Assets\\Debug\\{}.png", lights[i]->getName()).c_str());
-		}
-	}
-
-	bool checkHitAABB(GameObject* gameObject, glm::vec3 value)
-	{
-		return gameObject->getPosition().x + gameObject->getScale().x / 2 > value.x &&
-			gameObject->getPosition().x - gameObject->getScale().x / 2 < value.x &&
-			gameObject->getPosition().y + gameObject->getScale().y / 2 > value.y &&
-			gameObject->getPosition().y - gameObject->getScale().y / 2 < value.y &&
-			gameObject->getPosition().z + gameObject->getScale().z / 2 > value.z &&
-			gameObject->getPosition().z - gameObject->getScale().z / 2 < value.z;
-	}
-
-#pragma region World Coords Calculations
-	glm::vec3 screenToWorld(double mouseX, double mouseY)
-	{
-		int width, height;
-		glfwGetWindowSize(m_window, &width, &height);
-
-		float depth;
-		glReadPixels(static_cast<int>(mouseX), height - static_cast<int>(mouseY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
-
-		return screenToWorld(width, height, mouseX, mouseY, depth);
-	}
-
-	glm::vec3 screenToWorld(int width, int height, double mouseX, double mouseY, float depth)
-	{
-		Camera* activeCamera = Renderer::getInstance().getActiveScene()->getActiveCamera();
-
-		double ndcX = (2.0 * mouseX) / width - 1.0;
-		double ndcY = 1.0 - (2.0 * mouseY) / height;
-
-		glm::vec4 ndcPosition = glm::vec4(ndcX, ndcY, depth * 2.0 - 1.0, 1.0);
-		glm::mat4 invProjection = glm::inverse(activeCamera->getProjectionMatrix());
-		glm::vec4 eyePosition = invProjection * ndcPosition;
-
-		glm::mat4 invModelView = glm::inverse(activeCamera->getViewMatrix());
-		glm::vec4 worldPosition = invModelView * eyePosition;
-
-		return glm::vec3(worldPosition) / worldPosition.w;
-	}
-#pragma endregion
-
-	glm::vec2 worldToScreen(glm::vec3 worldPos, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
-	{
-		int width, height;
-		glfwGetWindowSize(m_window, &width, &height);
-
-		// 1. Convert world coordinates to view (camera) coordinates
-		glm::vec4 viewPos = viewMatrix * glm::vec4(worldPos, 1.0f);
-
-		// 2. Convert view coordinates to clip coordinates
-		glm::vec4 clipPos = projectionMatrix * viewPos;
-
-		// 3. Perform perspective divide to get normalized device coordinates (NDC)
-		glm::vec3 ndcPos = glm::vec3(clipPos.x, clipPos.y, clipPos.z) / clipPos.w;
-
-		// 4. Convert NDC to screen coordinates
-		// NDC coordinates range from -1 to 1. Map these to screen coordinates.
-		glm::vec2 screenPos;
-		screenPos.x = (ndcPos.x * 0.5f + 0.5f) * width;
-		screenPos.y = (1.0f - (ndcPos.y * 0.5f + 0.5f)) * height; // y is inverted in screen space
-
-		return screenPos;
 	}
 
 	//void saveScreenShot()
@@ -654,56 +195,51 @@ public:
 		delete[] imageData;
 	}
 
-	void setWindow(GLFWwindow* window)
-	{
-		m_window = window;
-	}
 
-	GLFWwindow* getWindow() const
-	{
-		return m_window;
-	}
 
+	bool mouseMiddleDown, shiftMouseMiddleDown, mouseLeftDown, shiftMouseLeftDown, mouseRightDown, shiftMouseRightDown;
+	double lastXClick, lastYClick;
 
 private:
 
-	struct ManipulationStruct
+	struct Event
 	{
-		ManipulationState state;
-
-		std::vector<glm::vec3> inititalScale;
-		std::vector<glm::vec3> initialPosition;
-		std::vector<glm::vec3> inititalRotation;
-
-		glm::vec3 manipulationFactor;
+		int keyCode;
+		int modifier;
+		std::function<void()> function;
 	};
 
-
-	GLFWwindow* m_window;
-	bool m_mouseMiddle, m_shiftMouseMiddle;
-	double m_lastXpos, m_lastYpos, m_lastXClick, m_lastYClick, m_lastXManipulation, m_lastYManipulation;
-	float m_movementSpeed, m_deltaTime, m_lastFrameTime, m_mouseSpeed, m_speed;
-
-	// object scaling
-	ManipulationStruct m_manipulationStruct;
-
-	void updateDeltaTime()
+	void NotifyKeyListeners(int keyCode)
 	{
-		float currentFrameTime = static_cast<float>(glfwGetTime());
-		m_deltaTime = currentFrameTime - m_lastFrameTime;
-		m_lastFrameTime = currentFrameTime;
-	}
-
-	void NotifyListeners(int keyCode)
-	{
-		for (auto& listener : listeners)
+		for (auto& listener : keyListeners)
 		{
-			listener(keyCode);
+			if (listener.keyCode == keyCode && (listener.modifier == 0 || glfwGetKey(m_window, listener.modifier) == GLFW_PRESS))
+				listener.function();
 		}
 	}
 
-	std::vector<std::function<void(int keyCode)>> listeners;
+	void NotifyMouseListeners(int keyCode)
+	{
+		for (auto& listener : mouseListeners)
+		{
+			if (listener.keyCode == keyCode && (listener.modifier == 0 || glfwGetKey(m_window, listener.modifier) == GLFW_PRESS))
+				listener.function();
+		}
+	}
 
+	void NotifyScrollListeners(double offset)
+	{
+		for (auto& listener : scrollListeners)
+		{
+			listener(offset);
+		}
+	}
+
+	GLFWwindow* m_window;
+
+	std::vector<Event> keyListeners;
+	std::vector<Event> mouseListeners;
+	std::vector<std::function<void(double offset)>> scrollListeners;
 
 	InputHandler(const InputHandler&) = delete;
 	InputHandler& operator=(const InputHandler&) = delete;
