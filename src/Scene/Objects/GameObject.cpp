@@ -33,7 +33,7 @@ GameObject::GameObject(std::string name, std::string path, Material* pMaterial, 
 	initParameterAtlas();
 }
 
-GameObject::GameObject(const GameObject& other) : GameObjectCollisions(this, other.collider->getColliderType()), GameObjectPhysics(this)
+GameObject::GameObject(const GameObject& other) : GameObjectCollisions(this, other.collider.getColliderType()), GameObjectPhysics(this)
 {
 	this->m_name = other.m_name + "_dup";
 	this->position = other.position;

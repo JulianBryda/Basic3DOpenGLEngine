@@ -224,7 +224,7 @@ Xcopy $(ProjectDir)Shader $(ProjectDir)x64\Debug\Shader /E/H/C/I</Command>
     <ClInclude Include="src\Scene\Lights\SpotLight.hpp" />
     <ClInclude Include="src\Scene\Objects\Camera.hpp" />
     <ClInclude Include="src\Scene\Objects\GameObject.hpp" />
-    <ClInclude Include="src\Scene\Objects\GameObjectCollisions.h" />
+    <ClInclude Include="src\Scene\Objects\GameObjectCollisions.hpp" />
     <ClInclude Include="src\Scene\Objects\GameObjectPhysics.h" />
     <ClInclude Include="src\Scene\Objects\Skybox.hpp" />
     <ClInclude Include="src\Scene\Scene.hpp" />

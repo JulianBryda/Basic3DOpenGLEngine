@@ -59,6 +59,22 @@ public:
 				object->draw();
 			}
 
+			if (object->getIsDrawCollider())
+			{
+				Material* material = MaterialLib::get("color");
+				material->use();
+
+				material->setMat4("projectionMatrix", activeScene->getActiveCamera()->getProjectionMatrix());
+				material->setMat4("viewMatrix", activeScene->getActiveCamera()->getViewMatrix());
+				material->setMat4("modelMatrix", object->getCollider().getModelMatrix());
+
+				material->setFloat4("color", glm::vec4(0.f, 1.0f, 0.f, 1.f));
+
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				object->drawCollider();
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			}
+
 			if (object->getIsOutline())
 			{
 				Material* material = MaterialLib::get("color");

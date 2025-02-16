@@ -186,7 +186,7 @@ public:
 
 							ImGui::BeginChild("Collider", ImVec2(0, 0), true);
 							{
-								float* anchor[3] = { &object->getColliderPtr()->getAnchorPositionPtr()->x, &object->getColliderPtr()->getAnchorPositionPtr()->y , &object->getColliderPtr()->getAnchorPositionPtr()->z };
+								float* anchor[3] = { &object->getColliderPtr()->getAnchorPtr()->x, &object->getColliderPtr()->getAnchorPtr()->y , &object->getColliderPtr()->getAnchorPtr()->z };
 								float* colliderScale[3] = { &object->getColliderPtr()->getScalePtr()->x, &object->getColliderPtr()->getScalePtr()->y , &object->getColliderPtr()->getScalePtr()->z };
 
 								ImGui::Text("Anchor");
@@ -197,7 +197,21 @@ public:
 								ImGui::Text("Scale");
 								ImGui::SameLine();
 								ImGui::SetCursorPosX(ImGui::GetCursorPosX());
-								ImGui::InputFloat3("##5", *colliderScale);
+
+								switch (object->getCollider().getColliderType())
+								{
+								case Sphere:
+								{
+									// since sphere has only radius we use x as radius
+									ImGui::InputFloat("##5", &object->getCollider().getScalePtr()->x);
+									break;
+								}
+								default:
+								{
+									ImGui::InputFloat3("##5", *colliderScale);
+									break;
+								}
+								}					
 
 								ImGui::Spacing();
 

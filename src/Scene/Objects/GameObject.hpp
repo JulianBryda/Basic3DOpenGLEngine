@@ -6,7 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "GameObjectPhysics.h"
-#include "GameObjectCollisions.h"
+#include "GameObjectCollisions.hpp"
 
 #include "../../Collider.hpp"
 

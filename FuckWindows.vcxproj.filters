@@ -225,7 +225,7 @@
     <ClInclude Include="src\Scene\Objects\GameObject.hpp">
       <Filter>src\Scene\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="src\Scene\Objects\GameObjectCollisions.h">
+    <ClInclude Include="src\Scene\Objects\GameObjectCollisions.hpp">
       <Filter>src\Scene\Objects</Filter>
     </ClInclude>
     <ClInclude Include="src\Scene\Objects\GameObjectPhysics.h">

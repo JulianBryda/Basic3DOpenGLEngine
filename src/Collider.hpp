@@ -5,48 +5,55 @@
 namespace Collision
 {
 
-	inline bool checkBoundingBoxCollision(glm::vec3 firstPosition, glm::vec3 firstScale, glm::vec3 secondPosition, glm::vec3 secondScale)
+	inline bool checkAABB(glm::vec3 firstPosition, glm::vec3 firstScale, glm::vec3 secondPosition, glm::vec3 secondScale)
 	{
-		return firstPosition.x + firstScale.x / 2 > secondPosition.x - secondScale.x / 2 &&
-			firstPosition.x - firstScale.x / 2 < secondPosition.x + secondScale.x / 2 &&
-			firstPosition.y + firstScale.y / 2 > secondPosition.y - secondScale.y / 2 &&
-			firstPosition.y - firstScale.y / 2 < secondPosition.y + secondScale.y / 2 &&
-			firstPosition.z + firstScale.z / 2 > secondPosition.z - secondScale.z / 2 &&
-			firstPosition.z - firstScale.z / 2 < secondPosition.z + secondScale.z / 2;
+		return firstPosition.x + firstScale.x * 0.5f >= secondPosition.x - secondScale.x * 0.5f &&
+			firstPosition.x - firstScale.x * 0.5f <= secondPosition.x + secondScale.x * 0.5f &&
+			firstPosition.y + firstScale.y * 0.5f >= secondPosition.y - secondScale.y * 0.5f &&
+			firstPosition.y - firstScale.y * 0.5f <= secondPosition.y + secondScale.y * 0.5f &&
+			firstPosition.z + firstScale.z * 0.5f >= secondPosition.z - secondScale.z * 0.5f &&
+			firstPosition.z - firstScale.z * 0.5f <= secondPosition.z + secondScale.z * 0.5f;
 	}
 
-	inline bool checkBoundingBoxCollisionX(glm::vec3 firstPosition, glm::vec3 firstScale, glm::vec3 secondPosition, glm::vec3 secondScale)
+	inline bool checkAABBToSphere(glm::vec3 aabbPosition, glm::vec3 aabbScale, glm::vec3 spherePosition, glm::vec3 sphereScale)
 	{
-		return firstPosition.x + firstScale.x / 2 > secondPosition.x - secondScale.x / 2 &&
-			firstPosition.x - firstScale.x / 2 < secondPosition.x + secondScale.x / 2;
+		glm::vec3 dir = glm::normalize(aabbPosition - spherePosition);
+
+		glm::vec3 point = spherePosition + dir * (sphereScale * 0.5f);
+
+		return checkAABB(aabbPosition, aabbScale, point, glm::vec3(0.f));
 	}
 
-	inline bool checkBoundingBoxCollisionY(glm::vec3 firstPosition, glm::vec3 firstScale, glm::vec3 secondPosition, glm::vec3 secondScale)
+	inline bool checkSphere(glm::vec3 firstPosition, glm::vec3 firstScale, glm::vec3 secondPosition, glm::vec3 secondScale)
 	{
-		return firstPosition.y + firstScale.y / 2 > secondPosition.y - secondScale.y / 2 &&
-			firstPosition.y - firstScale.y / 2 < secondPosition.y + secondScale.y / 2;
-	}
+		glm::vec3 diff = firstPosition - secondPosition;
 
-	inline bool checkBoundingBoxCollisionZ(glm::vec3 firstPosition, glm::vec3 firstScale, glm::vec3 secondPosition, glm::vec3 secondScale)
-	{
-		return firstPosition.z + firstScale.z / 2 > secondPosition.z - secondScale.z / 2 &&
-			firstPosition.z - firstScale.z / 2 < secondPosition.z + secondScale.z / 2;
-	}
+		float distance = glm::length(diff);
+		float radiusSum = firstScale.x + secondScale.x;
 
+		return distance <= radiusSum * 0.5f;
+	}
 
 	inline glm::vec3 getOverlap(glm::vec3 firstPosition, glm::vec3 firstScale, glm::vec3 secondPosition, glm::vec3 secondScale)
 	{
-		glm::vec3 dif = firstPosition - secondPosition;
-		glm::vec3 dis = (firstScale + secondScale) / 2.f;
+		glm::vec3 dis = firstPosition - secondPosition;
+		glm::vec3 dif = (firstScale + secondScale) * 0.5f;
 
-		return glm::vec3(glm::abs(dif - dis));;
+		float x = (dis.x < 0) ? dis.x + dif.x : dis.x - dif.x;
+		float y = (dis.y < 0) ? dis.y + dif.y : dis.y - dif.y;
+		float z = (dis.z < 0) ? dis.z + dif.z : dis.z - dif.z;
+
+		return glm::vec3(x, y, z);
 	}
 };
 
 enum ColliderType
 {
-	BoundingBox,
-	Circular,
+	AABB,
+	OBB,
+	Sphere,
+	Capsule,
+	Convex,
 	NONE
 };
 
@@ -54,6 +61,13 @@ class Collider
 {
 
 public:
+
+	Collider()
+	{
+		this->m_pAnchor = nullptr;
+		this->m_scale = glm::vec3(0.f);
+		this->m_colliderType = ColliderType::NONE;
+	}
 
 	Collider(glm::vec3* anchor, glm::vec3 scale, ColliderType colliderType)
 	{
@@ -68,7 +82,8 @@ public:
 	}
 
 	// getter
-	glm::vec3* getAnchorPositionPtr() { return this->m_pAnchor; }
+	glm::vec3* getAnchorPtr() { return this->m_pAnchor; }
+	glm::vec3 getAnchor() { return *this->m_pAnchor; }
 	glm::vec3 getScale() const { return this->m_scale; }
 	glm::vec3* getScalePtr() { return &this->m_scale; }
 

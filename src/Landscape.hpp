@@ -12,7 +12,7 @@ class Landscape : public GameObject
 {
 public:
 
-	Landscape(std::string name) : GameObject(name, Mesh(), MaterialLib::get("terrain"), BoundingBox)
+	Landscape(std::string name) : GameObject(name, Mesh(), MaterialLib::get("terrain"), AABB)
 	{
 		resolutionX = 128;
 		resolutionY = 128;

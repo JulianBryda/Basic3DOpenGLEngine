@@ -361,25 +361,23 @@ private:
 	{
 		if (checkForUi()) return;
 
-		double distance = glm::length(glm::abs(glm::vec2(xPos, yPos) - glm::vec2(m_lastXClick, m_lastYClick)));
-		if (distance > 2) return;
-
 		glm::vec3 worldCoords = screenToWorld(xPos, yPos);
 
 		// check for object
+		GameObject* nearestObject = nullptr;
+		float minDistance = std::numeric_limits<float>::max();
 		for (auto& object : Renderer::getInstance().getActiveScene()->getObjects())
 		{
-			glm::vec3 correctedWorldCoods = worldCoords * 0.9f;
-			if (checkHitAABB(object, correctedWorldCoods))
+			float distance = glm::length(object->getPosition() - worldCoords);
+			if (minDistance > distance)
 			{
-				ObjectManager::getInstance().setSelectedObject(object);
-				return;
+				minDistance = distance;
+				nearestObject = object;
 			}
 		}
 
 		// no object clicked, send nullptr
-		ObjectManager::getInstance().setSelectedObject(nullptr);
-
+		ObjectManager::getInstance().setSelectedObject(nearestObject);
 	}
 
 

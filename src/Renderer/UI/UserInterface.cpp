@@ -43,14 +43,14 @@ void UserInterface::renderMenuBar()
 
 			if (ImGui::MenuItem("Plane"))
 			{
-				GameObject* obj = new GameObject(std::format("Plane{}", Renderer::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Plane.obj", MaterialLib::get("render"), ColliderType::BoundingBox);
+				GameObject* obj = new GameObject(std::format("Plane{}", Renderer::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Plane.obj", MaterialLib::get("render"), ColliderType::AABB);
 				obj->setIsPhysicsEnabled(true);
 
 				Renderer::getInstance().addObject(obj);
 			}
 			if (ImGui::MenuItem("Cube"))
 			{
-				GameObject* obj = new GameObject(std::format("Cube{}", Renderer::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Cube.obj", MaterialLib::get("render"), ColliderType::BoundingBox);
+				GameObject* obj = new GameObject(std::format("Cube{}", Renderer::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Cube.obj", MaterialLib::get("render"), ColliderType::AABB);
 				obj->setIsPhysicsEnabled(true);
 
 				Renderer::getInstance().addObject(obj);
@@ -58,7 +58,7 @@ void UserInterface::renderMenuBar()
 			}
 			if (ImGui::MenuItem("Sphere"))
 			{
-				GameObject* obj = new GameObject(std::format("Sphere{}", Renderer::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Sphere.obj", MaterialLib::get("render"), ColliderType::Circular);
+				GameObject* obj = new GameObject(std::format("Sphere{}", Renderer::getInstance().getActiveScene()->getObjects().size()), ".\\Assets\\Objects\\Sphere.obj", MaterialLib::get("render"), ColliderType::Sphere);
 				obj->setIsPhysicsEnabled(true);
 
 				Renderer::getInstance().addObject(obj);

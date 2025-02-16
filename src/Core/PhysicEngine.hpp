@@ -70,49 +70,29 @@ public:
 					// check if collisions is enabled on object and object to check for are not the same
 					if (!secondObject->getIsCollisionEnabled() || object == secondObject) continue;
 
-					// check which collision algorithm to use
-					switch (object->getColliderPtr()->getColliderType())
-					{
-					case ColliderType::BoundingBox:
-					{
-						if (!Collision::checkBoundingBoxCollision(position, object->getScale(), secondObject->getPosition(), secondObject->getScale())) continue;
+					if (!object->checkCollision(*secondObject)) continue;
 
-						glm::vec3 mtv = glm::vec3(0.f);
-						glm::vec3 overlap = Collision::getOverlap(position, object->getScale(), secondObject->getPosition(), secondObject->getScale());
+					glm::vec3 mtv = glm::vec3(0.f);
+					glm::vec3 overlap = Collision::getOverlap(position, object->getScale(), secondObject->getPosition(), secondObject->getScale());
+					glm::vec3 absOverlap = glm::abs(overlap);
 
-						if (overlap.x < overlap.y && overlap.x < overlap.z)
-						{
-							mtv = glm::vec3(overlap.x, 0.f, 0.f);
-							velocity.x = 0.f;
-						}
-						else if (overlap.y < overlap.x && overlap.y < overlap.z)
-						{
-							mtv = glm::vec3(0.f, overlap.y, 0.f);
-							velocity.y = 0.f;
-						}
-						else
-						{
-							mtv = glm::vec3(0.f, 0.f, overlap.z);
-							velocity.z = 0.f;
-						}
-
-						position += mtv;
-
-						break;
-					}
-					case ColliderType::Circular:
+					if (absOverlap.x < absOverlap.y && absOverlap.x < absOverlap.z)
 					{
-						if (object->checkCircularCollision(*secondObject))
-						{
-							object->setVelocity(glm::vec3(0.0f));
-						}
-						break;
+						mtv = glm::vec3(-overlap.x, 0.f, 0.f);
+						velocity.x = 0.f;
 					}
-					default:
+					else if (absOverlap.y < absOverlap.x && absOverlap.y < absOverlap.z)
 					{
-						break;
+						mtv = glm::vec3(0.f, -overlap.y, 0.f);
+						velocity.y = 0.f;
 					}
+					else
+					{
+						mtv = glm::vec3(0.f, 0.f, -overlap.z);
+						velocity.z = 0.f;
 					}
+
+					position += mtv;
 				}
 			}
 
